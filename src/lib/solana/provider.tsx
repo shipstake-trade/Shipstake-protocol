@@ -15,6 +15,7 @@ export function SolanaProvider({ children }: SolanaProviderProps) {
       appId="cmm8h3txq00yp0cjsg61arbz5"
       config={{
         appearance: {
+          walletChainType: "solana-only",
           theme: "dark",
           accentColor: "#00C896",
           logo: "https://shipstake.trade/icon.svg",
