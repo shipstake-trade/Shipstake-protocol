@@ -4,6 +4,7 @@ import { Header } from "@/components/sections/header";
 import { Footer } from "@/components/sections/footer";
 import { Button } from "@/components/ui/button";
 import { useSubmitProof, usePrivyWallet } from "@/lib/solana/shipstake";
+import { useLinkAccount } from "@privy-io/react-auth";
 import { mockQuests } from "@/lib/mock-data";
 import type { ProofType } from "@/lib/solana/idl";
 import { cn } from "@/lib/utils";
@@ -24,7 +25,8 @@ export default function SubmitProofPage({
 }) {
   const { id } = use(params);
   const router = useRouter();
-  const { connected, login } = usePrivyWallet();
+  const { ready, authenticated, connected, login } = usePrivyWallet();
+  const { linkWallet } = useLinkAccount();
   const { submitProof, isPending } = useSubmitProof();
 
   const quest = mockQuests.find((q) => q.publicKey === id) ?? mockQuests[0];
@@ -41,9 +43,11 @@ export default function SubmitProofPage({
     }
   };
 
+  if (!ready) return null;
+
   const handleSubmit = async () => {
     if (!connected) {
-      login();
+      authenticated ? linkWallet() : login();
       return;
     }
 

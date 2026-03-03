@@ -6,6 +6,7 @@ import { ProofScoreRing } from "@/components/builder/proof-score-ring";
 import { StatusBadge } from "@/components/quest/status-badge";
 import { Button } from "@/components/ui/button";
 import { usePrivyWallet } from "@/lib/solana/shipstake";
+import { useLinkAccount } from "@privy-io/react-auth";
 import { mockBuilderProfile, mockQuests } from "@/lib/mock-data";
 import { lamportsToSol } from "@/lib/solana/shipstake";
 import { cn } from "@/lib/utils";
@@ -32,7 +33,8 @@ function formatCountdown(timestamp: number): string {
 }
 
 export default function PortfolioPage() {
-  const { connected, login } = usePrivyWallet();
+  const { ready, authenticated, connected, login } = usePrivyWallet();
+  const { linkWallet } = useLinkAccount();
   const [tab, setTab] = useState<Tab>("all");
   const profile = mockBuilderProfile;
 
@@ -43,6 +45,8 @@ export default function PortfolioPage() {
       return q.status === "Shipped" || q.status === "Slashed";
     return true;
   });
+
+  if (!ready) return null;
 
   if (!connected) {
     return (
@@ -56,7 +60,7 @@ export default function PortfolioPage() {
             Connect your wallet to view your quests and PROOF Score.
           </p>
           <Button
-            onClick={() => login()}
+            onClick={() => authenticated ? linkWallet() : login()}
             className="text-primary-foreground"
           >
             Connect Wallet

@@ -4,6 +4,7 @@ import { Header } from "@/components/sections/header";
 import { Footer } from "@/components/sections/footer";
 import { Button } from "@/components/ui/button";
 import { useCreateQuest, usePrivyWallet } from "@/lib/solana/shipstake";
+import { useLinkAccount } from "@privy-io/react-auth";
 import type { Category, ProofType } from "@/lib/solana/idl";
 import { cn, calcSelfStakeFee, calcGrantGuardFee } from "@/lib/utils";
 import { useState } from "react";
@@ -21,7 +22,8 @@ type Mode = "self-stake" | "grant-guard";
 
 export default function CreateQuestPage() {
   const router = useRouter();
-  const { connected, login } = usePrivyWallet();
+  const { ready, authenticated, connected, login } = usePrivyWallet();
+  const { linkWallet } = useLinkAccount();
   const { createQuest, isPending } = useCreateQuest();
 
   const [step, setStep] = useState(0);
@@ -47,9 +49,11 @@ export default function CreateQuestPage() {
     }
   };
 
+  if (!ready) return null;
+
   const handleSubmit = async () => {
     if (!connected) {
-      login();
+      authenticated ? linkWallet() : login();
       return;
     }
 

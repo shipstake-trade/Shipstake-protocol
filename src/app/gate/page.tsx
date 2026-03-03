@@ -4,11 +4,13 @@ import FlickeringGrid from "@/components/ui/flickering-grid";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
 import { usePrivyWallet } from "@/lib/solana/shipstake";
+import { useLinkAccount } from "@privy-io/react-auth";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, Suspense } from "react";
 
 function GateContent() {
-  const { ready, connected, login } = usePrivyWallet();
+  const { ready, authenticated, connected, login } = usePrivyWallet();
+  const { linkWallet } = useLinkAccount();
   const router = useRouter();
   const searchParams = useSearchParams();
   const isGeoBlocked = searchParams.get("blocked") === "geo";
@@ -18,6 +20,8 @@ function GateContent() {
       router.push("/explore");
     }
   }, [ready, connected, isGeoBlocked, router]);
+
+  if (!ready) return null;
 
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -47,7 +51,7 @@ function GateContent() {
 
         {!isGeoBlocked && (
           <Button
-            onClick={() => login()}
+            onClick={() => authenticated ? linkWallet() : login()}
             size="lg"
             className="text-primary-foreground rounded-lg font-medium"
             disabled={!ready}
