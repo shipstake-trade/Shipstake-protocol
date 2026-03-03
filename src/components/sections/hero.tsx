@@ -6,6 +6,7 @@ import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
 import { buttonVariants } from "@/components/ui/button";
 import { NumberTicker } from "@/components/ui/number-ticker";
 import { siteConfig } from "@/lib/config";
+import { usePrivyWallet } from "@/lib/solana/shipstake";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -61,6 +62,8 @@ function HeroTitles() {
 }
 
 function HeroCTA() {
+  const { connected } = usePrivyWallet();
+
   return (
     <motion.div
       className="flex w-full max-w-2xl flex-col items-start justify-start space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0 mt-8"
@@ -68,15 +71,17 @@ function HeroCTA() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.8, duration: 0.8, ease }}
     >
-      <Link
-        href="/quest/create"
-        className={cn(
-          buttonVariants({ variant: "default", size: "lg" }),
-          "text-primary-foreground rounded-lg font-medium"
-        )}
-      >
-        {siteConfig.hero.cta} →
-      </Link>
+      {connected && (
+        <Link
+          href="/quest/create"
+          className={cn(
+            buttonVariants({ variant: "default", size: "lg" }),
+            "text-primary-foreground rounded-lg font-medium"
+          )}
+        >
+          {siteConfig.hero.cta} →
+        </Link>
+      )}
       <Link
         href="/explore"
         className={cn(

@@ -9,6 +9,7 @@ import { mockQuests } from "@/lib/mock-data";
 import type { QuestStatus, Category, ProofType } from "@/lib/solana/idl";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePrivyWallet } from "@/lib/solana/shipstake";
 import { useState, useMemo } from "react";
 
 const STATUS_OPTIONS: QuestStatus[] = [
@@ -37,6 +38,7 @@ const SORT_LABELS: Record<SortOption, string> = {
 };
 
 export default function ExplorePage() {
+  const { connected } = usePrivyWallet();
   const [statusFilter, setStatusFilter] = useState<QuestStatus | "all">("all");
   const [categoryFilter, setCategoryFilter] = useState<Category | "all">("all");
   const [sort, setSort] = useState<SortOption>("newest");
@@ -79,11 +81,13 @@ export default function ExplorePage() {
               Builders with SOL on the line.
             </p>
           </div>
-          <Link href="/quest/create">
-            <Button className="text-primary-foreground">
-              Create a Quest
-            </Button>
-          </Link>
+          {connected && (
+            <Link href="/quest/create">
+              <Button className="text-primary-foreground">
+                Create a Quest
+              </Button>
+            </Link>
+          )}
         </div>
 
         {/* Filters */}

@@ -1,5 +1,5 @@
 # SHIPSTAKE — Frontend MVP Build Prompt
-# Claude Code Opus 4.6 | Phase 2–7 | Based on Whitepaper v0.3
+# Phase 2–7 | Based on Whitepaper v0.3
 
 ---
 

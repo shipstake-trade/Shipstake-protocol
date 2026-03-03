@@ -31,15 +31,15 @@ export const siteConfig = {
   ],
   links: {
     email: "support@shipstake.com",
-    twitter: "https://twitter.com/shipstake",
+    twitter: "https://x.com/shipstake",
     discord: "https://discord.gg/shipstake",
-    github: "https://github.com/shipstake",
+    github: "https://github.com/shipstake-trade/Shipstake-protocol",
   },
   navLinks: [
-    { label: "How It Works", href: "#how-it-works" },
+    { label: "How It Works", href: "/#how-it-works" },
     { label: "Leaderboard", href: "/leaderboard" },
-    { label: "Docs", href: "#", external: true },
-  ],
+    { label: "Docs", href: "/docs" },
+  ] as { label: string; href: string; external?: boolean }[],
   hero: {
     badge: "Accountability Protocol · Solana",
     title: "Prove it",
@@ -191,11 +191,11 @@ export const siteConfig = {
     socialLinks: [
       {
         icon: <Icons.github className="h-5 w-5" />,
-        url: "https://github.com/shipstake",
+        url: "https://github.com/shipstake-trade/Shipstake-protocol",
       },
       {
         icon: <Icons.twitter className="h-5 w-5" />,
-        url: "https://twitter.com/shipstake",
+        url: "https://x.com/shipstake",
       },
       {
         icon: <Icons.discord className="h-5 w-5" />,
@@ -203,8 +203,7 @@ export const siteConfig = {
       },
     ],
     links: [
-      { text: "Docs", url: "#" },
-      { text: "Blog", url: "/blog" },
+      { text: "Docs", url: "/docs" },
       { text: "Explore Quests", url: "/explore" },
       { text: "Leaderboard", url: "/leaderboard" },
     ],
