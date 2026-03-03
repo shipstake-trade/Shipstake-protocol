@@ -1,0 +1,487 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* SHIPSTAKE Design System - Quest Terminal Theme */
+
+  /* Accent Colors - Emerald Brand */
+  --accent-primary: #00C896;
+  --accent-electric: #00FFB2;
+  --accent-gold: #F5A623;
+  --accent-danger: #FF3B5C;
+
+  /* Background - Deep Quest Terminal */
+  --bg-primary: #0A0C0F;
+  --bg-secondary: #0F1318;
+  --bg-tertiary: #141920;
+
+  /* Border - Emerald Glow */
+  --border-subtle: rgba(0, 200, 150, 0.12);
+  --border-active: rgba(0, 200, 150, 0.35);
+
+  /* Glow Effects */
+  --glow-green: 0 0 20px rgba(0, 200, 150, 0.25);
+  --glow-electric: 0 0 30px rgba(0, 255, 178, 0.3);
+  --glow-gold: 0 0 20px rgba(245, 166, 35, 0.25);
+
+  /* Legacy shadcn mappings - updated for Quest Terminal */
+  --header-height: 3.5rem;
+  --background: var(--bg-primary);
+  --foreground: #fafafa;
+
+  /* Card - Glass effect base */
+  --card: var(--bg-secondary);
+  --card-foreground: #fafafa;
+
+  /* Popover */
+  --popover: var(--bg-secondary);
+  --popover-foreground: #fafafa;
+
+  /* Primary - Emerald brand */
+  --primary: var(--accent-primary);
+  --primary-foreground: #0A0C0F;
+
+  /* Secondary */
+  --secondary: var(--bg-tertiary);
+  --secondary-foreground: #a1a1aa;
+
+  /* Muted */
+  --muted: var(--bg-tertiary);
+  --muted-foreground: #71717a;
+
+  /* Accent */
+  --accent: var(--bg-tertiary);
+  --accent-foreground: #fafafa;
+
+  /* Destructive */
+  --destructive: var(--accent-danger);
+  --destructive-foreground: #fafafa;
+
+  /* Success / YES - Emerald */
+  --yes: var(--accent-primary);
+  --yes-dim: rgba(0, 200, 150, 0.08);
+  --yes-border: rgba(0, 200, 150, 0.25);
+
+  /* Danger / NO */
+  --no: var(--accent-danger);
+  --no-dim: rgba(255, 59, 92, 0.08);
+  --no-border: rgba(255, 59, 92, 0.25);
+
+  /* Warning - Gold */
+  --warning: var(--accent-gold);
+
+  /* Info */
+  --info: var(--accent-electric);
+
+  /* Brand - Emerald */
+  --brand: var(--accent-primary);
+  --brand-hover: var(--accent-electric);
+
+  /* Border */
+  --border: var(--border-subtle);
+  --border-dim: rgba(0, 200, 150, 0.06);
+  --border-strong: var(--border-active);
+  --input: var(--border-subtle);
+  --ring: var(--accent-primary);
+
+  /* Radius */
+  --radius: 6px;
+}
+
+* {
+  --radius: 6px;
+}
+
+@theme inline {
+  /* Typography */
+  --font-sans: var(--font-inter), "Inter", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-space-grotesk), "Space Grotesk", "Inter",
+    sans-serif;
+  --font-serif: var(--font-playfair), "Playfair Display", Georgia,
+    "Times New Roman", serif;
+  --font-mono: var(--font-jetbrains-mono), "JetBrains Mono", "Fira Code",
+    monospace;
+
+  /* SHIPSTAKE Brand Colors */
+  --color-emerald-brand: #00C896;
+  --color-electric: #00FFB2;
+  --color-gold: #F5A623;
+  --color-danger: #FF3B5C;
+  --color-bg-primary: #0A0C0F;
+  --color-bg-secondary: #0F1318;
+  --color-bg-tertiary: #141920;
+
+  /* shadcn mappings */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-xl: 10px;
+  --radius-2xl: 12px;
+  --radius-3xl: 16px;
+
+  --container-max-width: 1000px;
+  --container-padding: 1rem;
+  --container-center: true;
+
+  /* MagicUI Animation Properties */
+  --animate-marquee: marquee var(--duration) linear infinite;
+  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
+  --animate-border-beam: border-beam calc(var(--duration) * 1s) infinite linear;
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-ripple: ripple var(--duration, 2s) ease calc(var(--i, 0) * 0.2s)
+    infinite;
+  --animate-orbit: orbit calc(var(--duration) * 1s) linear infinite;
+  --animate-aurora: aurora 8s ease-in-out infinite alternate;
+
+  --bg-size-grid-1: 100% 100%;
+  --bg-size-grid-2: 50% 100%;
+  --bg-size-grid-3: calc(100% / 3) 100%;
+  --bg-size-grid-4: 25% 100%;
+  --bg-size-grid-5: 20% 100%;
+  --bg-size-grid-6: calc(100% / 6) 100%;
+
+  --bg-image-grid-1: linear-gradient(
+    to right,
+    var(--border) 1px,
+    transparent 1px
+  );
+  --bg-image-grid-2: linear-gradient(
+    to right,
+    var(--border) 1px,
+    transparent 1px
+  );
+  --bg-image-grid-3: linear-gradient(
+    to right,
+    var(--border) 1px,
+    transparent 1px
+  );
+  --bg-image-grid-4: linear-gradient(
+    to right,
+    var(--border) 1px,
+    transparent 1px
+  );
+  --bg-image-grid-5: linear-gradient(
+    to right,
+    var(--border) 1px,
+    transparent 1px
+  );
+  --bg-image-grid-6: linear-gradient(
+    to right,
+    var(--border) 1px,
+    transparent 1px
+  );
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(-100% - var(--gap)));
+    }
+  }
+
+  @keyframes marquee-vertical {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(calc(-100% - var(--gap)));
+    }
+  }
+
+  @keyframes border-beam {
+    100% {
+      offset-distance: 100%;
+    }
+  }
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+
+  @keyframes ripple {
+    0%,
+    100% {
+      transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(0.9);
+    }
+  }
+
+  @keyframes orbit {
+    0% {
+      transform: rotate(0deg) translateY(calc(var(--radius) * 1px)) rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg) translateY(calc(var(--radius) * 1px))
+        rotate(-360deg);
+    }
+  }
+
+  @keyframes aurora {
+    0% {
+      background-position: 0% 50%;
+      transform: rotate(-5deg) scale(0.9);
+    }
+    25% {
+      background-position: 50% 100%;
+      transform: rotate(5deg) scale(1.1);
+    }
+    50% {
+      background-position: 100% 50%;
+      transform: rotate(-3deg) scale(0.95);
+    }
+    75% {
+      background-position: 50% 0%;
+      transform: rotate(3deg) scale(1.05);
+    }
+    100% {
+      background-position: 0% 50%;
+      transform: rotate(-5deg) scale(0.9);
+    }
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  ::selection {
+    @apply bg-primary/20 text-foreground;
+  }
+
+  ::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  ::-webkit-scrollbar:horizontal {
+    height: 5px;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-active);
+    border-radius: 999px;
+  }
+}
+
+/* Grid pattern for hero sections */
+.grid-pattern {
+  background-image: linear-gradient(
+      rgba(255, 255, 255, 0.02) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* Subtle dot pattern - emerald tinted */
+.dot-pattern {
+  background-image: radial-gradient(
+    circle,
+    rgba(0, 200, 150, 0.08) 1px,
+    transparent 1px
+  );
+  background-size: 24px 24px;
+}
+
+/* Emerald glow dot pattern for hero sections */
+.dot-pattern-glow {
+  background-image: radial-gradient(
+    circle,
+    rgba(0, 200, 150, 0.12) 1px,
+    transparent 1px
+  );
+  background-size: 32px 32px;
+}
+
+/* Live indicator animation - emerald pulse */
+.dot-live {
+  @apply w-2 h-2 rounded-full bg-emerald-brand;
+  box-shadow: var(--glow-green);
+  animation: pulse-live 2s ease-in-out infinite;
+}
+
+@keyframes pulse-live {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Marquee animation */
+@keyframes marquee-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Float animation for cards */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Scrollbar hide utility */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Smooth scroll touch */
+.scroll-touch {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Safe area insets */
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Number step styling */
+.step-number {
+  font-size: clamp(80px, 15vw, 160px);
+  font-weight: 900;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.08);
+  line-height: 0.8;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* Accent underline - emerald */
+.accent-underline {
+  position: relative;
+}
+.accent-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 40px;
+  height: 2px;
+  background: var(--accent-primary);
+}
+
+/* Glass card effect */
+.glass-card {
+  background: rgba(15, 19, 24, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+}
+
+.glass-card-hover:hover {
+  border-color: var(--border-active);
+  box-shadow: var(--glow-green);
+}
+
+/* Emerald glow utilities */
+.glow-emerald {
+  box-shadow: var(--glow-green);
+}
+
+.glow-electric {
+  box-shadow: var(--glow-electric);
+}
+
+.glow-gold {
+  box-shadow: var(--glow-gold);
+}
+
+/* Text gradient utility */
+.text-gradient-emerald {
+  background: linear-gradient(
+    135deg,
+    var(--accent-primary) 0%,
+    var(--accent-electric) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Border glow animation */
+@keyframes border-glow {
+  0%,
+  100% {
+    border-color: var(--border-subtle);
+  }
+  50% {
+    border-color: var(--border-active);
+  }
+}
+
+.animate-border-glow {
+  animation: border-glow 3s ease-in-out infinite;
+}
