@@ -5,7 +5,7 @@ import { Footer } from "@/components/sections/footer";
 import { Button } from "@/components/ui/button";
 import { useCreateQuest, usePrivyWallet } from "@/lib/solana/shipstake";
 import type { Category, ProofType } from "@/lib/solana/idl";
-import { cn } from "@/lib/utils";
+import { cn, calcSelfStakeFee, calcGrantGuardFee } from "@/lib/utils";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -13,7 +13,7 @@ import { toast } from "sonner";
 const CATEGORIES: Category[] = ["DeFi", "NFT", "Gaming", "Infrastructure", "Tools", "DAO", "Other"];
 const PROOF_TYPES: { value: ProofType; label: string; description: string }[] = [
   { value: "GithubCommit", label: "GitHub Commit", description: "Link to a specific commit on GitHub" },
-  { value: "VercelDeployment", label: "Vercel Deployment", description: "Production deployment URL" },
+  { value: "VercelDeployment", label: "Vercel Deploy", description: "Production deployment URL" },
   { value: "LiveUrl", label: "Live URL", description: "Any publicly accessible URL" },
 ];
 
@@ -32,8 +32,9 @@ export default function CreateQuestPage() {
   const [proofType, setProofType] = useState<ProofType>("GithubCommit");
   const [stakeSol, setStakeSol] = useState(1);
   const [deadlineDays, setDeadlineDays] = useState(14);
+  const [grantTrancheSol, setGrantTrancheSol] = useState(5);
 
-  const steps = ["Mode", "Details", "Proof Type", "Stake", "Confirm"];
+  const steps = ["Mode", "Details", "Proof", "Stake", "Confirm"];
 
   const canProceed = () => {
     switch (step) {
@@ -59,10 +60,11 @@ export default function CreateQuestPage() {
       stakeSol,
       deadlineDays,
       positionCloseDays: Math.max(1, deadlineDays - 3),
+      grantTrancheSol: mode === "grant-guard" ? grantTrancheSol : null,
     });
 
     if (result) {
-      toast.success("Quest created on-chain!", {
+      toast.success("Quest created on-chain.", {
         description: `Signature: ${result.signature.slice(0, 16)}...`,
       });
       router.push(`/quest/${result.questPda}`);
@@ -77,7 +79,7 @@ export default function CreateQuestPage() {
           Create a Quest
         </h1>
         <p className="text-muted-foreground text-sm mb-8">
-          Lock SOL behind your shipping deadline. Prove you deliver.
+          Lock SOL. Set a deadline. Prove it.
         </p>
 
         {/* Step indicator */}
@@ -116,7 +118,7 @@ export default function CreateQuestPage() {
           {/* Step 0: Mode */}
           {step === 0 && (
             <div className="space-y-4">
-              <h2 className="text-lg font-display font-bold">Choose Mode</h2>
+              <h2 className="text-lg font-display font-bold">Choose mode</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {(["self-stake", "grant-guard"] as Mode[]).map((m) => (
                   <button
@@ -134,8 +136,8 @@ export default function CreateQuestPage() {
                     </h3>
                     <p className="text-xs text-muted-foreground">
                       {m === "self-stake"
-                        ? "Stake your own SOL to prove commitment"
-                        : "Lock grant funds behind milestones"}
+                        ? "Your SOL. Your deadline. Your proof."
+                        : "Foundation capital. Builder accountability."}
                     </p>
                   </button>
                 ))}
@@ -146,7 +148,7 @@ export default function CreateQuestPage() {
           {/* Step 1: Details */}
           {step === 1 && (
             <div className="space-y-4">
-              <h2 className="text-lg font-display font-bold">Quest Details</h2>
+              <h2 className="text-lg font-display font-bold">Quest details</h2>
               <div>
                 <label className="text-sm text-muted-foreground block mb-1.5">
                   Title
@@ -155,7 +157,7 @@ export default function CreateQuestPage() {
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. Ship DEX Aggregator v2"
+                  placeholder="What are you building?"
                   className="w-full bg-secondary/50 border border-border rounded-md px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
                   maxLength={64}
                 />
@@ -167,7 +169,7 @@ export default function CreateQuestPage() {
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Describe what you're building and what 'shipped' means..."
+                  placeholder="What does done look like?"
                   rows={4}
                   className="w-full bg-secondary/50 border border-border rounded-md px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary resize-none"
                   maxLength={256}
@@ -200,7 +202,7 @@ export default function CreateQuestPage() {
           {/* Step 2: Proof Type */}
           {step === 2 && (
             <div className="space-y-4">
-              <h2 className="text-lg font-display font-bold">Proof Type</h2>
+              <h2 className="text-lg font-display font-bold">Proof type</h2>
               <p className="text-sm text-muted-foreground">
                 How will you prove delivery?
               </p>
@@ -231,10 +233,10 @@ export default function CreateQuestPage() {
           {/* Step 3: Stake */}
           {step === 3 && (
             <div className="space-y-4">
-              <h2 className="text-lg font-display font-bold">Stake & Deadline</h2>
+              <h2 className="text-lg font-display font-bold">Stake and deadline</h2>
               <div>
                 <label className="text-sm text-muted-foreground block mb-1.5">
-                  Stake Amount (SOL)
+                  Stake amount (SOL)
                 </label>
                 <input
                   type="range"
@@ -253,6 +255,29 @@ export default function CreateQuestPage() {
                   <span>50 SOL</span>
                 </div>
               </div>
+              {mode === "grant-guard" && (
+                <div>
+                  <label className="text-sm text-muted-foreground block mb-1.5">
+                    Grant tranche (SOL)
+                  </label>
+                  <input
+                    type="range"
+                    min={0.5}
+                    max={100}
+                    step={0.5}
+                    value={grantTrancheSol}
+                    onChange={(e) => setGrantTrancheSol(Number(e.target.value))}
+                    className="w-full accent-emerald-brand"
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                    <span>0.5 SOL</span>
+                    <span className="text-lg font-mono font-bold text-primary">
+                      {grantTrancheSol.toFixed(1)} SOL
+                    </span>
+                    <span>100 SOL</span>
+                  </div>
+                </div>
+              )}
               <div>
                 <label className="text-sm text-muted-foreground block mb-1.5">
                   Deadline (days from now)
@@ -276,47 +301,143 @@ export default function CreateQuestPage() {
                   })}
                 </p>
               </div>
+              <hr className="border-border/30" />
+              <p className="text-xs text-amber-400">
+                If you miss the deadline or score below 70, this SOL is gone. No exceptions.
+              </p>
+              {mode === "self-stake" ? (
+                <div className="p-3 rounded-md bg-secondary/50 border border-border/50 text-xs space-y-2">
+                  <p className="text-muted-foreground font-medium">If you SHIP:</p>
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>You receive</span>
+                    <span className="font-mono text-emerald-brand">
+                      {calcSelfStakeFee(stakeSol).builderReceives.toFixed(4)} SOL
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>Protocol fee (2%)</span>
+                    <span className="font-mono text-amber-400">
+                      {calcSelfStakeFee(stakeSol).fee.toFixed(4)} SOL
+                    </span>
+                  </div>
+                  <hr className="border-border/30" />
+                  <p className="text-muted-foreground font-medium">If SLASHED:</p>
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>You receive</span>
+                    <span className="font-mono text-danger">0 SOL</span>
+                  </div>
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>Protocol fee</span>
+                    <span className="font-mono">0 SOL</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-3 rounded-md bg-secondary/50 border border-border/50 text-xs space-y-2">
+                  <p className="text-muted-foreground font-medium">If you SHIP:</p>
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>You receive</span>
+                    <span className="font-mono text-emerald-brand">
+                      {calcGrantGuardFee(stakeSol, grantTrancheSol).builderReceives.toFixed(4)} SOL
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>Protocol fee (1.5% on tranche)</span>
+                    <span className="font-mono text-amber-400">
+                      {calcGrantGuardFee(stakeSol, grantTrancheSol).fee.toFixed(4)} SOL
+                    </span>
+                  </div>
+                  <hr className="border-border/30" />
+                  <p className="text-muted-foreground font-medium">If SLASHED:</p>
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>Your stake</span>
+                    <span className="font-mono text-danger">Foundation escrow</span>
+                  </div>
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>Grant tranche</span>
+                    <span className="font-mono text-danger">Returned to foundation</span>
+                  </div>
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>Protocol fee</span>
+                    <span className="font-mono">0 SOL</span>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
           {/* Step 4: Confirm */}
           {step === 4 && (
             <div className="space-y-4">
-              <h2 className="text-lg font-display font-bold">Confirm Quest</h2>
+              <h2 className="text-lg font-display font-bold">Confirm quest</h2>
               <div className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Mode</span>
-                  <span className="font-medium capitalize">
-                    {mode.replace("-", " ")}
-                  </span>
-                </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Title</span>
                   <span className="font-medium">{title}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Category</span>
-                  <span className="font-mono text-xs">{category}</span>
+                  <span className="text-muted-foreground">Mode</span>
+                  <span className="font-medium capitalize">
+                    {mode === "self-stake" ? "Self-Stake" : "Grant Guard"}
+                  </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Proof Type</span>
+                  <span className="text-muted-foreground">Deadline</span>
+                  <span>
+                    {new Date(
+                      Date.now() + deadlineDays * 86400000
+                    ).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Proof type</span>
                   <span className="font-mono text-xs">{proofType}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Stake</span>
                   <span className="font-mono font-bold text-primary">
-                    {stakeSol.toFixed(1)} SOL
+                    {stakeSol.toFixed(3)} SOL
+                  </span>
+                </div>
+                {mode === "grant-guard" && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Grant tranche</span>
+                    <span className="font-mono font-bold text-primary">
+                      {grantTrancheSol.toFixed(3)} SOL
+                    </span>
+                  </div>
+                )}
+                <hr className="border-border/30" />
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Protocol fee (if shipped)</span>
+                  <span className="font-mono text-xs text-amber-400">
+                    {mode === "self-stake"
+                      ? calcSelfStakeFee(stakeSol).fee.toFixed(4)
+                      : calcGrantGuardFee(stakeSol, grantTrancheSol).fee.toFixed(4)
+                    } SOL ({mode === "self-stake" ? "2%" : "1.5%"})
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Deadline</span>
-                  <span>{deadlineDays} days</span>
+                  <span className="text-muted-foreground">You receive (if shipped)</span>
+                  <span className="font-mono font-bold text-emerald-brand">
+                    {mode === "self-stake"
+                      ? calcSelfStakeFee(stakeSol).builderReceives.toFixed(4)
+                      : calcGrantGuardFee(stakeSol, grantTrancheSol).builderReceives.toFixed(4)
+                    } SOL
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Slash if failed</span>
+                  <span className="font-mono text-xs text-danger">
+                    {mode === "self-stake" ? "Stake forfeited" : "Returned to foundation"}
+                  </span>
                 </div>
               </div>
               <div className="p-3 rounded-md bg-amber-500/10 border border-amber-500/20 text-xs text-amber-400">
-                Your SOL will be locked in a program-owned vault until the oracle
-                settles this quest. If you miss your deadline, your stake will
-                be redistributed.
+                This commitment is binding the moment you sign. No extensions. No appeals. The oracle is the final word.
               </div>
             </div>
           )}
@@ -329,7 +450,7 @@ export default function CreateQuestPage() {
                 size="sm"
                 onClick={() => setStep(step - 1)}
               >
-                ← Back
+                Back
               </Button>
             ) : (
               <div />
@@ -341,7 +462,7 @@ export default function CreateQuestPage() {
                 onClick={() => setStep(step + 1)}
                 className="text-primary-foreground"
               >
-                Next →
+                Next
               </Button>
             ) : (
               <Button
@@ -353,7 +474,7 @@ export default function CreateQuestPage() {
                 {isPending
                   ? "Creating..."
                   : connected
-                  ? "Create Quest →"
+                  ? "Lock it in"
                   : "Connect Wallet"}
               </Button>
             )}

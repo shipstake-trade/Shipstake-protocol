@@ -15,9 +15,9 @@ export function TwoModes() {
   return (
     <Section
       id="modes"
-      title="Two Modes"
-      subtitle="Choose your accountability path"
-      description="Whether you're a foundation protecting grants or a builder staking your reputation — SHIPSTAKE has you covered."
+      title="Two modes"
+      subtitle="Pick your accountability path."
+      description="Whether you're protecting a grant or building in public — SHIPSTAKE doesn't care about your reasons. Just your proof."
     >
       <div className="border-x border-b p-6 lg:p-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -19,9 +19,9 @@ export function HowItWorks() {
   return (
     <Section
       id="how-it-works"
-      title="How It Works"
-      subtitle="Three steps to accountability"
-      description="Lock SOL. Build. Let the oracle decide."
+      title="How it works"
+      subtitle="Three steps. No trust required."
+      description="Lock SOL. Build. The oracle settles it."
       flickerColor="#00C896"
       flickerOpacity={0.08}
     >
@@ -69,29 +69,23 @@ export function HowItWorks() {
             <Accordion type="single" collapsible>
               <AccordionItem value="formula" className="border-border/50">
                 <AccordionTrigger className="text-sm text-muted-foreground hover:text-foreground hover:no-underline">
-                  How does the oracle compute PROOF Score?
+                  How is the score calculated?
                 </AccordionTrigger>
                 <AccordionContent>
-                  <div className="space-y-2 font-mono text-xs text-muted-foreground">
+                  <div className="space-y-2 text-sm text-muted-foreground">
                     <p>
-                      <span className="text-primary">PROOF</span> = base × 0.4 +
-                      speed × 0.2 + stake_weight × 0.2 + streak × 0.2
+                      The oracle calls the GitHub or Vercel API directly. It checks authorship, timestamp, and diff size.
+                      Every call is logged and replayable. Anyone can verify. Nobody can appeal.
                     </p>
-                    <p>
-                      base = (shipped / total) × 100
-                    </p>
-                    <p>
-                      speed = max(0, (deadline - submitted) / deadline) × 20
-                    </p>
-                    <p>
-                      stake_weight = log2(total_sol_staked + 1) × 5
-                    </p>
-                    <p>
-                      streak = min(consecutive_ships × 2, 20)
-                    </p>
-                    <p className="pt-2 text-foreground/60">
-                      Score ≥ 70 → SHIPPED | Score &lt; 70 → SLASHED
-                    </p>
+                    <div className="font-mono text-xs pt-2 space-y-1">
+                      <p>
+                        <span className="text-primary">PROOF</span> = base x 0.6 +
+                        speed x 0.15 + stake_weight x 0.15 + streak x 0.1
+                      </p>
+                      <p className="text-foreground/60">
+                        Score &gt;= 70 = SHIPPED | Score &lt; 70 = SLASHED
+                      </p>
+                    </div>
                   </div>
                 </AccordionContent>
               </AccordionItem>

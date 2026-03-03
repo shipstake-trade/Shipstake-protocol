@@ -20,7 +20,7 @@ export default function LeaderboardPage() {
               Leaderboard
             </h1>
             <p className="text-muted-foreground text-sm mt-1">
-              Top builders by PROOF Score
+              Top builders by PROOF Score.
             </p>
           </div>
           <p className="text-xs text-muted-foreground font-mono">
@@ -40,22 +40,22 @@ export default function LeaderboardPage() {
                   #
                 </th>
                 <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider p-4">
-                  Builder
+                  BUILDER
                 </th>
                 <th className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wider p-4">
                   PROOF
                 </th>
                 <th className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wider p-4 hidden md:table-cell">
-                  Ship Rate
+                  SHIP RATE
                 </th>
                 <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider p-4 hidden md:table-cell">
-                  Total Staked
+                  TOTAL STAKED
                 </th>
                 <th className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wider p-4 hidden lg:table-cell">
-                  Streak
+                  STREAK
                 </th>
                 <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider p-4 hidden lg:table-cell">
-                  Shipped
+                  SHIPPED
                 </th>
               </tr>
             </thead>
@@ -101,12 +101,12 @@ export default function LeaderboardPage() {
                   </td>
                   <td className="p-4 text-center hidden lg:table-cell">
                     <span className="text-sm font-mono text-foreground">
-                      {entry.streak > 0 ? `${entry.streak}x` : "—"}
+                      {entry.streak > 0 ? `${entry.streak}x` : "\u2014"}
                     </span>
                   </td>
                   <td className="p-4 text-right hidden lg:table-cell">
                     <span className="text-sm font-mono text-foreground">
-                      {entry.questsShipped}
+                      {entry.shipped}
                     </span>
                   </td>
                 </tr>

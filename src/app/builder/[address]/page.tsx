@@ -37,7 +37,7 @@ export default function BuilderProfilePage({
   const tabs: { value: TabFilter; label: string }[] = [
     { value: "all", label: "All" },
     { value: "Open", label: "Open" },
-    { value: "InProgress", label: "In Progress" },
+    { value: "InProgress", label: "In progress" },
     { value: "Shipped", label: "Shipped" },
     { value: "Slashed", label: "Slashed" },
   ];
@@ -65,19 +65,33 @@ export default function BuilderProfilePage({
               </p>
 
               {/* Stats grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-4">
                 <div>
                   <p className="text-2xl font-mono font-bold text-foreground">
-                    {shipRate}%
+                    {profile.questsShipped}
                   </p>
-                  <p className="text-xs text-muted-foreground">Ship Rate</p>
+                  <p className="text-xs text-muted-foreground">Shipped</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-mono font-bold text-danger">
+                    {profile.questsSlashed}
+                  </p>
+                  <p className="text-xs text-muted-foreground">Slashed</p>
                 </div>
                 <div>
                   <p className="text-2xl font-mono font-bold text-foreground">
-                    {profile.questsShipped}/{profile.questsTotal}
+                    {profile.currentStreak}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Quests Shipped
+                    Current streak
+                  </p>
+                </div>
+                <div>
+                  <p className="text-2xl font-mono font-bold text-foreground">
+                    {profile.bestStreak}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Best streak
                   </p>
                 </div>
                 <div>
@@ -85,15 +99,7 @@ export default function BuilderProfilePage({
                     {profile.totalSolStaked.toFixed(1)}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    SOL Staked
-                  </p>
-                </div>
-                <div>
-                  <p className="text-2xl font-mono font-bold text-foreground">
-                    {profile.currentStreak}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Current Streak
+                    SOL staked lifetime
                   </p>
                 </div>
               </div>
@@ -104,7 +110,7 @@ export default function BuilderProfilePage({
         {/* PROOF Score Formula */}
         <div className="glass-card rounded-lg p-5 mb-8">
           <h3 className="text-sm font-medium text-foreground mb-4">
-            PROOF Score Breakdown
+            PROOF Score breakdown
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {siteConfig.proofScore.components.map((comp) => (
@@ -126,7 +132,7 @@ export default function BuilderProfilePage({
         {/* Quest History */}
         <div>
           <h2 className="text-lg font-display font-bold text-foreground mb-4">
-            Quest History
+            Quest history
           </h2>
 
           {/* Tabs */}
@@ -190,10 +196,7 @@ export default function BuilderProfilePage({
                     </td>
                     <td className="p-4 text-right">
                       <span className="text-sm font-mono font-bold text-primary">
-                        {quest.vault
-                          ? lamportsToSol(quest.vault.builderStake).toFixed(1)
-                          : "—"}{" "}
-                        SOL
+                          {lamportsToSol(quest.stakeAmount).toFixed(1)} SOL
                       </span>
                     </td>
                   </tr>

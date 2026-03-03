@@ -33,10 +33,11 @@ const Section = forwardRef<HTMLElement, SectionProps>(
   ) => {
     const internalRef = useRef<HTMLElement>(null);
     const ref = forwardedRef || internalRef;
+    const effectiveAlign = align ?? "center";
     const alignmentClass =
-      align === "left"
+      effectiveAlign === "left"
         ? "text-left"
-        : align === "right"
+        : effectiveAlign === "right"
         ? "text-right"
         : "text-center";
 
@@ -64,10 +65,10 @@ const Section = forwardRef<HTMLElement, SectionProps>(
               {subtitle && (
                 <h3
                   className={cn(
-                    "mx-0 mt-4 max-w-lg text-5xl text-balance font-bold sm:max-w-none sm:text-4xl md:text-5xl lg:text-6xl leading-[1.2] tracking-tighter text-foreground lowercase",
-                    align === "center"
+                    "mx-0 mt-4 max-w-lg text-5xl text-balance font-bold sm:max-w-none sm:text-4xl md:text-5xl lg:text-6xl leading-[1.2] tracking-tighter text-foreground",
+                    effectiveAlign === "center"
                       ? "mx-auto"
-                      : align === "right"
+                      : effectiveAlign === "right"
                       ? "ml-auto"
                       : ""
                   )}
@@ -79,9 +80,9 @@ const Section = forwardRef<HTMLElement, SectionProps>(
                 <p
                   className={cn(
                     "mt-6 text-lg leading-8 text-muted-foreground text-balance max-w-2xl",
-                    align === "center"
+                    effectiveAlign === "center"
                       ? "mx-auto"
-                      : align === "right"
+                      : effectiveAlign === "right"
                       ? "ml-auto"
                       : ""
                   )}

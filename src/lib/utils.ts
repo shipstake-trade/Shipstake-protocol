@@ -7,6 +7,21 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+// ─── Protocol fee calculation (whitepaper v0.4) ─────────────────────────────
+
+export const SELF_STAKE_FEE_BPS = 200; // 2%
+export const GRANT_FEE_BPS = 150; // 1.5%
+
+export function calcSelfStakeFee(stakeSol: number) {
+  const fee = (stakeSol * SELF_STAKE_FEE_BPS) / 10000;
+  return { fee, builderReceives: stakeSol - fee };
+}
+
+export function calcGrantGuardFee(stakeSol: number, trancheSol: number) {
+  const fee = (trancheSol * GRANT_FEE_BPS) / 10000;
+  return { fee, builderReceives: stakeSol + trancheSol - fee };
+}
+
 export function absoluteUrl(path: string) {
   return `${process.env.NEXT_PUBLIC_APP_URL || siteConfig.url}${path}`;
 }

@@ -47,6 +47,8 @@ export interface QuestAccount {
   builder: string        // PublicKey as base58
   title: string
   description: string
+  stakeAmount: number    // lamports
+  grantTranche: number | null  // null = Self-Stake, number = Grant Guard (lamports)
   deadline: number       // Unix timestamp (BN → number)
   positionCloseTs: number
   category: Category
@@ -74,6 +76,18 @@ export interface CommitmentAccount {
   bump: number
 }
 
+export interface ProtocolConfig {
+  admin: string
+  oracle: string
+  feeBps: number
+  grantFeeBps: number
+  feeVault: string
+  minStakeLamports: number
+  minPositionLamports: number
+  paused: boolean
+  bump: number
+}
+
 // ─── IDL (minimal, for Anchor Program constructor) ──────────────────────────
 
 export const IDL = {
@@ -97,6 +111,7 @@ export const IDL = {
         { name: "positionCloseTs", type: "i64" },
         { name: "category", type: { defined: { name: "Category" } } },
         { name: "stakeAmount", type: "u64" },
+        { name: "grantTranche", type: { option: "u64" } },
       ],
     },
     {
@@ -177,3 +192,31 @@ export const IDL = {
     { code: 6009, name: "PositionBelowMinimum", msg: "Position below minimum" },
   ],
 } as const
+
+// ─── Fee calculation helpers ────────────────────────────────────────────────
+
+export const SELF_STAKE_FEE_BPS = 200   // 2%
+export const GRANT_GUARD_FEE_BPS = 150  // 1.5%
+
+/** Compute protocol fee in lamports for a SHIPPED quest */
+export function computeShippedFee(
+  stakeAmountLamports: number,
+  grantTrancheLamports: number | null,
+): number {
+  if (grantTrancheLamports !== null) {
+    return Math.floor((grantTrancheLamports * GRANT_GUARD_FEE_BPS) / 10_000)
+  }
+  return Math.floor((stakeAmountLamports * SELF_STAKE_FEE_BPS) / 10_000)
+}
+
+/** Compute builder net payout in lamports for a SHIPPED quest */
+export function computeBuilderNetPayout(
+  stakeAmountLamports: number,
+  grantTrancheLamports: number | null,
+): number {
+  const fee = computeShippedFee(stakeAmountLamports, grantTrancheLamports)
+  if (grantTrancheLamports !== null) {
+    return stakeAmountLamports + grantTrancheLamports - fee
+  }
+  return stakeAmountLamports - fee
+}

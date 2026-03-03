@@ -96,7 +96,7 @@ export async function GET(req: NextRequest) {
               color: "#71717a",
             }}
           >
-            Accountability Protocol on Solana
+            Accountability Protocol · Solana
           </div>
 
           {/* Protocol version */}
@@ -110,7 +110,7 @@ export async function GET(req: NextRequest) {
               fontFamily: "monospace",
             }}
           >
-            SHIPSTAKE v0.3 | Solana Devnet | Pre-Audit
+            SHIPSTAKE v0.4 · Solana Devnet · Pre-Audit
           </div>
         </div>
       </div>

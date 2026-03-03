@@ -59,7 +59,7 @@ export default function SubmitProofPage({
     });
 
     if (result) {
-      toast.success("Proof submitted!", {
+      toast.success("Proof submitted.", {
         description: "The oracle will validate your delivery automatically.",
       });
       router.push(`/quest/${id}`);
@@ -71,17 +71,17 @@ export default function SubmitProofPage({
       <Header />
       <main className="container mx-auto max-w-2xl px-4 py-8">
         <h1 className="text-3xl font-display font-bold text-foreground mb-2">
-          Submit Proof
+          Submit proof
         </h1>
         <p className="text-muted-foreground text-sm mb-8">
-          Submit your delivery proof for &quot;{quest.title}&quot;
+          One URL. Before the deadline.
         </p>
 
         <div className="glass-card rounded-lg p-6 space-y-6">
           {/* Proof type info */}
           <div>
             <h3 className="text-sm font-medium text-foreground mb-1">
-              Expected Proof Type
+              Proof type
             </h3>
             <p className="text-xs font-mono text-primary">{proofType}</p>
           </div>
@@ -89,7 +89,7 @@ export default function SubmitProofPage({
           {/* URL input */}
           <div>
             <label className="text-sm text-muted-foreground block mb-1.5">
-              Proof URL
+              Proof URL — paste it here
             </label>
             <input
               type="url"
@@ -99,7 +99,7 @@ export default function SubmitProofPage({
               className="w-full bg-secondary/50 border border-border rounded-md px-3 py-2 text-sm font-mono text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
             />
             <p className="text-xs text-muted-foreground mt-1.5">
-              Must be a publicly accessible URL. The oracle will fetch and validate this automatically.
+              Publicly accessible. The oracle fetches and validates it automatically.
             </p>
           </div>
 
@@ -123,7 +123,7 @@ export default function SubmitProofPage({
             {isPending
               ? "Submitting..."
               : connected
-              ? "Submit Proof →"
+              ? "Submit proof"
               : "Connect Wallet"}
           </Button>
         </div>

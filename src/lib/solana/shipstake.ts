@@ -213,6 +213,7 @@ interface CreateQuestParams {
   stakeSol: number
   deadlineDays: number        // days from now
   positionCloseDays: number   // days from now
+  grantTrancheSol: number | null  // null = self-stake, number = grant-guard
 }
 
 export function useCreateQuest() {
@@ -230,6 +231,9 @@ export function useCreateQuest() {
         const deadline = new BN(now + params.deadlineDays * 86400)
         const positionCloseTs = new BN(now + params.positionCloseDays * 86400)
         const stakeAmount = new BN(Math.floor(params.stakeSol * LAMPORTS_PER_SOL))
+        const grantTranche = params.grantTrancheSol !== null
+          ? new BN(Math.floor(params.grantTrancheSol * LAMPORTS_PER_SOL))
+          : null
 
         const questPda = getQuestPda(publicKey, params.title)
         const poolVaultPda = getPoolVaultPda(questPda)
@@ -242,7 +246,8 @@ export function useCreateQuest() {
             deadline,
             positionCloseTs,
             categoryToAnchor(params.category) as any,
-            stakeAmount
+            stakeAmount,
+            grantTranche
           )
           .accounts({
             config: configPda,

@@ -30,6 +30,12 @@ const CATEGORY_OPTIONS: Category[] = [
 
 type SortOption = "newest" | "deadline" | "stake";
 
+const SORT_LABELS: Record<SortOption, string> = {
+  newest: "Newest",
+  deadline: "Deadline",
+  stake: "Stake",
+};
+
 export default function ExplorePage() {
   const [statusFilter, setStatusFilter] = useState<QuestStatus | "all">("all");
   const [categoryFilter, setCategoryFilter] = useState<Category | "all">("all");
@@ -51,10 +57,7 @@ export default function ExplorePage() {
         quests.sort((a, b) => a.deadline - b.deadline);
         break;
       case "stake":
-        quests.sort(
-          (a, b) =>
-            (b.vault?.builderStake ?? 0) - (a.vault?.builderStake ?? 0)
-        );
+        quests.sort((a, b) => b.stakeAmount - a.stakeAmount);
         break;
       default:
         quests.sort((a, b) => b.deadline - a.deadline);
@@ -70,15 +73,15 @@ export default function ExplorePage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-display font-bold text-foreground">
-              Explore Quests
+              Who&apos;s shipping.
             </h1>
             <p className="text-muted-foreground text-sm mt-1">
-              Discover builders staking their reputation on-chain
+              Builders with SOL on the line.
             </p>
           </div>
           <Link href="/quest/create">
             <Button className="text-primary-foreground">
-              Create Quest →
+              Create a Quest
             </Button>
           </Link>
         </div>
@@ -96,7 +99,7 @@ export default function ExplorePage() {
                   : "bg-secondary text-muted-foreground hover:text-foreground"
               )}
             >
-              All Status
+              All
             </button>
             {STATUS_OPTIONS.map((status) => (
               <button
@@ -125,7 +128,7 @@ export default function ExplorePage() {
                   : "bg-secondary text-muted-foreground hover:text-foreground"
               )}
             >
-              All Categories
+              All
             </button>
             {CATEGORY_OPTIONS.map((cat) => (
               <button
@@ -150,13 +153,13 @@ export default function ExplorePage() {
                 key={s}
                 onClick={() => setSort(s)}
                 className={cn(
-                  "px-3 py-1.5 rounded-full text-xs font-medium transition-colors capitalize",
+                  "px-3 py-1.5 rounded-full text-xs font-medium transition-colors",
                   sort === s
                     ? "bg-primary text-primary-foreground"
                     : "bg-secondary text-muted-foreground hover:text-foreground"
                 )}
               >
-                {s}
+                {SORT_LABELS[s]}
               </button>
             ))}
           </div>
@@ -171,12 +174,15 @@ export default function ExplorePage() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-16">
+            <h3 className="text-lg font-display font-bold text-foreground mb-2">
+              Nothing here yet.
+            </h3>
             <p className="text-muted-foreground mb-4">
-              No quests found matching your filters.
+              Be the first builder to put SOL on the line.
             </p>
             <Link href="/quest/create">
               <Button variant="default" className="text-primary-foreground">
-                Create the first quest →
+                Create a Quest
               </Button>
             </Link>
           </div>

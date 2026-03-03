@@ -15,6 +15,12 @@ import { toast } from "sonner";
 
 type Tab = "active" | "completed" | "all";
 
+const TAB_LABELS: Record<Tab, string> = {
+  active: "Active",
+  completed: "Completed",
+  all: "All",
+};
+
 function formatCountdown(timestamp: number): string {
   const now = Date.now() / 1000;
   const diff = timestamp - now;
@@ -72,30 +78,33 @@ export default function PortfolioPage() {
             <h1 className="text-2xl font-display font-bold text-foreground">
               My Quests
             </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Your on-chain track record.
+            </p>
             <div className="flex flex-wrap justify-center sm:justify-start gap-4 mt-2 text-sm text-muted-foreground">
               <span>
                 <span className="text-foreground font-medium">
                   {profile.questsShipped}
                 </span>
-                /{profile.questsTotal} Shipped
+                /{profile.questsTotal} shipped
               </span>
               <span>
                 <span className="text-primary font-mono font-medium">
                   {profile.totalSolStaked.toFixed(1)}
                 </span>{" "}
-                SOL Staked
+                SOL staked
               </span>
               <span>
                 <span className="text-foreground font-medium">
                   {profile.currentStreak}
                 </span>{" "}
-                Streak
+                streak
               </span>
             </div>
           </div>
           <Link href="/quest/create">
             <Button className="text-primary-foreground">
-              Create Quest →
+              Create a Quest
             </Button>
           </Link>
         </div>
@@ -107,13 +116,13 @@ export default function PortfolioPage() {
               key={t}
               onClick={() => setTab(t)}
               className={cn(
-                "px-4 py-2 rounded-full text-sm font-medium transition-colors capitalize",
+                "px-4 py-2 rounded-full text-sm font-medium transition-colors",
                 tab === t
                   ? "bg-primary text-primary-foreground"
                   : "bg-secondary text-muted-foreground hover:text-foreground"
               )}
             >
-              {t}
+              {TAB_LABELS[t]}
             </button>
           ))}
         </div>
@@ -121,9 +130,7 @@ export default function PortfolioPage() {
         {/* Quest list */}
         <div className="space-y-3">
           {filteredQuests.map((quest) => {
-            const stake = quest.vault
-              ? lamportsToSol(quest.vault.builderStake)
-              : 0;
+            const stake = lamportsToSol(quest.stakeAmount);
             const isActive =
               quest.status === "Open" ||
               quest.status === "InProgress" ||
@@ -164,17 +171,28 @@ export default function PortfolioPage() {
                       size="sm"
                       className="text-primary-foreground text-xs"
                       onClick={() =>
-                        toast.success("Stake claimed!", {
+                        toast.success("Stake claimed.", {
                           description: `${stake.toFixed(1)} SOL returned to your wallet`,
                         })
                       }
                     >
-                      Claim Stake
+                      Claim your SOL
                     </Button>
+                  )}
+                  {quest.status === "Open" && (
+                    <Link href={`/quest/${quest.publicKey}/submit-proof`}>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="text-xs"
+                      >
+                        Submit proof
+                      </Button>
+                    </Link>
                   )}
                   {quest.status === "Slashed" && (
                     <span className="text-xs text-danger font-medium">
-                      Slashed
+                      SLASHED
                     </span>
                   )}
                 </div>
@@ -184,11 +202,15 @@ export default function PortfolioPage() {
           {filteredQuests.length === 0 && (
             <div className="text-center py-12">
               <p className="text-muted-foreground mb-4">
-                No quests found in this category.
+                {tab === "active"
+                  ? "No active quests. Go build something."
+                  : tab === "completed"
+                  ? "No completed quests yet."
+                  : "No quests found."}
               </p>
               <Link href="/quest/create">
                 <Button className="text-primary-foreground">
-                  Create your first quest →
+                  Create a Quest
                 </Button>
               </Link>
             </div>

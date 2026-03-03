@@ -35,14 +35,14 @@ function GateContent() {
 
         <h1 className="text-3xl font-display font-bold text-foreground mb-3">
           {isGeoBlocked
-            ? "Region Restricted"
-            : "Connect your wallet to access SHIPSTAKE"}
+            ? "Region restricted"
+            : "Connect your wallet."}
         </h1>
 
         <p className="text-muted-foreground mb-8 text-sm leading-relaxed">
           {isGeoBlocked
-            ? "SHIPSTAKE is not available in your jurisdiction. This protocol is restricted in certain territories for regulatory compliance."
-            : "Connect a Solana wallet to create quests, stake SOL, and build your on-chain reputation."}
+            ? "SHIPSTAKE is not available in your jurisdiction."
+            : "Create quests, stake SOL, and build your on-chain reputation."}
         </p>
 
         {!isGeoBlocked && (
@@ -57,8 +57,7 @@ function GateContent() {
         )}
 
         <p className="mt-8 text-[10px] text-muted-foreground/50 max-w-sm">
-          By connecting your wallet you confirm you are not located in a
-          restricted territory and agree to the protocol terms.
+          By connecting you confirm you are not in a restricted jurisdiction.
         </p>
       </div>
     </div>

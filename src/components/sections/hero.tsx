@@ -49,7 +49,7 @@ function HeroTitles() {
         </motion.span>
       </motion.h1>
       <motion.p
-        className="text-left max-w-xl leading-normal text-muted-foreground sm:text-lg sm:leading-normal text-balance mt-4"
+        className="text-left max-w-xl leading-normal text-muted-foreground sm:text-lg sm:leading-normal text-balance mt-4 whitespace-pre-line"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6, duration: 0.8, ease }}

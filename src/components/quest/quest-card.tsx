@@ -3,14 +3,14 @@
 import { StatusBadge } from "@/components/quest/status-badge";
 import { ProofTypeBadge } from "@/components/quest/proof-type-badge";
 import { BorderBeam } from "@/components/ui/border-beam";
-import type { QuestAccount, PoolVault } from "@/lib/solana/idl";
+import type { MockQuest } from "@/lib/mock-data";
 import { lamportsToSol } from "@/lib/solana/shipstake";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useState } from "react";
 
 interface QuestCardProps {
-  quest: QuestAccount & { publicKey: string; vault?: PoolVault };
+  quest: MockQuest;
   showBuilder?: boolean;
 }
 
@@ -29,9 +29,7 @@ function formatDeadline(timestamp: number): string {
 
 export function QuestCard({ quest, showBuilder = true }: QuestCardProps) {
   const [hovered, setHovered] = useState(false);
-  const stake = quest.vault
-    ? lamportsToSol(quest.vault.builderStake)
-    : 0;
+  const stake = lamportsToSol(quest.stakeAmount);
 
   return (
     <Link href={`/quest/${quest.publicKey}`}>
@@ -45,11 +43,18 @@ export function QuestCard({ quest, showBuilder = true }: QuestCardProps) {
       >
         {hovered && <BorderBeam duration={8} size={100} />}
 
-        {/* Top: Category + Status */}
+        {/* Top: Category + Mode + Status */}
         <div className="flex items-center justify-between mb-3">
-          <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider">
-            {quest.category}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider">
+              {quest.category}
+            </span>
+            {quest.mode === "GrantGuard" && (
+              <span className="text-[10px] font-mono uppercase text-amber-400 tracking-wider">
+                Grant Guard
+              </span>
+            )}
+          </div>
           <StatusBadge status={quest.status} />
         </div>
 

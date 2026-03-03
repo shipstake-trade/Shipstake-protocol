@@ -14,8 +14,8 @@ export const BLUR_FADE_DELAY = 0.15;
 
 export const siteConfig = {
   name: "SHIPSTAKE",
-  description: "Stake your reputation. Ship on-chain.",
-  cta: "Create a Quest",
+  description: "Prove it on-chain.",
+  cta: "Start a Quest",
   url: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
   keywords: [
     "SHIPSTAKE",
@@ -41,51 +41,51 @@ export const siteConfig = {
     { label: "Docs", href: "#", external: true },
   ],
   hero: {
-    badge: "Accountability Protocol on Solana",
-    title: "Stake your reputation.",
-    titleHighlight: "Ship on-chain.",
+    badge: "Accountability Protocol · Solana",
+    title: "Prove it",
+    titleHighlight: "on-chain.",
     description:
-      "Lock SOL behind your shipping deadline. A deterministic oracle scores your delivery. Ship and earn back your stake — or get slashed. No votes, no committees, no vibes.",
-    cta: "Create a Quest",
+      "Lock SOL. Set a deadline. Ship the proof.\nThe oracle decides. On-chain. Automatically.",
+    cta: "Start a Quest",
     ctaDescription: "Lock SOL to your next deadline",
-    secondaryCta: "Explore Quests",
+    secondaryCta: "See Who's Shipping",
   },
   stats: [
-    { value: 847, label: "SOL Staked", suffix: "" },
-    { value: 34, label: "Active Quests", suffix: "" },
-    { value: 89, label: "Ship Rate", suffix: "%" },
-    { value: 127, label: "Builders", suffix: "" },
+    { value: 847, label: "SOL locked", suffix: "" },
+    { value: 34, label: "active quests", suffix: "" },
+    { value: 89, label: "ship rate", suffix: "%" },
+    { value: 127, label: "builders", suffix: "" },
   ],
   howItWorks: [
     {
       step: 1,
-      title: "Post your commitment",
+      title: "Lock your stake",
       description:
-        "Lock SOL behind your shipping deadline. Choose your proof type — GitHub commit, Vercel deploy, or live URL. Set your delivery window.",
+        "Pick a deadline. Lock SOL. Your commitment is now public, on-chain, and non-negotiable.",
       icon: <AnchorIcon className="h-5 w-5" />,
     },
     {
       step: 2,
-      title: "Build and submit proof",
+      title: "Ship the proof",
       description:
-        "Submit your proof URL before the deadline. The oracle fetches and validates your delivery automatically. No human review needed.",
+        "Submit a GitHub commit, a Vercel deploy, or a live URL. One URL. Before the deadline.",
       icon: <RocketIcon className="h-5 w-5" />,
     },
     {
       step: 3,
-      title: "Oracle settles automatically",
+      title: "Oracle settles. Automatically.",
       description:
-        "PROOF Score ≥ 70 = SHIPPED — you get your stake back. Score < 70 = SLASHED — your stake is redistributed. Deterministic. Transparent. Final.",
+        "No committee. No vote. No vibes. Score >= 70 = SHIPPED. Below that = SLASHED. Math, not feelings.",
       icon: <CheckCircleIcon className="h-5 w-5" />,
     },
   ],
   modes: [
     {
       name: "Grant Guard",
-      tag: "B2B",
-      description: "Protect your grant capital",
+      tag: "B2B · Foundations",
+      description: "Stop funding promises.",
       longDescription:
-        "Foundations and DAOs lock grant tranches in SHIPSTAKE. Builders must ship milestones to unlock funds. If they miss deadlines, capital returns to the grant pool automatically.",
+        "Lock the grant tranche on-chain. Builders post matching stake. No milestone = no funds. Automatic.",
       icon: <ShieldCheckIcon className="h-6 w-6" />,
       features: [
         "Milestone-based fund release",
@@ -93,99 +93,101 @@ export const siteConfig = {
         "On-chain audit trail for every grant",
         "Multi-signer program configuration",
       ],
-      cta: "Set Up Grant Guard",
+      cta: "Protect your grant",
     },
     {
       name: "Self-Stake",
-      tag: "B2C",
-      description: "Build in public with skin in the game",
+      tag: "B2C · Builders",
+      description: "Build in public. For real.",
       longDescription:
-        "Builders lock their own SOL to prove commitment. Community supporters can stake alongside — backing builders they believe will deliver. Earn your reputation on-chain.",
+        "Lock your own SOL. Set a public deadline. Ship or get slashed. No external participants. Just you and the chain.",
       icon: <TargetIcon className="h-6 w-6" />,
       features: [
         "Lock SOL to your own deadlines",
-        "Community can back your commitment",
+        "Solo accountability — no external participants",
         "Build an immutable shipping reputation",
         "PROOF Score compounds with streaks",
       ],
-      cta: "Stake Your Build",
+      cta: "Start shipping",
     },
   ],
   proofScore: {
     title: "PROOF Score",
-    subtitle: "Deterministic. Non-gameable. Composable.",
+    subtitle: "Your reputation, computed.",
     description:
-      "Your on-chain reputation, distilled into a single number. Every quest you ship — or miss — feeds the formula.",
+      "Not self-reported. Not gamed. Stored on-chain. Readable by any protocol.",
     components: [
       {
         name: "base",
-        label: "Ship Rate",
-        formula: "(shipped / total) × 100",
+        label: "Delivery rate",
+        formula: "(shipped / total) x 100",
         description: "Your lifetime delivery rate across all quests",
-        weight: "40%",
+        weight: "x60",
         icon: <CheckCircleIcon className="h-4 w-4" />,
       },
       {
         name: "speed",
-        label: "Speed Bonus",
-        formula: "max(0, (deadline - submitted) / deadline) × 20",
+        label: "Ship early",
+        formula: "max(0, (deadline - submitted) / deadline) x 15",
         description: "Bonus for shipping ahead of schedule",
-        weight: "20%",
+        weight: "x15",
         icon: <ZapIcon className="h-4 w-4" />,
       },
       {
         name: "stake_weight",
-        label: "Stake Weight",
-        formula: "log2(total_sol_staked + 1) × 5",
+        label: "Skin in game",
+        formula: "log2(total_sol_staked + 1) x 5",
         description: "Higher stakes signal higher conviction",
-        weight: "20%",
+        weight: "x15",
         icon: <AnchorIcon className="h-4 w-4" />,
       },
       {
         name: "streak",
-        label: "Streak Multiplier",
-        formula: "min(consecutive_ships × 2, 20)",
+        label: "Consistency",
+        formula: "min(consecutive_ships x 2, 10)",
         description: "Consecutive deliveries compound your score",
-        weight: "20%",
+        weight: "x10",
         icon: <FlameIcon className="h-4 w-4" />,
       },
     ],
     tags: ["On-chain", "Non-gameable", "Composable"],
+    composabilityBody:
+      "Any Solana program can read your PROOF Score. Lending protocols. Grant programs. Job boards. You built the track record. It follows you.",
   },
   faqs: [
     {
-      question: "What is SHIPSTAKE?",
+      question: "What happens if I miss the deadline?",
       answer:
-        "SHIPSTAKE is an accountability protocol on Solana. Builders lock SOL behind shipping deadlines. A deterministic oracle validates delivery and settles stakes automatically — no votes, no committees.",
+        "Your stake is slashed. It goes to the destination you set at quest creation — burn address or a fixed donation address. The oracle doesn't care why you missed it.",
     },
     {
-      question: "How does the oracle work?",
+      question: "Who validates my proof?",
       answer:
-        "When you submit proof (a GitHub commit URL, Vercel deployment, or live URL), the oracle fetches it automatically and computes your PROOF Score. Score ≥ 70 = SHIPPED, your stake returns. Score < 70 = SLASHED, your stake is redistributed.",
+        "A deterministic oracle. It calls the GitHub or Vercel API, runs a scoring algorithm, and submits the result on-chain. No human in the loop. The logic is public and replayable.",
     },
     {
-      question: "What happens if I miss my deadline?",
+      question: "Can I extend my deadline?",
       answer:
-        "If you don't submit proof before your deadline, your quest is automatically marked as SLASHED. Your staked SOL is redistributed to community supporters who backed the opposite outcome.",
+        "No. The deadline is frozen at quest creation. That's the point.",
     },
     {
       question: "What is a PROOF Score?",
       answer:
-        "Your PROOF Score is a composable, on-chain reputation metric. It factors in your ship rate, delivery speed, total SOL staked, and consecutive shipping streaks. It's deterministic and non-gameable.",
+        "An on-chain reputation metric (0-100) that reflects your delivery history. It's computed automatically at every settlement. You can't buy it. You can't fake it.",
     },
     {
-      question: "Is my SOL safe?",
+      question: "What's the protocol fee?",
       answer:
-        "All stakes are held in Solana program-owned vault accounts (PDAs). Funds are only released when the oracle settles the quest outcome. The protocol is fully non-custodial — your keys, your SOL.",
+        "2% on Self-Stake settlements. 1.5% on Grant Guard tranches. Only on SHIPPED outcomes — we don't profit from your failure.",
     },
     {
-      question: "What are the two modes?",
+      question: "Is this a speculative market?",
       answer:
-        "Grant Guard (B2B) lets foundations lock grant capital behind builder milestones. Self-Stake (B2C) lets individual builders lock their own SOL to prove commitment. Both use the same oracle and settlement logic.",
+        "No. There are no external participants in v0. No one places a wager on you. No one wins if you fail. It's a performance bond — you against your own deadline.",
     },
   ],
   footer: {
-    tagline: "Prove it. On-chain.",
+    tagline: "Prove it on-chain.",
     socialLinks: [
       {
         icon: <Icons.github className="h-5 w-5" />,
@@ -208,9 +210,9 @@ export const siteConfig = {
     ],
     bottomText: "All rights reserved.",
     brandText: "SHIPSTAKE",
-    protocolVersion: "SHIPSTAKE v0.3 | Solana Devnet | Pre-Audit",
+    protocolVersion: "SHIPSTAKE v0.4 · Solana Devnet · Pre-Audit",
     geoNote:
-      "This protocol is not available in restricted jurisdictions. By connecting your wallet you confirm you are not located in a restricted territory.",
+      "Not available in restricted jurisdictions. This is not a gambling product.",
   },
 };
 

@@ -24,6 +24,14 @@ const statusConfig: Record<QuestStatus, { color: string; dotColor: string }> = {
   },
 };
 
+export const statusDisplayLabels: Record<QuestStatus, string> = {
+  Open: "OPEN",
+  InProgress: "VALIDATING",
+  Validating: "VALIDATING",
+  Shipped: "SHIPPED",
+  Slashed: "SLASHED",
+};
+
 interface StatusBadgeProps {
   status: QuestStatus;
   className?: string;
@@ -40,7 +48,7 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
       )}
     >
       <span className={cn("h-1.5 w-1.5 rounded-full", config.dotColor)} />
-      {status}
+      {statusDisplayLabels[status]}
     </span>
   );
 }

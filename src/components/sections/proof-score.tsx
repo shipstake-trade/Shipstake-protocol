@@ -52,7 +52,7 @@ export function ProofScore() {
         <BlurFade delay={BLUR_FADE_DELAY * 6}>
           <div className="glass-card rounded-lg p-6 text-center mb-6">
             <div className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">
-              Example PROOF Score
+              Example PROOF score
             </div>
             <div className="text-5xl font-mono font-bold text-primary mb-1">
               82
