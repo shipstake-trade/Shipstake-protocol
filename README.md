@@ -1,6 +1,5 @@
-# SHIPSTAKE
-
-**Prove it on-chain.**
+<img width="2752" height="1502" alt="image" src="https://github.com/user-attachments/assets/2114c6ff-e507-41da-a1a7-e426b7c54cb0" />
+<br><br>
 
 SHIPSTAKE is a deterministic accountability protocol on Solana. Builders lock SOL as a performance bond against a public delivery commitment. An oracle validates the proof automatically. The smart contract settles without human intervention.
 
