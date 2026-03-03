@@ -12,13 +12,15 @@ import {
 import { siteConfig } from "@/lib/config";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { IoMenuSharp } from "react-icons/io5";
+import { Menu } from "lucide-react";
 
 export function MobileDrawer() {
   return (
     <Drawer>
-      <DrawerTrigger>
-        <IoMenuSharp className="text-2xl" />
+      <DrawerTrigger asChild>
+        <button type="button" aria-label="Open navigation menu">
+          <Menu className="h-6 w-6" />
+        </button>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="px-6">

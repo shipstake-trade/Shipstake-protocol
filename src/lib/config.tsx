@@ -190,16 +190,19 @@ export const siteConfig = {
     tagline: "Prove it on-chain.",
     socialLinks: [
       {
-        icon: <Icons.github className="h-5 w-5" />,
+        icon: <Icons.github className="h-5 w-5" aria-hidden="true" />,
         url: "https://github.com/shipstake-trade/Shipstake-protocol",
+        label: "SHIPSTAKE on GitHub",
       },
       {
-        icon: <Icons.twitter className="h-5 w-5" />,
+        icon: <Icons.twitter className="h-5 w-5" aria-hidden="true" />,
         url: "https://x.com/shipstake",
+        label: "SHIPSTAKE on X (Twitter)",
       },
       {
-        icon: <Icons.discord className="h-5 w-5" />,
+        icon: <Icons.discord className="h-5 w-5" aria-hidden="true" />,
         url: "https://discord.gg/shipstake",
+        label: "SHIPSTAKE Discord server",
       },
     ],
     links: [

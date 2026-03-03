@@ -117,7 +117,7 @@ function HeroStats() {
               </span>
             )}
           </div>
-          <span className="text-xs text-muted-foreground uppercase tracking-wider mt-1">
+          <span className="text-xs text-slate-400 uppercase tracking-wider mt-1">
             {stat.label}
           </span>
         </div>

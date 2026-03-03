@@ -4,6 +4,7 @@ import { siteConfig } from "@/lib/config";
 import { fontDisplay, fontMono, fontSans, fontSerif } from "@/lib/fonts";
 import { SolanaProvider } from "@/lib/solana/provider";
 import { cn, constructMetadata } from "@/lib/utils";
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import { Toaster } from "sonner";
 import "./globals.css";
@@ -28,6 +29,10 @@ export default function RootLayout({
       className={`dark ${fontSans.variable} ${fontMono.variable} ${fontSerif.variable} ${fontDisplay.variable}`}
       suppressHydrationWarning
     >
+      <head>
+        <link rel="preconnect" href="https://auth.privy.io" />
+        <link rel="dns-prefetch" href="https://auth.privy.io" />
+      </head>
       <body
         className={cn(
           "min-h-screen bg-background antialiased w-full mx-auto scroll-smooth font-sans"
@@ -52,6 +57,7 @@ export default function RootLayout({
               }}
             />
             <TailwindIndicator />
+            <Analytics />
           </ThemeProvider>
         </SolanaProvider>
       </body>

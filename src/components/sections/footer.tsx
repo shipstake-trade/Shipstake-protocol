@@ -18,6 +18,9 @@ export function Footer() {
             <a
               key={index}
               href={link.url}
+              aria-label={link.label}
+              rel="noopener noreferrer"
+              target="_blank"
               className="flex h-5 w-5 items-center justify-center text-muted-foreground transition-all duration-100 ease-linear hover:text-foreground hover:underline hover:underline-offset-4"
             >
               {link.icon}
