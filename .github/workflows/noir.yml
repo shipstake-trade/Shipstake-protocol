@@ -1,0 +1,28 @@
+name: OWASP Noir API Discovery
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  noir:
+    name: Discover API endpoints
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run OWASP Noir
+        id: noir
+        uses: owasp-noir/noir@v0.28.0
+        with:
+          base_path: "."
+          format: "json"
+          include_path: "true"
+          passive_scan: "true"
+          passive_scan_severity: "medium"

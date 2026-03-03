@@ -1,0 +1,26 @@
+name: Legitify Security Posture
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 8 * * 1" # Every Monday at 8am UTC
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  legitify:
+    name: Analyze GitHub security posture
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Legitify
+        uses: Legit-Labs/legitify@v1.0.11
+        with:
+          github_token: ${{ secrets.LEGITIFY_TOKEN }}
+          analyze_self_only: "true"
+          scorecard: "yes"
+          upload_code_scanning: "true"
