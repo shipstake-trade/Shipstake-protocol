@@ -3,7 +3,7 @@
 import { PrivyProvider } from "@privy-io/react-auth"
 import { toSolanaWalletConnectors } from "@privy-io/react-auth/solana"
 
-const solanaConnectors = toSolanaWalletConnectors({ shouldAutoConnect: false })
+const solanaConnectors = toSolanaWalletConnectors({ shouldAutoConnect: true })
 
 interface SolanaProviderProps {
   children: React.ReactNode

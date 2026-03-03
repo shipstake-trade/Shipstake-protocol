@@ -2,12 +2,100 @@
 
 import { Icons } from "@/components/icons";
 import { MobileDrawer } from "@/components/mobile-drawer";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { siteConfig } from "@/lib/config";
 import { cn } from "@/lib/utils";
+import { usePrivy } from "@privy-io/react-auth";
+import { useWallets } from "@privy-io/react-auth/solana";
+import { LAMPORTS_PER_SOL, Connection, PublicKey } from "@solana/web3.js";
+import { ChevronDown, Copy, ExternalLink, LogOut } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+
+function truncate(address: string) {
+  return `${address.slice(0, 4)}...${address.slice(-4)}`;
+}
+
+function WalletMenu({ address, onLogout }: { address: string; onLogout: () => void }) {
+  const [balance, setBalance] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!address) return;
+    const conn = new Connection("https://api.devnet.solana.com", "confirmed");
+    conn
+      .getBalance(new PublicKey(address))
+      .then((lamports) => setBalance(lamports / LAMPORTS_PER_SOL))
+      .catch(() => {});
+  }, [address]);
+
+  const copyAddress = () => {
+    navigator.clipboard.writeText(address);
+    toast.success("Address copied");
+  };
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="default"
+          size="sm"
+          className="rounded-lg font-mono text-primary-foreground gap-1.5"
+        >
+          {truncate(address)}
+          <ChevronDown className="h-3.5 w-3.5 opacity-70" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48">
+        {balance !== null && (
+          <>
+            <div className="px-2 py-1.5 text-xs text-muted-foreground font-mono">
+              {balance.toFixed(4)} SOL
+            </div>
+            <DropdownMenuSeparator />
+          </>
+        )}
+        <DropdownMenuItem onClick={copyAddress}>
+          <Copy className="mr-2 h-3.5 w-3.5" />
+          Copy address
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() =>
+            window.open(
+              `https://solscan.io/account/${address}?cluster=devnet`,
+              "_blank",
+              "noopener,noreferrer"
+            )
+          }
+        >
+          <ExternalLink className="mr-2 h-3.5 w-3.5" />
+          View on Solscan
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={onLogout}
+          className="text-destructive focus:text-destructive"
+        >
+          <LogOut className="mr-2 h-3.5 w-3.5" />
+          Disconnect
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 export function Header() {
+  const { ready, authenticated, logout } = usePrivy();
+  const { wallets } = useWallets();
+  const walletAddress = wallets[0]?.address ?? "";
+
   return (
     <header className="sticky top-0 h-[var(--header-height)] z-50 p-0 bg-background/80 backdrop-blur-md">
       <div className="flex justify-between items-center container mx-auto max-w-[var(--container-max-width)] p-2">
@@ -49,15 +137,19 @@ export function Header() {
           >
             Explore Quests
           </Link>
-          <Link
-            href="/gate"
-            className={cn(
-              buttonVariants({ variant: "default", size: "sm" }),
-              "text-primary-foreground rounded-lg font-medium"
-            )}
-          >
-            Connect Wallet
-          </Link>
+          {ready && authenticated && walletAddress ? (
+            <WalletMenu address={walletAddress} onLogout={logout} />
+          ) : (
+            <Link
+              href="/gate"
+              className={cn(
+                buttonVariants({ variant: "default", size: "sm" }),
+                "text-primary-foreground rounded-lg font-medium"
+              )}
+            >
+              Connect Wallet
+            </Link>
+          )}
         </div>
 
         {/* Mobile drawer */}
