@@ -1,6 +1,7 @@
 import dynamic from "next/dynamic";
 import { Header } from "@/components/sections/header";
 import { Hero } from "@/components/sections/hero";
+import { getWaitlistCount } from "@/lib/resend";
 
 const HowItWorks = dynamic(() =>
   import("@/components/sections/how-it-works").then((m) => ({ default: m.HowItWorks }))
@@ -18,11 +19,12 @@ const Footer = dynamic(() =>
   import("@/components/sections/footer").then((m) => ({ default: m.Footer }))
 );
 
-export default function Home() {
+export default async function Home() {
+  const buildersCount = await getWaitlistCount();
   return (
     <main>
       <Header />
-      <Hero />
+      <Hero buildersCount={buildersCount} />
       <HowItWorks />
       <TwoModes />
       <ProofScore />

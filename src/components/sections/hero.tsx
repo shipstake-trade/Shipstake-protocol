@@ -95,7 +95,13 @@ function HeroCTA() {
   );
 }
 
-function HeroStats() {
+function HeroStats({ buildersCount }: { buildersCount?: number }) {
+  const stats = siteConfig.stats.map((stat) =>
+    stat.label === "builders" && buildersCount != null
+      ? { ...stat, value: buildersCount }
+      : stat
+  );
+
   return (
     <motion.div
       className="mt-12 pb-2"
@@ -104,7 +110,7 @@ function HeroStats() {
       transition={{ delay: 1.0, duration: 0.8 }}
     >
       <div className="flex flex-wrap gap-x-8 gap-y-4">
-        {siteConfig.stats.map((stat, i) => (
+        {stats.map((stat, i) => (
           <div key={stat.label} className="flex flex-col">
             <div className="flex items-baseline gap-1">
               <NumberTicker
@@ -131,7 +137,7 @@ function HeroStats() {
   );
 }
 
-export function Hero() {
+export function Hero({ buildersCount }: { buildersCount?: number }) {
   return (
     <Section id="hero" flickerColor="#00C896" flickerOpacity={0.15}>
       <div className="relative grid grid-cols-1 gap-x-8 w-full p-6 lg:p-12 border-x overflow-hidden">
@@ -139,7 +145,7 @@ export function Hero() {
           <HeroBadge />
           <HeroTitles />
           <HeroCTA />
-          <HeroStats />
+          <HeroStats buildersCount={buildersCount} />
         </div>
       </div>
     </Section>
