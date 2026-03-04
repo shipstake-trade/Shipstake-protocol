@@ -16,8 +16,8 @@ export function TwoModes() {
     <Section
       id="modes"
       title="Two modes"
-      subtitle="Pick your accountability path."
-      description="Whether you're protecting a grant or building in public — SHIPSTAKE doesn't care about your reasons. Just your proof."
+      subtitle="Same protocol. Different stakes."
+      description="Whether you're protecting a treasury or betting on yourself — the contract settles the same way. Proof or slash."
     >
       <div className="border-x border-b p-6 lg:p-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -50,21 +50,11 @@ export function TwoModes() {
                   {mode.description}
                 </p>
 
-                <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                  {mode.longDescription}
-                </p>
-
-                <ul className="space-y-2 mb-6 flex-1">
-                  {mode.features.map((feature) => (
-                    <li
-                      key={feature}
-                      className="flex items-start gap-2 text-sm text-muted-foreground"
-                    >
-                      <span className="text-primary mt-0.5">•</span>
-                      {feature}
-                    </li>
+                <div className="text-sm text-muted-foreground leading-relaxed mb-6 flex-1 space-y-3">
+                  {mode.longDescription.split("\n\n").map((paragraph, pi) => (
+                    <p key={pi}>{paragraph}</p>
                   ))}
-                </ul>
+                </div>
 
                 <Link
                   href="/quest/create"

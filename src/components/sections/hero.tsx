@@ -56,6 +56,14 @@ function HeroTitles() {
       >
         {siteConfig.hero.description}
       </motion.p>
+      <motion.p
+        className="text-left text-sm font-mono text-primary/80 mt-3 italic"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.75, duration: 0.8, ease }}
+      >
+        {siteConfig.hero.tensionLine}
+      </motion.p>
     </div>
   );
 }
@@ -73,7 +81,7 @@ function HeroCTA() {
           href="/quest/create"
           className={cn(
             buttonVariants({ variant: "default", size: "lg" }),
-            "text-primary-foreground rounded-lg font-medium"
+            "text-primary-foreground rounded-lg font-medium",
           )}
         >
           {siteConfig.hero.cta} →
@@ -82,14 +90,14 @@ function HeroCTA() {
           href="/explore"
           className={cn(
             buttonVariants({ variant: "ghost", size: "lg" }),
-            "rounded-lg"
+            "rounded-lg",
           )}
         >
           {siteConfig.hero.secondaryCta}
         </Link>
       </div>
       <p className="text-xs text-muted-foreground/70 font-mono">
-        The longer your streak, the less you pay. Ship early, earn more.
+        {siteConfig.hero.incentiveLine}
       </p>
     </motion.div>
   );
@@ -99,7 +107,7 @@ function HeroStats({ buildersCount }: { buildersCount?: number }) {
   const stats = siteConfig.stats.map((stat) =>
     stat.label === "builders" && buildersCount != null
       ? { ...stat, value: buildersCount }
-      : stat
+      : stat,
   );
 
   return (
@@ -139,7 +147,7 @@ function HeroStats({ buildersCount }: { buildersCount?: number }) {
         ))}
       </div>
       <p className="text-xs text-muted-foreground/50 italic mt-4">
-        PROOF Score: the on-chain reputation stack you can&apos;t buy or fake.
+        PROOF Score: 0–100. Stored on-chain. Can&apos;t be bought. Can&apos;t be faked.
       </p>
     </motion.div>
   );

@@ -3,6 +3,9 @@ import { Header } from "@/components/sections/header";
 import { Hero } from "@/components/sections/hero";
 import { getWaitlistCount } from "@/lib/resend";
 
+const BuiltOn = dynamic(() =>
+  import("@/components/sections/built-on").then((m) => ({ default: m.default }))
+);
 const HowItWorks = dynamic(() =>
   import("@/components/sections/how-it-works").then((m) => ({ default: m.HowItWorks }))
 );
@@ -25,6 +28,7 @@ export default async function Home() {
     <main>
       <Header />
       <Hero buildersCount={buildersCount} />
+      <BuiltOn />
       <HowItWorks />
       <TwoModes />
       <ProofScore />

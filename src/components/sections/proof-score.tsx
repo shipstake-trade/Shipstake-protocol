@@ -58,7 +58,7 @@ export function ProofScore() {
               82
             </div>
             <div className="text-xs text-muted-foreground">
-              13 shipped / 15 total · 5-quest streak · 47.5 SOL staked
+              13 shipped / 15 total · 5-delivery streak · 47.5 SOL staked
             </div>
           </div>
         </BlurFade>

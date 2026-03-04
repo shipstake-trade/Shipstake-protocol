@@ -1,6 +1,5 @@
 "use client";
 
-import { Icons } from "@/components/icons";
 import { MobileDrawer } from "@/components/mobile-drawer";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -128,15 +127,12 @@ export function Header() {
     <header className="sticky top-0 h-[var(--header-height)] z-50 p-0 bg-background/80 backdrop-blur-md">
       <div className="flex justify-between items-center container mx-auto max-w-[var(--container-max-width)] p-2">
         {/* Logo */}
-        <Link
-          href="/"
-          title="brand-logo"
-          className="relative mr-6 flex items-center space-x-2"
-        >
-          <Icons.logo className="w-auto" />
-          <span className="font-display font-bold text-lg">
-            {siteConfig.name}
-          </span>
+        <Link href="/">
+          <img
+            src="/brand/shipstake-mark.svg"
+            alt="SHIPSTAKE"
+            style={{ height: "40px", width: "40px" }}
+          />
         </Link>
 
         {/* Center nav — hidden on mobile */}
@@ -157,13 +153,13 @@ export function Header() {
         {/* Right: CTAs */}
         <div className="hidden lg:flex items-center gap-x-3">
           <Link
-            href="/explore"
+            href="/leaderboard"
             className={cn(
               buttonVariants({ variant: "ghost", size: "sm" }),
               "text-sm"
             )}
           >
-            Explore Quests
+            Leaderboard
           </Link>
           {ready && authenticated && walletAddress ? (
             <>

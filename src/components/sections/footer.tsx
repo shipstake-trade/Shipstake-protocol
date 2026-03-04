@@ -1,6 +1,6 @@
-import { Icons } from "@/components/icons";
 import { BorderText } from "@/components/ui/border-number";
 import { siteConfig } from "@/lib/config";
+import Link from "next/link";
 
 export function Footer() {
   return (
@@ -9,12 +9,13 @@ export function Footer() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
         {/* Col 1: Brand */}
         <div className="col-span-2 md:col-span-1">
-          <div className="flex items-center gap-x-2 mb-3">
-            <Icons.logo className="h-5 w-5" />
-            <h2 className="text-lg font-display font-bold text-foreground">
-              {siteConfig.name}
-            </h2>
-          </div>
+          <Link href="/" className="mb-3 inline-block">
+            <img
+              src="/brand/shipstake-mark.svg"
+              alt="SHIPSTAKE"
+              style={{ height: "36px", width: "36px" }}
+            />
+          </Link>
           <p className="text-sm text-muted-foreground mb-1">{siteConfig.footer.tagline}</p>
           <p className="text-xs text-muted-foreground/60 italic">{siteConfig.footer.subTagline}</p>
         </div>
@@ -57,8 +58,13 @@ export function Footer() {
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-border/50 mb-4">
         {/* Left: logo + tagline */}
         <div className="flex items-center gap-2">
-          <Icons.logo className="h-4 w-4 text-primary shrink-0" />
-          <span className="text-xs text-muted-foreground/60">
+          <img
+            src="/brand/shipstake-mark.svg"
+            alt=""
+            className="shrink-0"
+            style={{ height: "22px", width: "22px" }}
+          />
+          <span className="text-sm text-muted-foreground/60">
             {siteConfig.footer.tagline}
           </span>
         </div>

@@ -1,6 +1,5 @@
 "use client";
 
-import { Icons } from "@/components/icons";
 import { buttonVariants } from "@/components/ui/button";
 import {
   Drawer,
@@ -45,11 +44,14 @@ export function MobileDrawer() {
         <DrawerHeader className="px-6">
           <Link
             href="/"
-            title="brand-logo"
-            className="relative mr-6 flex items-center space-x-2"
+            className="flex items-center gap-2.5"
           >
-            <Icons.logo className="w-auto h-[40px]" />
-            <DrawerTitle>{siteConfig.name}</DrawerTitle>
+            <img
+              src="/brand/shipstake-mark.svg"
+              alt="SHIPSTAKE"
+              className="h-8 w-8 flex-shrink-0"
+            />
+            <DrawerTitle className="sr-only">{siteConfig.name}</DrawerTitle>
           </Link>
           <DrawerDescription>{siteConfig.description}</DrawerDescription>
         </DrawerHeader>

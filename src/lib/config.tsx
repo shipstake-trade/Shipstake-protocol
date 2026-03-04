@@ -40,6 +40,8 @@ export const siteConfig = {
   },
   navLinks: [
     { label: "How It Works", href: "/#how-it-works" },
+    { label: "Self-Stake", href: "/#modes" },
+    { label: "Grant Guard", href: "/#modes" },
     { label: "Leaderboard", href: "/leaderboard" },
     { label: "Docs", href: "/docs" },
   ] as { label: string; href: string; external?: boolean }[],
@@ -48,11 +50,12 @@ export const siteConfig = {
     title: "Your reputation.",
     titleHighlight: "On-chain. Forever.",
     description:
-      "Lock SOL as collateral on a delivery commitment.\nShip the proof. Oracle validates.\nPROOF Score updates. Permanently.",
-    cta: "Create a Quest",
+      "Lock SOL before you start building.\nShip the proof. Get it back. Miss the deadline. Lose it.",
+    tensionLine: "Talk is mass-produced. Your PROOF Score isn't.",
+    cta: "Lock SOL on a Deadline",
     ctaDescription: "Lock SOL as collateral on your next deadline",
     secondaryCta: "See Who's Shipping",
-    incentiveLine: "Streak ≥5 → 0% fee · Ship early → earn bonus · Build your PROOF Score.",
+    incentiveLine: "Streak ≥3 → lower fee. Streak ≥5 → zero fee. Ship early → earn bonus.",
   },
   stats: [
     { label: "avg PROOF Score", suffix: "", pending: true },
@@ -63,70 +66,58 @@ export const siteConfig = {
   howItWorks: [
     {
       step: 1,
-      title: "Lock SOL as collateral",
+      title: "Put SOL on the line",
       description:
-        "Pick a deadline. Lock SOL. Your commitment is public, on-chain, and immutable.",
+        "Pick a deadline. Deposit SOL into the smart contract. That SOL is frozen until the deadline passes. Think of it as a security deposit on your own promise.",
       icon: <AnchorIcon className="h-5 w-5" />,
     },
     {
       step: 2,
-      title: "Build",
+      title: "Build against the clock",
       description:
-        "Ship the work. The oracle doesn't care about your excuses.",
+        "Your commitment is public and on-chain. Anyone can see it. The deadline doesn't move. The oracle doesn't care why you're behind.",
       icon: <RocketIcon className="h-5 w-5" />,
     },
     {
       step: 3,
-      title: "Submit proof",
+      title: "Submit a link",
       description:
-        "GitHub commit. Vercel deploy. Live URL. Submitted before deadline.",
+        "Paste a GitHub commit URL or a Vercel deploy link before the deadline. That's it. The oracle calls the API and checks if the proof is real.",
       icon: <ZapIcon className="h-5 w-5" />,
     },
     {
       step: 4,
-      title: "Oracle settles",
+      title: "Shipped or slashed",
       description:
-        "SHIPPED → reclaim stake. PROOF Score goes up. SLASHED → lose your stake. Score drops 15 pts. No appeals. Final.",
+        "Proof validates → your SOL comes back minus a small fee. Proof fails or deadline passes → your SOL is gone. PROOF Score updates either way. No appeals. Final.",
       icon: <CheckCircleIcon className="h-5 w-5" />,
     },
   ],
   modes: [
     {
       name: "Grant Guard",
-      tag: "B2B · Foundations",
-      description: "Stop funding promises.",
+      tag: "B2B · Foundations & DAOs",
+      description: "For foundations",
       longDescription:
-        "Lock the grant tranche on-chain. Builders post matching stake. No milestone = no funds. Automatic.",
+        "Foundations lose money on grants that never ship. It happens constantly. A builder gets funded, disappears, and there's no enforcement mechanism besides reputation damage — which doesn't recover the capital.\n\nGrant Guard locks funds in the smart contract. Builders post matching collateral. If the milestone ships, funds release automatically. If it doesn't, the foundation's capital is returned. No committees. No chasing invoices. The contract settles it.",
       icon: <ShieldCheckIcon className="h-6 w-6" />,
-      features: [
-        "Milestone-based fund release",
-        "Automatic capital recovery on missed deadlines",
-        "On-chain audit trail for every grant",
-        "Multi-signer program configuration",
-      ],
-      cta: "Protect your grant",
+      cta: "Protect a grant",
     },
     {
       name: "Self-Stake",
-      tag: "B2C · Builders",
-      description: "Build in public. For real.",
+      tag: "B2C · Indie Builders",
+      description: "For builders",
       longDescription:
-        "Lock your own SOL. Set a public deadline. Ship or get slashed. No external participants. Just you and the chain.",
+        "Anyone can say they're building something. Most of them never ship. The ones who do have no way to prove consistency — just a Twitter thread and a pinned repo.\n\nSelf-Stake lets you lock your own SOL against your own deadline. Ship and get it back. Miss and lose it. Every settled commitment writes to your PROOF Score. Over time, that score becomes the only credential that matters — because you can't buy it.",
       icon: <TargetIcon className="h-6 w-6" />,
-      features: [
-        "Lock SOL to your own deadlines",
-        "Solo accountability — no external participants",
-        "Build an immutable shipping reputation",
-        "PROOF Score compounds with streaks",
-      ],
       cta: "Start shipping",
     },
   ],
   proofScore: {
     title: "PROOF Score",
-    subtitle: "Your reputation, computed.",
+    subtitle: "Your track record, computed.",
     description:
-      "Not self-reported. Not gamed. Stored on-chain. Readable by any protocol.",
+      "A number from 0 to 100 that reflects how reliably you deliver. Calculated automatically every time a commitment settles. Stored on-chain. You can't edit it, buy it, or reset it.",
     components: [
       {
         name: "base",
@@ -163,7 +154,7 @@ export const siteConfig = {
     ],
     tags: ["On-chain", "Non-gameable", "Composable"],
     composabilityBody:
-      "Any Solana program can read your PROOF Score. Lending protocols. Grant programs. Job boards. You built the track record. It follows you.",
+      "Any program on Solana can read your PROOF Score directly from the blockchain. A lending protocol could use it to set your collateral ratio. A DAO could require a minimum score to apply for grants. A job board could filter by it. You build the record once. It follows you everywhere.",
   },
   faqs: [
     {
@@ -205,8 +196,8 @@ export const siteConfig = {
         heading: "Protocol",
         links: [
           { text: "How It Works", url: "/#how-it-works" },
-          { text: "Explore Quests", url: "/explore" },
-          { text: "Create a Quest", url: "/quest/create" },
+          { text: "Self-Stake", url: "/#modes" },
+          { text: "Grant Guard", url: "/#modes" },
           { text: "Docs", url: "/docs" },
         ],
       },
@@ -246,8 +237,8 @@ export const siteConfig = {
       },
     ],
     links: [
+      { text: "How It Works", url: "/#how-it-works" },
       { text: "Docs", url: "/docs" },
-      { text: "Explore Quests", url: "/explore" },
       { text: "Leaderboard", url: "/leaderboard" },
     ],
     bottomText: "All rights reserved.",

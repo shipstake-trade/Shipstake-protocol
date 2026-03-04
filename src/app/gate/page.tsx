@@ -10,18 +10,18 @@ import { useEffect, useState, Suspense } from "react";
 const TEASER_CARDS = [
   {
     icon: "🏦",
-    title: "PROOF Score >80 → uncollateralized credit",
-    sub: "Lending protocols will read your on-chain track record. Coming.",
+    title: "Borrow more with a shipping history",
+    sub: "Lending protocols will be able to read your PROOF Score and adjust your terms. Builders who deliver consistently get better rates. No paperwork — just your on-chain record.",
   },
   {
     icon: "🏛️",
-    title: "DAO grant eligibility filter",
-    sub: "Foundations will require minimum PROOF Score to apply. Coming.",
+    title: "Skip the grant application pile",
+    sub: "Foundations will be able to require a minimum PROOF Score before accepting applications. Your delivery history becomes your cover letter.",
   },
   {
     icon: "✅",
-    title: "Verified Builder badge across web3",
-    sub: "One score. Every protocol. Permanent. Coming.",
+    title: "One score. Every platform.",
+    sub: "Job boards, DAOs, and protocols will reference the same on-chain score. Ship once, prove it everywhere. No badges to collect. No profiles to maintain.",
   },
 ];
 
@@ -86,7 +86,11 @@ function GateContent() {
           className="absolute inset-0 size-full -z-10"
         />
         <div className="relative z-10 flex flex-col items-center text-center px-6 max-w-md">
-          <Icons.logo className="h-12 w-12 text-primary mb-6" />
+          <img
+            src="/brand/shipstake-mark.svg"
+            alt="SHIPSTAKE"
+            className="h-12 w-12 mb-6"
+          />
           <h1 className="text-3xl font-display font-bold text-foreground mb-3">
             Region restricted
           </h1>
@@ -110,7 +114,11 @@ function GateContent() {
       />
 
       <div className="relative z-10 flex flex-col items-center text-center px-6 w-full max-w-xl">
-        <Icons.logo className="h-12 w-12 text-primary mb-6" />
+        <img
+          src="/brand/shipstake-mark.svg"
+          alt="SHIPSTAKE"
+          className="h-12 w-12 mb-6"
+        />
 
         <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-mono border border-emerald-500/30 text-emerald-400 mb-6">
           Accountability Protocol · Solana
@@ -121,10 +129,8 @@ function GateContent() {
         </h1>
 
         <p className="text-muted-foreground mb-8 text-sm leading-relaxed max-w-sm">
-          SHIPSTAKE is launching soon.{" "}
-          Lock SOL as collateral on your delivery commitments.{" "}
-          Build your PROOF Score — the on-chain reputation that lending protocols,
-          DAOs, and job boards will read.
+          SHIPSTAKE is launching soon. Lock SOL on your delivery commitments.
+          Build a PROOF Score that other protocols can read and trust.
         </p>
 
         {/* Teaser cards */}
@@ -145,10 +151,10 @@ function GateContent() {
         {submitted ? (
           <div className="text-center">
             <p className="text-sm font-mono text-primary mb-2">
-              You&apos;re on the list. ✓
+              You&apos;re on the list. We&apos;ll reach out before launch.
             </p>
             <p className="text-xs text-muted-foreground">
-              Early builders get Founder badge · 0% fee on first quest.
+              Early builders get Founder status and zero fee on their first commitment.
             </p>
           </div>
         ) : (
@@ -180,7 +186,7 @@ function GateContent() {
               <p className="text-[11px] text-red-400 text-center">{error}</p>
             )}
             <p className="text-[10px] text-muted-foreground/60 text-center">
-              Early builders get Founder badge · 0% fee on first quest
+              Early builders get Founder status and zero fee on their first commitment.
             </p>
           </div>
         )}

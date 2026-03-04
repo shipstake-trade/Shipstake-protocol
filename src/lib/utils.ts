@@ -60,7 +60,9 @@ export function constructMetadata({
       type: "website",
       locale: "en_US",
     },
-    icons: "/favicon.ico",
+    icons: [
+      { rel: "icon", url: "/brand/shipstake-mark.svg", type: "image/svg+xml" },
+    ],
     metadataBase: new URL(siteConfig.url),
     authors: [
       {

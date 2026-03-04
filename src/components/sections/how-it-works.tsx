@@ -7,43 +7,43 @@ import { BLUR_FADE_DELAY } from "@/lib/config";
 const STEPS = [
   {
     step: 1,
-    title: "Lock SOL as collateral",
-    description: "Public. Immutable. On-chain from the moment you create.",
+    title: "Put SOL on the line",
+    description: "Pick a deadline. Deposit SOL into the smart contract. That SOL is frozen until the deadline passes. A security deposit on your own promise.",
   },
   {
     step: 2,
-    title: "Build",
-    description: "No one's watching. The deadline is.",
+    title: "Build against the clock",
+    description: "Your commitment is public and on-chain. Anyone can see it. The deadline doesn't move. The oracle doesn't care why you're behind.",
   },
   {
     step: 3,
-    title: "Submit proof",
-    description: "One URL. One chance. Before the clock hits zero.",
+    title: "Submit a link",
+    description: "Paste a GitHub commit URL or a Vercel deploy link before the deadline. The oracle calls the API and checks if the proof is real.",
   },
   {
     step: 4,
-    title: "The protocol decides",
+    title: "Shipped or slashed",
     description:
-      "Delivered → get your SOL back, score goes up. Missed → lose your stake, score drops. No appeals. No humans. No exceptions.",
+      "Proof validates → your SOL comes back minus a small fee. Proof fails or deadline passes → your SOL is gone. PROOF Score updates either way. No appeals. Final.",
   },
 ];
 
 const INCENTIVES = [
   {
     title: "Streak Rewards",
-    lines: ["3 in a row → reduced fee", "5 in a row → zero fee"],
-    tagline: "The protocol rewards consistency.",
+    lines: ["Streak ≥3 → reduced fee", "Streak ≥5 → zero fee"],
+    tagline: "Consistency pays. Literally.",
   },
   {
     title: "Early Bonus",
-    lines: ["Submit before the deadline by 48h", "→ earn from the protocol's reward pool."],
-    tagline: "Speed pays.",
+    lines: ["Ship before the deadline", "Earn from the fee vault"],
+    tagline: "The faster you deliver, the more you keep.",
   },
   {
     title: "Your Score",
     lines: [
-      "Every quest shapes your permanent on-chain record.",
-      "Non-transferable. Non-fakeable.",
+      "Every settlement writes to your PROOF Score.",
+      "0–100. On-chain. Permanent.",
     ],
     tagline: "Earned one delivery at a time.",
   },
@@ -54,8 +54,8 @@ export function HowItWorks() {
     <Section
       id="how-it-works"
       title="How it works"
-      subtitle="Four steps. No trust required."
-      description="Lock SOL as collateral. Build. Oracle settles it."
+      subtitle="Four steps. No middlemen. No appeals."
+      description="Lock SOL. Build. Submit proof. The contract settles the rest."
       flickerColor="#00C896"
       flickerOpacity={0.08}
     >
