@@ -35,6 +35,14 @@ function GateContent() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [buildersCount, setBuildersCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch("/api/waitlist/count")
+      .then((r) => r.json())
+      .then((d) => setBuildersCount(d.count))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (ready && connected && !isGeoBlocked) {
@@ -178,7 +186,9 @@ function GateContent() {
         )}
 
         <p className="mt-8 text-xs text-muted-foreground font-mono">
-          <span className="text-primary font-bold">847</span>
+          <span className="text-primary font-bold">
+            {buildersCount ?? "—"}
+          </span>
           {" "}builders waiting
         </p>
 
