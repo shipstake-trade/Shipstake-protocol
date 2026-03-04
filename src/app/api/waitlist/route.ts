@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
   }
 
   const { error } = await resend.emails.send({
-    from: "waitlist@shipstake.trade",
+    from: "SHIPSTAKE Waitlist <waitlist@shipstake.trade>",
     to: "syzy@posteo.net",
     subject: "New waitlist signup — SHIPSTAKE",
     text: `New waitlist signup: ${email}`,
