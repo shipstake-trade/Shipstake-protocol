@@ -6,7 +6,12 @@ import { Program, AnchorProvider, BN } from "@coral-xyz/anchor"
 import { usePrivy } from "@privy-io/react-auth"
 import { useWallets as useSolanaWallets } from "@privy-io/react-auth/solana"
 import { IDL, PROGRAM_ID, type Category, type ProofType, type PositionSide, categoryToAnchor, sideToAnchor, proofTypeToAnchor } from "./idl"
+import type { BuilderProfileAccount, GrantProgramAccount } from "./idl"
 import { LAMPORTS_PER_SOL } from "@solana/web3.js"
+
+// Re-export PROGRAM_ID as PublicKey for external consumers
+export { PROGRAM_ID } from "./idl"
+export const PROGRAM_PUBKEY = new PublicKey(PROGRAM_ID)
 
 // ============================================
 // SSR SAFETY HOOK
@@ -49,6 +54,159 @@ export function getCommitmentPda(quest: PublicKey, supporter: PublicKey): Public
     [Buffer.from("commitment"), quest.toBuffer(), supporter.toBuffer()],
     PROG
   )[0]
+}
+
+// ─── New PDA helpers (real contract: nonce-based quests, builder profiles) ──
+
+export function getBuilderProfilePda(builder: PublicKey): PublicKey {
+  return PublicKey.findProgramAddressSync(
+    [Buffer.from("builder_profile"), builder.toBuffer()],
+    PROG
+  )[0]
+}
+
+export function getGrantProgramPda(foundation: PublicKey, name: string): PublicKey {
+  return PublicKey.findProgramAddressSync(
+    [Buffer.from("grant_program"), foundation.toBuffer(), Buffer.from(name)],
+    PROG
+  )[0]
+}
+
+/** Nonce-based quest PDA (real contract). nonce is u64 LE. */
+export function getQuestPdaByNonce(builder: PublicKey, nonce: number | BN): PublicKey {
+  const buf = Buffer.alloc(8)
+  const n = typeof nonce === "number" ? BigInt(nonce) : BigInt(nonce.toString())
+  buf.writeBigUInt64LE(n)
+  return PublicKey.findProgramAddressSync(
+    [Buffer.from("quest"), builder.toBuffer(), buf],
+    PROG
+  )[0]
+}
+
+// ─── On-chain fetch helpers ─────────────────────────────────────────────────
+
+export async function fetchBuilderProfile(
+  program: Program,
+  builder: PublicKey,
+): Promise<BuilderProfileAccount | null> {
+  const pda = getBuilderProfilePda(builder)
+  try {
+    const account = await (program.account as any).builderProfile.fetch(pda)
+    return {
+      builder: account.builder.toBase58(),
+      proofScore: account.proofScore,
+      questsTotal: account.questsTotal,
+      questsShipped: account.questsShipped,
+      questsSlashed: account.questsSlashed,
+      totalStakedLifetime: account.totalStakedLifetime.toNumber(),
+      streakCurrent: account.streakCurrent,
+      streakBest: account.streakBest,
+      questNonce: account.questNonce.toNumber(),
+      lastQuestAt: account.lastQuestAt.toNumber(),
+      joinedAt: account.joinedAt.toNumber(),
+      bump: account.bump,
+    } as BuilderProfileAccount
+  } catch {
+    return null
+  }
+}
+
+export async function fetchQuest(
+  program: Program,
+  questPda: PublicKey,
+) {
+  try {
+    return await (program.account as any).questAccount.fetch(questPda)
+  } catch {
+    return null
+  }
+}
+
+export async function fetchProtocolConfig(
+  program: Program,
+) {
+  const pda = getConfigPda()
+  try {
+    return await (program.account as any).protocolConfig.fetch(pda)
+  } catch {
+    return null
+  }
+}
+
+// ─── Transaction builders (real contract) ───────────────────────────────────
+
+export interface CreateQuestRealParams {
+  nonce: BN
+  title: string
+  description: string
+  deadline: BN
+  mode: number               // 0 = SelfStake, 1 = GrantGuard
+  slashDestination: PublicKey
+  stakeAmount: BN
+  grantTranche: BN
+  grantProgram: PublicKey
+}
+
+export async function buildCreateQuestTx(
+  program: Program,
+  builder: PublicKey,
+  params: CreateQuestRealParams,
+) {
+  const questPda = getQuestPdaByNonce(builder, params.nonce)
+  const poolVaultPda = getPoolVaultPda(questPda)
+  const configPda = getConfigPda()
+  const builderProfilePda = getBuilderProfilePda(builder)
+
+  return program.methods
+    .createQuest(
+      params.nonce,
+      params.title,
+      params.description,
+      params.deadline,
+      params.mode,
+      params.slashDestination,
+      params.stakeAmount,
+      params.grantTranche,
+      params.grantProgram,
+    )
+    .accounts({
+      builder,
+      config: configPda,
+      builderProfile: builderProfilePda,
+      quest: questPda,
+      poolVault: poolVaultPda,
+    })
+}
+
+export async function buildSubmitProofTx(
+  program: Program,
+  builder: PublicKey,
+  questPda: PublicKey,
+  proofUrl: string,
+  proofType: number,
+) {
+  return program.methods
+    .submitProof(proofUrl, proofType)
+    .accounts({
+      builder,
+      quest: questPda,
+    })
+}
+
+export async function buildClaimStakeTx(
+  program: Program,
+  builder: PublicKey,
+  questPda: PublicKey,
+) {
+  const poolVaultPda = getPoolVaultPda(questPda)
+
+  return program.methods
+    .claimStake()
+    .accounts({
+      builder,
+      quest: questPda,
+      poolVault: poolVaultPda,
+    })
 }
 
 // ============================================

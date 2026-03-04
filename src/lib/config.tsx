@@ -10,6 +10,9 @@ import {
   ZapIcon,
 } from "lucide-react";
 
+export const SHIPSTAKE_PROGRAM_ID = "H2NZtj6ncpknevBc6PUb3Qqd5UdeFXDyBrqWGEeqdaLv";
+export const SOLANA_RPC = process.env.NEXT_PUBLIC_SOLANA_RPC || "http://127.0.0.1:8899";
+
 export const BLUR_FADE_DELAY = 0.15;
 
 export const siteConfig = {
