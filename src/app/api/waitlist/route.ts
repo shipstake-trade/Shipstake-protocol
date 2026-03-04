@@ -13,17 +13,43 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid email" }, { status: 400 });
   }
 
-  const { error } = await resend.emails.send({
-    from: "SHIPSTAKE Waitlist <waitlist@shipstake.trade>",
-    to: "syzy@posteo.net",
-    subject: "New waitlist signup — SHIPSTAKE",
-    text: `New waitlist signup: ${email}`,
-  });
+  // Add to Resend Audience (must be awaited — serverless functions exit on response)
+  if (process.env.RESEND_AUDIENCE_ID) {
+    try {
+      await resend.contacts.create({
+        email,
+        audienceId: process.env.RESEND_AUDIENCE_ID,
+        unsubscribed: false,
+      });
+    } catch (err) {
+      console.error("[waitlist] contacts.create error:", err);
+    }
+  }
 
-  if (error) {
-    console.error("[waitlist] Resend error:", error);
+  const [confirmResult, notifyResult] = await Promise.all([
+    resend.emails.send({
+      from: "SHIPSTAKE <waitlist@shipstake.trade>",
+      to: email,
+      replyTo: "syzy@posteo.net",
+      subject: "You're on the SHIPSTAKE waitlist",
+      html: `<p>We'll reach out when we're ready to onboard you.</p>`,
+    }),
+    resend.emails.send({
+      from: "SHIPSTAKE Waitlist <waitlist@shipstake.trade>",
+      to: "syzy@posteo.net",
+      replyTo: email,
+      subject: "New waitlist signup — SHIPSTAKE",
+      text: `New waitlist signup: ${email}`,
+    }),
+  ]);
+
+  if (confirmResult.error && notifyResult.error) {
+    console.error("[waitlist] Both emails failed:", confirmResult.error, notifyResult.error);
     return NextResponse.json({ error: "Failed to send" }, { status: 500 });
   }
+
+  if (confirmResult.error) console.error("[waitlist] Confirmation email failed:", confirmResult.error);
+  if (notifyResult.error) console.error("[waitlist] Notification email failed:", notifyResult.error);
 
   return NextResponse.json({ ok: true });
 }
