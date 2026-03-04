@@ -27,9 +27,31 @@ function formatDeadline(timestamp: number): string {
   return `${hours}h left`;
 }
 
+function proofScoreColor(score: number): string {
+  if (score >= 91) return "text-yellow-400";
+  if (score >= 76) return "text-orange-400";
+  if (score >= 51) return "text-purple-400";
+  if (score >= 26) return "text-blue-400";
+  return "text-slate-400";
+}
+
+function MiniScoreBar({ score }: { score: number }) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <div className="w-12 h-1 rounded-full bg-border overflow-hidden">
+        <div
+          className="h-full rounded-full bg-primary transition-all"
+          style={{ width: `${score}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
 export function QuestCard({ quest, showBuilder = true }: QuestCardProps) {
   const [hovered, setHovered] = useState(false);
   const stake = lamportsToSol(quest.stakeAmount);
+  const isSettled = quest.status === "Shipped" || quest.status === "Slashed";
 
   return (
     <Link href={`/quest/${quest.publicKey}`}>
@@ -63,10 +85,38 @@ export function QuestCard({ quest, showBuilder = true }: QuestCardProps) {
           {quest.title}
         </h3>
 
-        {/* Builder address */}
+        {/* Builder address + PROOF Score */}
         {showBuilder && (
-          <p className="text-xs font-mono text-muted-foreground mb-3">
-            {quest.builder}
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
+            <p className="text-xs font-mono text-muted-foreground">
+              {quest.builder}
+            </p>
+            <span className="text-muted-foreground/30">·</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] text-muted-foreground/60 uppercase tracking-wider font-mono">PROOF</span>
+              <span className={cn("text-xs font-mono font-bold", proofScoreColor(quest.builderProofScore))}>
+                {quest.builderProofScore}
+              </span>
+              <MiniScoreBar score={quest.builderProofScore} />
+            </div>
+            {quest.builderStreak > 0 && (
+              <span className="text-[10px] font-mono text-amber-400">
+                🔥{quest.builderStreak}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Settled outcome line */}
+        {isSettled && quest.resolvedAt && (
+          <p className={cn(
+            "text-[10px] font-mono mb-2",
+            quest.status === "Shipped" ? "text-emerald-400" : "text-destructive"
+          )}>
+            {quest.status === "Shipped"
+              ? `SHIPPED ${new Date(quest.resolvedAt * 1000).toLocaleDateString("en-US", { month: "short", day: "numeric" })} · Score +${Math.floor(quest.builderProofScore * 0.1) + 2} pts`
+              : `SLASHED ${new Date(quest.resolvedAt * 1000).toLocaleDateString("en-US", { month: "short", day: "numeric" })} · Score −15`
+            }
           </p>
         )}
 

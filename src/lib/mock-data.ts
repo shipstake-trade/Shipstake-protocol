@@ -23,6 +23,8 @@ export type MockQuest = QuestAccount & {
   slashDestination: string
   createdAt: number
   resolvedAt: number | null
+  builderProofScore: number
+  builderStreak: number
 }
 
 const now = Math.floor(Date.now() / 1000)
@@ -48,6 +50,8 @@ export const mockQuests: MockQuest[] = [
     slashDestination: "burn",
     createdAt: now - 1 * DAY,
     resolvedAt: null,
+    builderProofScore: 82,
+    builderStreak: 5,
   },
   {
     publicKey: "QsT2bC3dE4fG5hI6jK7lM8nO9pQ0rS1tU2vW3xY4zA",
@@ -68,6 +72,8 @@ export const mockQuests: MockQuest[] = [
     slashDestination: "burn",
     createdAt: now - 8 * DAY,
     resolvedAt: null,
+    builderProofScore: 78,
+    builderStreak: 3,
   },
   {
     publicKey: "QsT3cD4eF5gH6iJ7kL8mN9oP0qR1sT2uV3wX4yZ5aB",
@@ -88,6 +94,8 @@ export const mockQuests: MockQuest[] = [
     slashDestination: "foundation_escrow",
     createdAt: now - 15 * DAY,
     resolvedAt: now - 1 * DAY,
+    builderProofScore: 95,
+    builderStreak: 12,
   },
   {
     publicKey: "QsT4dE5fG6hI7jK8lM9nO0pQ1rS2tU3vW4xY5zA6bC",
@@ -108,6 +116,8 @@ export const mockQuests: MockQuest[] = [
     slashDestination: "burn",
     createdAt: now - 20 * DAY,
     resolvedAt: now - 4 * DAY,
+    builderProofScore: 47,
+    builderStreak: 0,
   },
   {
     publicKey: "QsT5eF6gH7iJ8kL9mN0oP1qR2sT3uV4wX5yZ6aB7cD",
@@ -128,6 +138,8 @@ export const mockQuests: MockQuest[] = [
     slashDestination: "burn",
     createdAt: now - 3 * DAY,
     resolvedAt: null,
+    builderProofScore: 68,
+    builderStreak: 1,
   },
 ]
 

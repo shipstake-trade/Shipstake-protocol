@@ -4,60 +4,75 @@ import { siteConfig } from "@/lib/config";
 
 export function Footer() {
   return (
-    <footer className="flex flex-col gap-y-5 rounded-lg p-5 container max-w-[var(--container-max-width)] mx-auto">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-x-2">
-          <Icons.logo className="h-5 w-5" />
-          <h2 className="text-lg font-display font-bold text-foreground">
-            {siteConfig.name}
-          </h2>
+    <footer className="container max-w-[var(--container-max-width)] mx-auto px-4 pt-12 pb-4">
+      {/* 4-column grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+        {/* Col 1: Brand */}
+        <div className="col-span-2 md:col-span-1">
+          <div className="flex items-center gap-x-2 mb-3">
+            <Icons.logo className="h-5 w-5" />
+            <h2 className="text-lg font-display font-bold text-foreground">
+              {siteConfig.name}
+            </h2>
+          </div>
+          <p className="text-sm text-muted-foreground mb-1">{siteConfig.footer.tagline}</p>
+          <p className="text-xs text-muted-foreground/60 italic">{siteConfig.footer.subTagline}</p>
+          <div className="flex gap-x-3 mt-4">
+            {siteConfig.footer.socialLinks.map((link, index) => (
+              <a
+                key={index}
+                href={link.url}
+                aria-label={link.label}
+                rel="noopener noreferrer"
+                target="_blank"
+                className="flex h-5 w-5 items-center justify-center text-muted-foreground transition-all duration-100 ease-linear hover:text-foreground"
+              >
+                {link.icon}
+              </a>
+            ))}
+          </div>
         </div>
 
-        <div className="flex gap-x-2">
-          {siteConfig.footer.socialLinks.map((link, index) => (
-            <a
-              key={index}
-              href={link.url}
-              aria-label={link.label}
-              rel="noopener noreferrer"
-              target="_blank"
-              className="flex h-5 w-5 items-center justify-center text-muted-foreground transition-all duration-100 ease-linear hover:text-foreground hover:underline hover:underline-offset-4"
-            >
-              {link.icon}
-            </a>
-          ))}
-        </div>
+        {/* Cols 2-4: Link groups */}
+        {siteConfig.footer.columns.map((col) => (
+          <div key={col.heading}>
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/60 mb-3">
+              {col.heading}
+            </h3>
+            <ul className="space-y-2">
+              {col.links.map((link) => (
+                <li key={link.text}>
+                  <a
+                    href={link.url}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {link.text}
+                  </a>
+                </li>
+              ))}
+              {"teaser" in col && col.teaser && col.teaser.map((item: string) => (
+                <li key={item} className="text-xs text-muted-foreground/50">
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </div>
 
-      {/* Tagline */}
-      <p className="font-serif italic text-lg text-muted-foreground">
-        {siteConfig.footer.tagline}
-      </p>
-
-      <div className="flex flex-col justify-between gap-y-5 md:flex-row md:items-center">
-        <ul className="flex flex-col gap-x-5 gap-y-2 text-muted-foreground md:flex-row md:items-center">
-          {siteConfig.footer.links.map((link, index) => (
-            <li
-              key={index}
-              className="text-[15px]/normal font-medium text-muted-foreground transition-all duration-100 ease-linear hover:text-foreground hover:underline hover:underline-offset-4"
-            >
-              <a href={link.url}>{link.text}</a>
-            </li>
-          ))}
-        </ul>
-        <div className="flex items-center justify-between text-sm font-medium tracking-tight text-muted-foreground">
-          <p>{siteConfig.footer.bottomText}</p>
+      {/* Bottom bar */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-6 border-t border-border/50 mb-4">
+        <div className="flex items-center gap-3 text-xs text-muted-foreground/50">
+          <span>{siteConfig.footer.protocolVersion}</span>
         </div>
+        <p className="text-xs text-muted-foreground/40">
+          {siteConfig.footer.bottomText}
+        </p>
       </div>
 
-      {/* Geo-block note */}
-      <p className="text-[10px] text-muted-foreground/50 leading-relaxed max-w-lg">
+      {/* Geo note */}
+      <p className="text-[10px] text-muted-foreground/40 leading-relaxed max-w-lg mb-4">
         {siteConfig.footer.geoNote}
-      </p>
-
-      {/* Protocol version */}
-      <p className="text-xs font-mono text-muted-foreground/40">
-        {siteConfig.footer.protocolVersion}
       </p>
 
       <BorderText

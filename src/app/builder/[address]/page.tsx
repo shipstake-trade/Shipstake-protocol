@@ -48,61 +48,93 @@ export default function BuilderProfilePage({
       <main className="container mx-auto max-w-[var(--container-max-width)] px-4 py-8">
         {/* Profile header */}
         <div className="glass-card rounded-lg p-6 mb-8">
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-            <ProofScoreRing score={profile.proofScore} size="lg" />
-            <div className="flex-1">
+          <div className="flex flex-col md:flex-row items-start gap-8">
+            {/* Left: identity */}
+            <div className="flex flex-col items-center gap-3 md:w-40 shrink-0">
+              <ProofScoreRing
+                score={profile.proofScore}
+                streak={profile.currentStreak}
+                showNextRank
+                size="lg"
+              />
               <WalletAddress
                 address={address}
                 length={8}
-                className="text-lg font-mono"
+                className="text-sm font-mono text-muted-foreground"
               />
-              <p className="text-xs text-muted-foreground mt-1">
-                Joined{" "}
+              <p className="text-[10px] text-muted-foreground/60 text-center">
+                joined{" "}
                 {new Date(profile.joinedAt * 1000).toLocaleDateString("en-US", {
                   month: "short",
                   year: "numeric",
                 })}
+                {" · "}
+                {profile.questsTotal} quests
               </p>
+            </div>
 
-              {/* Stats grid */}
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-4">
-                <div>
-                  <p className="text-2xl font-mono font-bold text-foreground">
-                    {profile.questsShipped}
-                  </p>
-                  <p className="text-xs text-muted-foreground">Shipped</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-mono font-bold text-danger">
-                    {profile.questsSlashed}
-                  </p>
-                  <p className="text-xs text-muted-foreground">Slashed</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-mono font-bold text-foreground">
-                    {profile.currentStreak}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Current streak
-                  </p>
-                </div>
-                <div>
-                  <p className="text-2xl font-mono font-bold text-foreground">
-                    {profile.bestStreak}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Best streak
-                  </p>
-                </div>
-                <div>
-                  <p className="text-2xl font-mono font-bold text-primary">
-                    {profile.totalSolStaked.toFixed(1)}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    SOL staked lifetime
-                  </p>
-                </div>
+            {/* Right: stats + progress */}
+            <div className="flex-1">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+                {[
+                  { label: "Quests Shipped", value: profile.questsShipped, cls: "text-foreground" },
+                  { label: "Current Streak", value: `🔥 ${profile.currentStreak}`, cls: "text-amber-400" },
+                  { label: "SOL Staked", value: `${profile.totalSolStaked.toFixed(1)} SOL`, cls: "text-primary" },
+                  { label: "Best Streak", value: profile.bestStreak, cls: "text-foreground" },
+                ].map((s) => (
+                  <div key={s.label} className="bg-secondary/50 rounded-lg p-3">
+                    <p className={cn("text-xl font-mono font-bold", s.cls)}>{s.value}</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-0.5">{s.label}</p>
+                  </div>
+                ))}
               </div>
+
+              {/* Progress to next rank */}
+              <div className="bg-secondary/30 rounded-lg p-4 mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs text-muted-foreground">
+                    Progress to next rank
+                  </p>
+                  <p className="text-xs font-medium text-foreground">
+                    {profile.questsTotal > 0
+                      ? `${Math.round((profile.questsShipped / profile.questsTotal) * 100)}% ship rate`
+                      : "—"
+                    }
+                  </p>
+                </div>
+                <div className="h-1.5 rounded-full bg-border overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-primary transition-all duration-700"
+                    style={{ width: `${profile.proofScore}%` }}
+                  />
+                </div>
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  {profile.proofScore < 91
+                    ? `${profile.proofScore}/100 · ${(() => {
+                        if (profile.proofScore < 26) return `${26 - profile.proofScore} pts to Adept`;
+                        if (profile.proofScore < 51) return `${51 - profile.proofScore} pts to Veteran`;
+                        if (profile.proofScore < 76) return `${76 - profile.proofScore} pts to Legend`;
+                        return `${91 - profile.proofScore} pts to Mythic`;
+                      })()}`
+                    : "Mythic — maximum rank achieved"
+                  }
+                </p>
+              </div>
+
+              {/* Incentive active */}
+              {profile.currentStreak >= 5 ? (
+                <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-4 py-3 text-sm text-emerald-400 font-medium">
+                  🔥🔥🔥 0% fee — FREE SHIPPING active
+                </div>
+              ) : profile.currentStreak >= 3 ? (
+                <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3 text-sm text-emerald-400">
+                  🔥 1% fee active · Ship {5 - profile.currentStreak} more for 0%
+                </div>
+              ) : (
+                <div className="rounded-lg border border-border bg-secondary/30 px-4 py-3 text-xs text-muted-foreground">
+                  Start a streak → earn fee reductions · Ship 3 in a row for 1%
+                </div>
+              )}
             </div>
           </div>
         </div>

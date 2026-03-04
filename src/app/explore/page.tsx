@@ -29,12 +29,13 @@ const CATEGORY_OPTIONS: Category[] = [
   "Other",
 ];
 
-type SortOption = "newest" | "deadline" | "stake";
+type SortOption = "newest" | "deadline" | "stake" | "proofScore";
 
 const SORT_LABELS: Record<SortOption, string> = {
   newest: "Newest",
   deadline: "Deadline",
   stake: "Stake",
+  proofScore: "PROOF Score ↓",
 };
 
 export default function ExplorePage() {
@@ -61,6 +62,9 @@ export default function ExplorePage() {
       case "stake":
         quests.sort((a, b) => b.stakeAmount - a.stakeAmount);
         break;
+      case "proofScore":
+        quests.sort((a, b) => b.builderProofScore - a.builderProofScore);
+        break;
       default:
         quests.sort((a, b) => b.deadline - a.deadline);
     }
@@ -79,6 +83,9 @@ export default function ExplorePage() {
             </h1>
             <p className="text-muted-foreground text-sm mt-1">
               Builders with SOL on the line.
+            </p>
+            <p className="text-xs text-muted-foreground/50 mt-0.5">
+              PROOF Score is permanent. Every quest counts.
             </p>
           </div>
           {connected && (
@@ -151,8 +158,8 @@ export default function ExplorePage() {
           </div>
 
           {/* Sort */}
-          <div className="flex gap-1 ml-auto">
-            {(["newest", "deadline", "stake"] as SortOption[]).map((s) => (
+          <div className="flex gap-1 ml-auto flex-wrap justify-end">
+            {(["newest", "deadline", "stake", "proofScore"] as SortOption[]).map((s) => (
               <button
                 key={s}
                 onClick={() => setSort(s)}

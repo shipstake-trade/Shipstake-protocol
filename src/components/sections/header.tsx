@@ -18,10 +18,38 @@ import { LAMPORTS_PER_SOL, Connection, PublicKey } from "@solana/web3.js";
 import { ChevronDown, Copy, ExternalLink, LogOut } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { mockBuilderProfile } from "@/lib/mock-data";
 import { toast } from "sonner";
 
 function truncate(address: string) {
   return `${address.slice(0, 4)}...${address.slice(-4)}`;
+}
+
+function proofScoreColor(score: number): string {
+  if (score >= 91) return "text-yellow-400";
+  if (score >= 76) return "text-orange-400";
+  if (score >= 51) return "text-purple-400";
+  if (score >= 26) return "text-blue-400";
+  return "text-slate-400";
+}
+
+function NavProofScore({ address, score, streak }: { address: string; score: number; streak: number }) {
+  return (
+    <Link
+      href={`/builder/${address}`}
+      className={cn(
+        "hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-secondary/50 hover:border-[var(--border-active)] transition-colors text-sm font-mono",
+        proofScoreColor(score)
+      )}
+      title="Your PROOF Score — click to view profile"
+    >
+      <span className="text-muted-foreground text-xs">PROOF</span>
+      <span className="font-bold">{score}</span>
+      {streak > 0 && (
+        <span className="text-xs">🔥{streak}</span>
+      )}
+    </Link>
+  );
 }
 
 function WalletMenu({ address, onLogout }: { address: string; onLogout: () => void }) {
@@ -138,7 +166,14 @@ export function Header() {
             Explore Quests
           </Link>
           {ready && authenticated && walletAddress ? (
-            <WalletMenu address={walletAddress} onLogout={logout} />
+            <>
+              <NavProofScore
+                address={walletAddress}
+                score={mockBuilderProfile.proofScore}
+                streak={mockBuilderProfile.currentStreak}
+              />
+              <WalletMenu address={walletAddress} onLogout={logout} />
+            </>
           ) : (
             <Link
               href="/gate"

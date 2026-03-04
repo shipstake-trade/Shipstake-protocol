@@ -42,40 +42,48 @@ export const siteConfig = {
   ] as { label: string; href: string; external?: boolean }[],
   hero: {
     badge: "Accountability Protocol · Solana",
-    title: "Prove it",
-    titleHighlight: "on-chain.",
+    title: "Your reputation.",
+    titleHighlight: "On-chain. Forever.",
     description:
-      "Lock SOL. Set a deadline. Ship the proof.\nThe oracle decides. On-chain. Automatically.",
-    cta: "Start a Quest",
-    ctaDescription: "Lock SOL to your next deadline",
+      "Lock SOL as collateral on a delivery commitment.\nShip the proof. Oracle validates.\nPROOF Score updates. Permanently.",
+    cta: "Create a Quest",
+    ctaDescription: "Lock SOL as collateral on your next deadline",
     secondaryCta: "See Who's Shipping",
+    incentiveLine: "Streak ≥5 → 0% fee · Ship early → earn bonus · Build your PROOF Score.",
   },
   stats: [
-    { value: 847, label: "SOL locked", suffix: "" },
-    { value: 34, label: "active quests", suffix: "" },
-    { value: 89, label: "ship rate", suffix: "%" },
+    { value: 73, label: "avg PROOF Score", suffix: "" },
     { value: 127, label: "builders", suffix: "" },
+    { value: 847, label: "SOL locked", suffix: "" },
+    { value: 89, label: "ship rate", suffix: "%" },
   ],
   howItWorks: [
     {
       step: 1,
-      title: "Lock your stake",
+      title: "Lock SOL as collateral",
       description:
-        "Pick a deadline. Lock SOL. Your commitment is now public, on-chain, and non-negotiable.",
+        "Pick a deadline. Lock SOL. Your commitment is public, on-chain, and immutable.",
       icon: <AnchorIcon className="h-5 w-5" />,
     },
     {
       step: 2,
-      title: "Ship the proof",
+      title: "Build",
       description:
-        "Submit a GitHub commit, a Vercel deploy, or a live URL. One URL. Before the deadline.",
+        "Ship the work. The oracle doesn't care about your excuses.",
       icon: <RocketIcon className="h-5 w-5" />,
     },
     {
       step: 3,
-      title: "Oracle settles. Automatically.",
+      title: "Submit proof",
       description:
-        "No committee. No vote. No vibes. Score >= 70 = SHIPPED. Below that = SLASHED. Math, not feelings.",
+        "GitHub commit. Vercel deploy. Live URL. Submitted before deadline.",
+      icon: <ZapIcon className="h-5 w-5" />,
+    },
+    {
+      step: 4,
+      title: "Oracle settles",
+      description:
+        "SHIPPED → reclaim stake. PROOF Score goes up. SLASHED → lose your stake. Score drops 15 pts. No appeals. Final.",
       icon: <CheckCircleIcon className="h-5 w-5" />,
     },
   ],
@@ -188,6 +196,35 @@ export const siteConfig = {
   ],
   footer: {
     tagline: "Prove it on-chain.",
+    subTagline: "Your reputation. On-chain. Forever.",
+    columns: [
+      {
+        heading: "Protocol",
+        links: [
+          { text: "How It Works", url: "/#how-it-works" },
+          { text: "Explore Quests", url: "/explore" },
+          { text: "Create a Quest", url: "/quest/create" },
+          { text: "Docs", url: "/docs" },
+        ],
+      },
+      {
+        heading: "PROOF Score",
+        links: [
+          { text: "What is PROOF Score?", url: "/docs#proof-score" },
+          { text: "Leaderboard", url: "/leaderboard" },
+          { text: "Builder Profiles", url: "/explore" },
+        ],
+      },
+      {
+        heading: "Ecosystem",
+        links: [] as { text: string; url: string }[],
+        teaser: [
+          "Lending protocols (coming)",
+          "DAO grant eligibility (coming)",
+          "Verified Builder badge (coming)",
+        ],
+      },
+    ],
     socialLinks: [
       {
         icon: <Icons.github className="h-5 w-5" aria-hidden="true" />,

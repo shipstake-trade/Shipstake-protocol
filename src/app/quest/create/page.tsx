@@ -7,6 +7,7 @@ import { useCreateQuest, usePrivyWallet } from "@/lib/solana/shipstake";
 import { useLinkAccount } from "@privy-io/react-auth";
 import type { Category, ProofType } from "@/lib/solana/idl";
 import { cn, calcSelfStakeFee, calcGrantGuardFee } from "@/lib/utils";
+import { mockBuilderProfile } from "@/lib/mock-data";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -305,6 +306,35 @@ export default function CreateQuestPage() {
                   })}
                 </p>
               </div>
+              {/* Fee preview with streak discount */}
+              {mode === "self-stake" && (() => {
+                const streak = mockBuilderProfile.currentStreak;
+                let feePct = stakeSol >= 100 ? 1 : stakeSol >= 10 ? 1.5 : 2;
+                if (streak >= 5) feePct = 0;
+                else if (streak >= 3) feePct = 1;
+                const fee = (stakeSol * feePct) / 100;
+                return (
+                  <div className={cn(
+                    "rounded-lg border p-3 flex items-center justify-between text-sm",
+                    streak >= 5
+                      ? "border-emerald-500/40 bg-emerald-500/10"
+                      : streak >= 3
+                      ? "border-emerald-500/25 bg-emerald-500/5"
+                      : "border-border bg-secondary/30"
+                  )}>
+                    <span className="text-muted-foreground">Your fee</span>
+                    <span className={cn("font-mono font-bold", streak >= 3 ? "text-emerald-400" : "text-amber-400")}>
+                      {feePct}% ({fee.toFixed(4)} SOL)
+                      {streak >= 5 && " — FREE 🔥🔥🔥"}
+                      {streak >= 3 && streak < 5 && " — streak discount 🔥"}
+                    </span>
+                  </div>
+                );
+              })()}
+              <p className="text-xs text-muted-foreground/60">
+                Fee is only charged on SHIPPED. Lose your stake pays no fee.
+              </p>
+
               <hr className="border-border/30" />
               <p className="text-xs text-amber-400">
                 If you miss the deadline or score below 70, this SOL is gone. No exceptions.
@@ -440,6 +470,23 @@ export default function CreateQuestPage() {
                   </span>
                 </div>
               </div>
+              {/* PROOF Score impact preview */}
+              <div className="p-3 rounded-md bg-secondary/50 border border-border/50 text-xs space-y-1.5">
+                <p className="text-muted-foreground font-medium">PROOF Score impact</p>
+                <div className="flex justify-between text-muted-foreground">
+                  <span>SHIPPED → estimated</span>
+                  <span className="font-mono text-emerald-400">
+                    +{Math.max(2, Math.floor(stakeSol * 0.5))} pts → {Math.min(100, mockBuilderProfile.proofScore + Math.max(2, Math.floor(stakeSol * 0.5)))}
+                  </span>
+                </div>
+                <div className="flex justify-between text-muted-foreground">
+                  <span>SLASHED → −15 pts</span>
+                  <span className="font-mono text-destructive">
+                    → {Math.max(0, mockBuilderProfile.proofScore - 15)}
+                  </span>
+                </div>
+              </div>
+
               <div className="p-3 rounded-md bg-amber-500/10 border border-amber-500/20 text-xs text-amber-400">
                 This commitment is binding the moment you sign. No extensions. No appeals. The oracle is the final word.
               </div>

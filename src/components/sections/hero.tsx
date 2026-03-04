@@ -6,7 +6,6 @@ import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
 import { buttonVariants } from "@/components/ui/button";
 import { NumberTicker } from "@/components/ui/number-ticker";
 import { siteConfig } from "@/lib/config";
-import { usePrivyWallet } from "@/lib/solana/shipstake";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -62,16 +61,14 @@ function HeroTitles() {
 }
 
 function HeroCTA() {
-  const { connected } = usePrivyWallet();
-
   return (
     <motion.div
-      className="flex w-full max-w-2xl flex-col items-start justify-start space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0 mt-8"
+      className="flex flex-col items-start mt-8 gap-4"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.8, duration: 0.8, ease }}
     >
-      {connected && (
+      <div className="flex w-full max-w-2xl flex-col items-start justify-start space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
         <Link
           href="/quest/create"
           className={cn(
@@ -81,16 +78,19 @@ function HeroCTA() {
         >
           {siteConfig.hero.cta} →
         </Link>
-      )}
-      <Link
-        href="/explore"
-        className={cn(
-          buttonVariants({ variant: "ghost", size: "lg" }),
-          "rounded-lg"
-        )}
-      >
-        {siteConfig.hero.secondaryCta}
-      </Link>
+        <Link
+          href="/explore"
+          className={cn(
+            buttonVariants({ variant: "ghost", size: "lg" }),
+            "rounded-lg"
+          )}
+        >
+          {siteConfig.hero.secondaryCta}
+        </Link>
+      </div>
+      <p className="text-xs text-muted-foreground/70 font-mono">
+        {siteConfig.hero.incentiveLine}
+      </p>
     </motion.div>
   );
 }
@@ -98,30 +98,35 @@ function HeroCTA() {
 function HeroStats() {
   return (
     <motion.div
-      className="flex flex-wrap gap-x-8 gap-y-4 mt-12 pb-2"
+      className="mt-12 pb-2"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 1.0, duration: 0.8 }}
     >
-      {siteConfig.stats.map((stat, i) => (
-        <div key={stat.label} className="flex flex-col">
-          <div className="flex items-baseline gap-1">
-            <NumberTicker
-              value={stat.value}
-              delay={0.2 * i}
-              className="text-2xl font-bold font-mono text-foreground"
-            />
-            {stat.suffix && (
-              <span className="text-2xl font-bold font-mono text-foreground">
-                {stat.suffix}
-              </span>
-            )}
+      <div className="flex flex-wrap gap-x-8 gap-y-4">
+        {siteConfig.stats.map((stat, i) => (
+          <div key={stat.label} className="flex flex-col">
+            <div className="flex items-baseline gap-1">
+              <NumberTicker
+                value={stat.value}
+                delay={0.2 * i}
+                className="text-2xl font-bold font-mono text-foreground"
+              />
+              {stat.suffix && (
+                <span className="text-2xl font-bold font-mono text-foreground">
+                  {stat.suffix}
+                </span>
+              )}
+            </div>
+            <span className="text-xs text-slate-400 uppercase tracking-wider mt-1">
+              {stat.label}
+            </span>
           </div>
-          <span className="text-xs text-slate-400 uppercase tracking-wider mt-1">
-            {stat.label}
-          </span>
-        </div>
-      ))}
+        ))}
+      </div>
+      <p className="text-xs text-muted-foreground/50 italic mt-4">
+        PROOF Score: the on-chain reputation stack you can&apos;t buy or fake.
+      </p>
     </motion.div>
   );
 }

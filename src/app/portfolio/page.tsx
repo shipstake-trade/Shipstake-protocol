@@ -75,42 +75,80 @@ export default function PortfolioPage() {
     <>
       <Header />
       <main className="container mx-auto max-w-[var(--container-max-width)] px-4 py-8">
-        {/* PROOF Score summary */}
-        <div className="glass-card rounded-lg p-6 mb-8 flex flex-col sm:flex-row items-center gap-6">
-          <ProofScoreRing score={profile.proofScore} size="lg" />
-          <div className="flex-1 text-center sm:text-left">
-            <h1 className="text-2xl font-display font-bold text-foreground">
-              My Quests
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Your on-chain track record.
-            </p>
-            <div className="flex flex-wrap justify-center sm:justify-start gap-4 mt-2 text-sm text-muted-foreground">
-              <span>
-                <span className="text-foreground font-medium">
-                  {profile.questsShipped}
-                </span>
-                /{profile.questsTotal} shipped
-              </span>
-              <span>
-                <span className="text-primary font-mono font-medium">
-                  {profile.totalSolStaked.toFixed(1)}
-                </span>{" "}
-                SOL staked
-              </span>
-              <span>
-                <span className="text-foreground font-medium">
-                  {profile.currentStreak}
-                </span>{" "}
-                streak
-              </span>
+        {/* PROOF Score Journey */}
+        <div className="glass-card rounded-lg p-6 mb-8">
+          <div className="flex flex-col sm:flex-row items-center gap-6 mb-6">
+            <ProofScoreRing
+              score={profile.proofScore}
+              streak={profile.currentStreak}
+              showNextRank
+              size="lg"
+            />
+            <div className="flex-1 text-center sm:text-left">
+              <p className="text-xs font-mono text-primary uppercase tracking-widest mb-1">
+                Your PROOF Score Journey
+              </p>
+              <h1 className="text-2xl font-display font-bold text-foreground">
+                My Quests
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                Your on-chain reputation. Permanent.
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+                {[
+                  { label: "Quests Shipped", value: profile.questsShipped, cls: "text-foreground" },
+                  { label: "Current Streak", value: `🔥 ${profile.currentStreak}`, cls: "text-amber-400" },
+                  { label: "SOL Staked", value: `${profile.totalSolStaked.toFixed(1)}`, cls: "text-primary" },
+                  { label: "Best Streak", value: profile.bestStreak, cls: "text-foreground" },
+                ].map((s) => (
+                  <div key={s.label} className="bg-secondary/50 rounded-lg p-3 text-center">
+                    <p className={cn("text-lg font-mono font-bold", s.cls)}>{s.value}</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-0.5">{s.label}</p>
+                  </div>
+                ))}
+              </div>
             </div>
+            <Link href="/quest/create" className="shrink-0">
+              <Button className="text-primary-foreground">
+                Create a Quest
+              </Button>
+            </Link>
           </div>
-          <Link href="/quest/create">
-            <Button className="text-primary-foreground">
-              Create a Quest
-            </Button>
-          </Link>
+
+          {/* Streak status card */}
+          {profile.currentStreak >= 5 ? (
+            <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-4 flex items-center gap-3">
+              <span className="text-2xl">🔥🔥🔥</span>
+              <div>
+                <p className="text-sm font-bold text-emerald-400">FREE SHIPPING ACTIVE · 0% fee on your next quest</p>
+                <p className="text-xs text-muted-foreground">Streak of {profile.currentStreak} — keep it going.</p>
+              </div>
+            </div>
+          ) : profile.currentStreak >= 3 ? (
+            <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-4 flex items-center gap-3">
+              <span className="text-2xl">🔥</span>
+              <div>
+                <p className="text-sm font-bold text-emerald-400">REDUCED FEE ACTIVE · 1% on your next quest</p>
+                <p className="text-xs text-muted-foreground">Streak of {profile.currentStreak} · Ship 2 more for 0% fee.</p>
+              </div>
+            </div>
+          ) : profile.currentStreak > 0 ? (
+            <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-4 flex items-center gap-3">
+              <span className="text-2xl">⚡</span>
+              <div>
+                <p className="text-sm font-medium text-amber-400">Streak: {profile.currentStreak}/3 — keep going for fee reduction</p>
+                <p className="text-xs text-muted-foreground">Ship 3 in a row → 1% fee · Ship 5 in a row → 0% fee.</p>
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-lg border border-border bg-secondary/30 p-4 flex items-center gap-3">
+              <span className="text-2xl">🎯</span>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Start a streak — ship 3 in a row for 1% fee</p>
+                <p className="text-xs text-muted-foreground">Ship 5 in a row → 0% fee forever.</p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Tabs */}
