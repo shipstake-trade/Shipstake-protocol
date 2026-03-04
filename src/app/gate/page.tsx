@@ -33,6 +33,8 @@ function GateContent() {
 
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (ready && connected && !isGeoBlocked) {
@@ -42,10 +44,26 @@ function GateContent() {
 
   if (!ready) return null;
 
-  const handleNotify = () => {
-    if (!email.trim()) return;
-    console.log("[waitlist]", email.trim());
-    setSubmitted(true);
+  const handleNotify = async () => {
+    if (!email.trim() || loading) return;
+    setError("");
+    setLoading(true);
+    try {
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+      if (!res.ok) {
+        setError("Something went wrong. Please try again.");
+      } else {
+        setSubmitted(true);
+      }
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (isGeoBlocked) {
@@ -134,16 +152,25 @@ function GateContent() {
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleNotify()}
                 placeholder="you@example.com"
-                className="flex-1 rounded-lg border border-border bg-secondary/50 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
+                disabled={loading}
+                className="flex-1 rounded-lg border border-border bg-secondary/50 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
               />
               <Button
                 onClick={handleNotify}
                 size="default"
+                disabled={loading}
                 className="rounded-lg text-primary-foreground font-medium shrink-0"
               >
-                Notify me
+                {loading ? (
+                  <Icons.spinner className="h-4 w-4 animate-spin" />
+                ) : (
+                  "Notify me"
+                )}
               </Button>
             </div>
+            {error && (
+              <p className="text-[11px] text-red-400 text-center">{error}</p>
+            )}
             <p className="text-[10px] text-muted-foreground/60 text-center">
               Early builders get Founder badge · 0% fee on first quest
             </p>
