@@ -52,11 +52,11 @@ export const siteConfig = {
     incentiveLine: "Streak ≥5 → 0% fee · Ship early → earn bonus · Build your PROOF Score.",
   },
   stats: [
-    { value: 73, label: "avg PROOF Score", suffix: "" },
-    { value: 127, label: "builders", suffix: "" },
-    { value: 847, label: "SOL locked", suffix: "" },
-    { value: 89, label: "ship rate", suffix: "%" },
-  ],
+    { label: "avg PROOF Score", suffix: "", pending: true },
+    { value: 0, label: "builders", suffix: "" },
+    { label: "SOL locked", suffix: "", pending: true },
+    { label: "ship rate", suffix: "%", pending: true },
+  ] as { value?: number; label: string; suffix: string; pending?: boolean }[],
   howItWorks: [
     {
       step: 1,

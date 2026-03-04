@@ -113,15 +113,23 @@ function HeroStats({ buildersCount }: { buildersCount?: number }) {
         {stats.map((stat, i) => (
           <div key={stat.label} className="flex flex-col">
             <div className="flex items-baseline gap-1">
-              <NumberTicker
-                value={stat.value}
-                delay={0.2 * i}
-                className="text-2xl font-bold font-mono text-foreground"
-              />
-              {stat.suffix && (
-                <span className="text-2xl font-bold font-mono text-foreground">
-                  {stat.suffix}
+              {stat.pending ? (
+                <span className="text-2xl font-bold font-mono text-muted-foreground/40">
+                  —
                 </span>
+              ) : (
+                <>
+                  <NumberTicker
+                    value={stat.value ?? 0}
+                    delay={0.2 * i}
+                    className="text-2xl font-bold font-mono text-foreground"
+                  />
+                  {stat.suffix && (
+                    <span className="text-2xl font-bold font-mono text-foreground">
+                      {stat.suffix}
+                    </span>
+                  )}
+                </>
               )}
             </div>
             <span className="text-xs text-slate-400 uppercase tracking-wider mt-1">
