@@ -5,9 +5,16 @@ import { cn } from "@/lib/utils";
 interface ProofScoreRingProps {
   score: number;
   streak?: number;
+  /** Alias for showNextRank — show progress bar toward next tier */
+  showProgress?: boolean;
+  /** Keep for backward compat */
   showNextRank?: boolean;
   size?: "sm" | "md" | "lg";
   className?: string;
+  /** Optional tier label override; computed from score if omitted */
+  tier?: string;
+  /** Optional fee perk badge override; computed from streak if omitted */
+  activePerk?: string | null;
 }
 
 const sizeConfig = {
@@ -42,8 +49,11 @@ export function ProofScoreRing({
   score,
   streak = 0,
   showNextRank = false,
+  showProgress = false,
   size = "md",
   className,
+  tier: tierOverride,
+  activePerk: activePerkOverride,
 }: ProofScoreRingProps) {
   const config = sizeConfig[size];
   const radius = (config.dim - config.stroke * 2) / 2;
@@ -53,6 +63,10 @@ export function ProofScoreRing({
   const rank = getRank(score);
   const nextRank = getNextRank(score);
   const feeLabel = getFeeLabel(streak);
+
+  const effectiveShowProgress = showProgress || showNextRank;
+  const effectiveTierLabel = tierOverride ?? rank.label;
+  const effectivePerk = activePerkOverride !== undefined ? activePerkOverride : feeLabel;
 
   return (
     <div className={cn("flex flex-col items-center gap-2", className)}>
@@ -108,10 +122,10 @@ export function ProofScoreRing({
           </span>
         )}
 
-        {/* Fee badge — bottom */}
-        {feeLabel && size === "lg" && (
+        {/* Fee / perk badge — bottom */}
+        {effectivePerk && size === "lg" && (
           <span className="absolute -bottom-1 text-[9px] bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 rounded-full px-1.5 py-0.5 font-mono leading-none">
-            {feeLabel}
+            {effectivePerk}
           </span>
         )}
       </div>
@@ -119,12 +133,12 @@ export function ProofScoreRing({
       {/* Rank label */}
       {size !== "sm" && (
         <span className={cn("font-mono font-bold uppercase tracking-wider", config.rankSize, rank.textClass)}>
-          {rank.label}
+          {effectiveTierLabel}
         </span>
       )}
 
       {/* Next rank progress */}
-      {showNextRank && nextRank && size === "lg" && (
+      {effectiveShowProgress && nextRank && size === "lg" && (
         <div className="w-full mt-1">
           <div className="flex justify-between text-[10px] text-muted-foreground mb-1">
             <span>{rank.label}</span>

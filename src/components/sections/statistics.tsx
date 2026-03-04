@@ -1,26 +1,16 @@
 "use client";
 
-import { Icons } from "@/components/icons";
 import { Section } from "@/components/section";
 import { BorderText } from "@/components/ui/border-number";
-import Link from "next/link";
+import { siteConfig } from "@/lib/config";
+import { AnchorIcon, CheckCircleIcon, FlameIcon, ZapIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-const stats = [
-  {
-    title: "10K+",
-    subtitle: "Stars on GitHub",
-    icon: <Icons.github className="h-5 w-5" />,
-  },
-  {
-    title: "50K+",
-    subtitle: "Discord Members",
-    icon: <Icons.discord className="h-5 w-5" />,
-  },
-  {
-    title: "1M+",
-    subtitle: "Downloads",
-    icon: <Icons.logo className="h-5 w-5" />,
-  },
+const STAT_ICONS = [
+  <ZapIcon key="zap" className="h-5 w-5" />,
+  <FlameIcon key="flame" className="h-5 w-5" />,
+  <AnchorIcon key="anchor" className="h-5 w-5" />,
+  <CheckCircleIcon key="check" className="h-5 w-5" />,
 ];
 
 export function Statistics() {
@@ -33,40 +23,33 @@ export function Statistics() {
             "radial-gradient(circle at bottom center, color-mix(in srgb, var(--secondary) 40%, transparent), var(--background))",
         }}
       >
-        <div className="grid grid-cols-1 sm:grid-cols-3">
-          {stats.map((stat, idx) => (
-            <Link
-              href="#"
-              key={idx}
-              className="flex flex-col items-center justify-center py-8 px-4 border-b sm:border-b-0 last:border-b-0 sm:border-r sm:last:border-r-0 [&:nth-child(-n+2)]:border-t-0 sm:[&:nth-child(-n+3)]:border-t-0 relative group overflow-hidden"
+        <div className="grid grid-cols-2 sm:grid-cols-4">
+          {siteConfig.stats.map((stat, idx) => (
+            <div
+              key={stat.label}
+              className={cn(
+                "flex flex-col items-center justify-center py-8 px-4 relative",
+                // Right border: left column on mobile, all but last on desktop
+                idx % 2 === 0 ? "border-r" : "",
+                "sm:border-r sm:last:border-r-0",
+                // Bottom border: first row on mobile only
+                idx < 2 ? "border-b sm:border-b-0" : ""
+              )}
             >
-              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-full -translate-y-full group-hover:translate-x-0 group-hover:translate-y-0 duration-300 ease-in-out">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="7" y1="17" x2="17" y2="7"></line>
-                  <polyline points="7 7 17 7 17 17"></polyline>
-                </svg>
-              </div>
               <div className="text-center relative">
-                <BorderText text={stat.title} />
+                <BorderText text={`${stat.value}${stat.suffix}`} />
                 <div className="flex items-center justify-center gap-2 mt-2">
-                  {stat.icon}
-                  <p className="text-sm text-muted-foreground">
-                    {stat.subtitle}
-                  </p>
+                  {STAT_ICONS[idx]}
+                  <p className="text-sm text-muted-foreground">{stat.label}</p>
                 </div>
               </div>
-            </Link>
+            </div>
           ))}
+        </div>
+        <div className="border-t border-border/30 py-4 px-6">
+          <p className="text-xs text-muted-foreground/50 italic text-center">
+            The score you build here can&apos;t be bought, copied, or faked.
+          </p>
         </div>
       </div>
     </Section>

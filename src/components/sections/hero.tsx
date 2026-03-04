@@ -89,7 +89,7 @@ function HeroCTA() {
         </Link>
       </div>
       <p className="text-xs text-muted-foreground/70 font-mono">
-        {siteConfig.hero.incentiveLine}
+        The longer your streak, the less you pay. Ship early, earn more.
       </p>
     </motion.div>
   );

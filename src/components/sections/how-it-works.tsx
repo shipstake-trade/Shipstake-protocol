@@ -2,26 +2,50 @@
 
 import { Section } from "@/components/section";
 import { BlurFade } from "@/components/ui/blur-fade";
-import { siteConfig, BLUR_FADE_DELAY } from "@/lib/config";
+import { BLUR_FADE_DELAY } from "@/lib/config";
+
+const STEPS = [
+  {
+    step: 1,
+    title: "Lock SOL as collateral",
+    description: "Public. Immutable. On-chain from the moment you create.",
+  },
+  {
+    step: 2,
+    title: "Build",
+    description: "No one's watching. The deadline is.",
+  },
+  {
+    step: 3,
+    title: "Submit proof",
+    description: "One URL. One chance. Before the clock hits zero.",
+  },
+  {
+    step: 4,
+    title: "The protocol decides",
+    description:
+      "Delivered → get your SOL back, score goes up. Missed → lose your stake, score drops. No appeals. No humans. No exceptions.",
+  },
+];
 
 const INCENTIVES = [
   {
     title: "Streak Rewards",
-    lines: ["Ship 3 in a row → 1% fee", "Ship 5 in a row → 0% fee"],
-    tagline: "The protocol rewards builders who actually build.",
+    lines: ["3 in a row → reduced fee", "5 in a row → zero fee"],
+    tagline: "The protocol rewards consistency.",
   },
   {
-    title: "Early Delivery",
-    lines: ["Submit ≥48h before deadline", "→ earn bonus from fee vault"],
-    tagline: "Faster delivery = extra reward. Every time.",
+    title: "Early Bonus",
+    lines: ["Submit before the deadline by 48h", "→ earn from the protocol's reward pool."],
+    tagline: "Speed pays.",
   },
   {
-    title: "PROOF Score",
+    title: "Your Score",
     lines: [
-      "Every shipped quest adds to your score.",
-      "Every slashed quest costs 15 points.",
+      "Every quest shapes your permanent on-chain record.",
+      "Non-transferable. Non-fakeable.",
     ],
-    tagline: "Non-transferable. Non-fakeable. Permanent.",
+    tagline: "Earned one delivery at a time.",
   },
 ];
 
@@ -44,7 +68,7 @@ export function HowItWorks() {
             <div className="hidden md:block absolute top-[19px] left-[calc(12.5%)] right-[calc(12.5%)] h-px bg-border/60" />
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-6">
-              {siteConfig.howItWorks.map((step, i) => (
+              {STEPS.map((step, i) => (
                 <BlurFade key={step.step} delay={BLUR_FADE_DELAY * (i + 1)}>
                   <div className="flex flex-col items-start md:items-center md:text-center gap-4">
                     {/* Number badge */}

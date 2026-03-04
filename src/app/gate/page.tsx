@@ -195,6 +195,26 @@ function GateContent() {
         <p className="mt-6 text-[10px] text-muted-foreground/40 max-w-sm">
           By joining you confirm you are not in a restricted jurisdiction.
         </p>
+
+        <a
+          href="https://resend.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-6 inline-flex items-center gap-1.5 text-[10px] text-muted-foreground/30 hover:text-muted-foreground/50 transition-colors"
+        >
+          powered by
+          {/* Resend logo mark */}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 60 60"
+            className="h-3.5 w-3.5 inline-block"
+            fill="currentColor"
+            aria-label="Resend"
+          >
+            <path d="M34.2 29.6c3.6-1 6.2-4.3 6.2-8.2C40.4 16 36.4 12 31 12H16v36h7V32h5.2L36 48h8.2L34.2 29.6ZM23 26v-8h7.5c2.5 0 4.5 1.8 4.5 4s-2 4-4.5 4H23Z" />
+          </svg>
+          <span className="font-medium tracking-wide">Resend</span>
+        </a>
       </div>
     </div>
   );

@@ -17,20 +17,6 @@ export function Footer() {
           </div>
           <p className="text-sm text-muted-foreground mb-1">{siteConfig.footer.tagline}</p>
           <p className="text-xs text-muted-foreground/60 italic">{siteConfig.footer.subTagline}</p>
-          <div className="flex gap-x-3 mt-4">
-            {siteConfig.footer.socialLinks.map((link, index) => (
-              <a
-                key={index}
-                href={link.url}
-                aria-label={link.label}
-                rel="noopener noreferrer"
-                target="_blank"
-                className="flex h-5 w-5 items-center justify-center text-muted-foreground transition-all duration-100 ease-linear hover:text-foreground"
-              >
-                {link.icon}
-              </a>
-            ))}
-          </div>
         </div>
 
         {/* Cols 2-4: Link groups */}
@@ -39,35 +25,64 @@ export function Footer() {
             <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/60 mb-3">
               {col.heading}
             </h3>
-            <ul className="space-y-2">
-              {col.links.map((link) => (
-                <li key={link.text}>
-                  <a
-                    href={link.url}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {link.text}
-                  </a>
-                </li>
-              ))}
-              {"teaser" in col && col.teaser && col.teaser.map((item: string) => (
-                <li key={item} className="text-xs text-muted-foreground/50">
-                  {item}
-                </li>
-              ))}
-            </ul>
+            {col.heading === "Ecosystem" ? (
+              <p className="text-xs text-muted-foreground/50 leading-relaxed">
+                Your score is composable infrastructure.<br />
+                Lending · DAO grants · Job boards · Coming.
+              </p>
+            ) : (
+              <ul className="space-y-2">
+                {col.links.map((link) => (
+                  <li key={link.text}>
+                    <a
+                      href={link.url}
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {link.text}
+                    </a>
+                  </li>
+                ))}
+                {"teaser" in col && col.teaser && col.teaser.map((item: string) => (
+                  <li key={item} className="text-xs text-muted-foreground/50">
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         ))}
       </div>
 
       {/* Bottom bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-6 border-t border-border/50 mb-4">
-        <div className="flex items-center gap-3 text-xs text-muted-foreground/50">
-          <span>{siteConfig.footer.protocolVersion}</span>
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-border/50 mb-4">
+        {/* Left: logo + tagline */}
+        <div className="flex items-center gap-2">
+          <Icons.logo className="h-4 w-4 text-primary shrink-0" />
+          <span className="text-xs text-muted-foreground/60">
+            {siteConfig.footer.tagline}
+          </span>
         </div>
-        <p className="text-xs text-muted-foreground/40">
-          {siteConfig.footer.bottomText}
-        </p>
+
+        {/* Center: social links */}
+        <div className="flex gap-x-3">
+          {siteConfig.footer.socialLinks.map((link, index) => (
+            <a
+              key={index}
+              href={link.url}
+              aria-label={link.label}
+              rel="noopener noreferrer"
+              target="_blank"
+              className="flex h-5 w-5 items-center justify-center text-muted-foreground/50 transition-all duration-100 ease-linear hover:text-foreground"
+            >
+              {link.icon}
+            </a>
+          ))}
+        </div>
+
+        {/* Right: network */}
+        <span className="text-xs text-muted-foreground/40 font-mono">
+          Solana · Devnet → Mainnet
+        </span>
       </div>
 
       {/* Geo note */}

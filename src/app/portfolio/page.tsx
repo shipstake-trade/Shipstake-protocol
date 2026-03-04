@@ -116,6 +116,40 @@ export default function PortfolioPage() {
           </div>
 
           {/* Streak status card */}
+          {/* Early delivery tracker */}
+          {(() => {
+            const outcomes = ["early", "on-time", "late"] as const;
+            type Outcome = typeof outcomes[number];
+            const outcomeStyle: Record<Outcome, { label: string; cls: string }> = {
+              early: { label: "Early", cls: "bg-emerald-500/20 border-emerald-500/40 text-emerald-400" },
+              "on-time": { label: "On time", cls: "bg-blue-500/20 border-blue-500/40 text-blue-400" },
+              late: { label: "Late", cls: "bg-destructive/20 border-destructive/40 text-destructive" },
+            };
+            return (
+              <div className="mb-4 flex flex-wrap items-center gap-3">
+                <span className="text-[10px] text-muted-foreground/60 font-mono uppercase tracking-wider">
+                  Last 3 deliveries
+                </span>
+                <div className="flex gap-1.5">
+                  {outcomes.map((o, i) => (
+                    <span
+                      key={i}
+                      className={cn(
+                        "text-[10px] font-mono px-2 py-0.5 rounded-full border",
+                        outcomeStyle[o].cls
+                      )}
+                    >
+                      {outcomeStyle[o].label}
+                    </span>
+                  ))}
+                </div>
+                <span className="text-[10px] text-muted-foreground/50">
+                  Ship early on your next quest to earn from the reward pool.
+                </span>
+              </div>
+            );
+          })()}
+
           {profile.currentStreak >= 5 ? (
             <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-4 flex items-center gap-3">
               <span className="text-2xl">🔥🔥🔥</span>

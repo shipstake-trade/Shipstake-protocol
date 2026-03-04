@@ -57,12 +57,12 @@ PROOF Score is queryable on-chain by any Solana program. Lending protocols, gran
 
 Fees apply only on SHIPPED outcomes. The protocol does not profit from builder failure.
 
-| Mode        | Outcome | Fee  | Applied to        |
-|-------------|---------|------|-------------------|
-| Self-Stake  | SHIPPED | 2%   | Stake amount      |
-| Self-Stake  | SLASHED | 0%   | —                 |
-| Grant Guard | SHIPPED | 1.5% | Grant tranche     |
-| Grant Guard | SLASHED | 0%   | —                 |
+| Mode        | Outcome | Fee  | Applied to    |
+| ----------- | ------- | ---- | ------------- |
+| Self-Stake  | SHIPPED | 2%   | Stake amount  |
+| Self-Stake  | SLASHED | 0%   | —             |
+| Grant Guard | SHIPPED | 1.5% | Grant tranche |
+| Grant Guard | SLASHED | 0%   | —             |
 
 Fee parameters are stored in `ProtocolConfig` and updatable by admin with a 48-hour timelock. Changes apply only to quests created after the update.
 
@@ -93,14 +93,14 @@ Config PDA:       ["config"]
 
 ### Instructions
 
-| Instruction           | Actor       | Description                                      |
-|-----------------------|-------------|--------------------------------------------------|
-| `initialize_protocol` | Admin       | Setup ProtocolConfig                             |
-| `create_grant_program`| Foundation  | Setup GrantProgram with fixed slash rule         |
-| `create_quest`        | Builder     | Lock stake, create QuestAccount + PoolVault      |
-| `submit_proof`        | Builder     | Submit proof URL, transition to IN_PROGRESS      |
-| `report_outcome`      | Oracle      | SHIPPED or SLASHED, execute settlement           |
-| `claim_stake`         | Builder     | Reclaim stake after SHIPPED                      |
+| Instruction            | Actor      | Description                                 |
+| ---------------------- | ---------- | ------------------------------------------- |
+| `initialize_protocol`  | Admin      | Setup ProtocolConfig                        |
+| `create_grant_program` | Foundation | Setup GrantProgram with fixed slash rule    |
+| `create_quest`         | Builder    | Lock stake, create QuestAccount + PoolVault |
+| `submit_proof`         | Builder    | Submit proof URL, transition to IN_PROGRESS |
+| `report_outcome`       | Oracle     | SHIPPED or SLASHED, execute settlement      |
+| `claim_stake`          | Builder    | Reclaim stake after SHIPPED                 |
 
 No `take_position`. No `claim_settlement` for external participants. Not in v0.
 
@@ -111,12 +111,12 @@ OPEN → IN_PROGRESS → SHIPPED
                    → SLASHED
 ```
 
-| State       | Trigger                          | Actor   |
-|-------------|----------------------------------|---------|
-| OPEN        | Quest created, stake locked      | Builder |
-| IN_PROGRESS | Proof submitted                  | Builder |
-| SHIPPED     | Oracle validates, score >= 70    | Oracle  |
-| SLASHED     | Deadline missed or score < 70    | Oracle  |
+| State       | Trigger                       | Actor   |
+| ----------- | ----------------------------- | ------- |
+| OPEN        | Quest created, stake locked   | Builder |
+| IN_PROGRESS | Proof submitted               | Builder |
+| SHIPPED     | Oracle validates, score >= 70 | Oracle  |
+| SLASHED     | Deadline missed or score < 70 | Oracle  |
 
 ---
 
@@ -127,6 +127,7 @@ The oracle is a Node.js worker deployed on Railway. It polls for IN_PROGRESS que
 **Proof validation algorithms:**
 
 GitHub Commit
+
 ```
 if commit_author matches builder wallet:  +40
 if commit_timestamp <= quest_deadline:    +35
@@ -135,6 +136,7 @@ elif lines_changed > 50:                  +8
 ```
 
 Vercel Deployment
+
 ```
 if deployment.readyState == "READY":      +50
 if deployment.createdAt <= deadline:      +30
@@ -142,6 +144,7 @@ if deployment.target == "production":     +20
 ```
 
 CI Pass (GitHub Actions)
+
 ```
 if workflow_run.conclusion == "success":  +60
 if workflow_run.created_at <= deadline:   +30
@@ -156,14 +159,14 @@ The oracle keypair can call exactly one instruction: `report_outcome`. It cannot
 
 ## Tech Stack
 
-| Layer          | Technology                                      |
-|----------------|-------------------------------------------------|
-| Smart contract | Anchor (Rust), Solana devnet                    |
-| Frontend       | Next.js 15, React 19, Tailwind v4               |
-| Wallet         | Privy (Phantom, Solflare, Backpack)             |
-| UI components  | shadcn/ui, MagicUI                              |
-| Oracle         | Node.js, Railway                                |
-| Deployment     | Vercel                                          |
+| Layer          | Technology                          |
+| -------------- | ----------------------------------- |
+| Smart contract | Anchor (Rust), Solana devnet        |
+| Frontend       | Next.js 15, React 19, Tailwind v4   |
+| Wallet         | Privy (Phantom, Solflare, Backpack) |
+| UI components  | shadcn/ui, MagicUI                  |
+| Oracle         | Node.js, Railway                    |
+| Deployment     | Vercel                              |
 
 ---
 
