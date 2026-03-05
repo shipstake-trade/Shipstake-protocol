@@ -37,9 +37,22 @@ export async function POST(req: NextRequest) {
     resend.emails.send({
       from: "SHIPSTAKE Waitlist <waitlist@shipstake.trade>",
       to: "syzy@posteo.net",
-      replyTo: email,
-      subject: "New waitlist signup — SHIPSTAKE",
-      text: `New waitlist signup: ${email}`,
+      replyTo: "waitlist@shipstake.trade",
+      subject: `New builder on the waitlist`,
+      headers: {
+        "List-Unsubscribe": "<mailto:waitlist@shipstake.trade?subject=unsubscribe>",
+      },
+      html: [
+        `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">`,
+        `<h2 style="margin:0 0 12px">New builder signed up</h2>`,
+        `<p style="margin:0 0 8px">Someone just joined the SHIPSTAKE waitlist:</p>`,
+        `<p style="margin:0 0 16px;padding:12px;background:#f4f4f5;border-radius:6px">`,
+        `<a href="mailto:${email}" style="color:#0d9488;text-decoration:none">${email}</a></p>`,
+        `<hr style="border:none;border-top:1px solid #e4e4e7;margin:16px 0"/>`,
+        `<p style="margin:0;font-size:12px;color:#71717a">`,
+        `SHIPSTAKE waitlist notification &middot; <a href="https://shipstake.trade" style="color:#71717a">shipstake.trade</a></p>`,
+        `</div>`,
+      ].join("\n"),
     }),
   ]);
 
