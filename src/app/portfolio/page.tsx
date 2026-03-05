@@ -40,7 +40,7 @@ export default function PortfolioPage() {
 
   const filteredQuests = mockQuests.filter((q) => {
     if (tab === "active")
-      return q.status === "Open" || q.status === "InProgress" || q.status === "Validating";
+      return q.status === "Open" || q.status === "InProgress";
     if (tab === "completed")
       return q.status === "Shipped" || q.status === "Slashed";
     return true;
@@ -209,8 +209,7 @@ export default function PortfolioPage() {
             const stake = lamportsToSol(quest.stakeAmount);
             const isActive =
               quest.status === "Open" ||
-              quest.status === "InProgress" ||
-              quest.status === "Validating";
+              quest.status === "InProgress";
             const canClaim = quest.status === "Shipped";
 
             return (

@@ -34,10 +34,9 @@ const NAV_GROUPS = [
     ],
   },
   {
-    label: "SUPPORTERS (v1)",
+    label: "SUPPORTERS",
     items: [
-      { id: "taking-positions", label: "Taking Positions" },
-      { id: "claiming-settlement", label: "Claiming Settlement" },
+      { id: "supporters-v2", label: "Coming in v2" },
     ],
   },
   {
@@ -101,7 +100,7 @@ function SidebarNav({
           href="/"
           className="block text-sm py-1.5 px-2 text-muted-foreground hover:text-foreground transition-colors"
         >
-          ← Back to app
+          &larr; Back to app
         </Link>
       </div>
     </nav>
@@ -125,7 +124,7 @@ function SectionIntroduction() {
   return (
     <section id="introduction" className="scroll-mt-24">
       <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-mono border border-emerald-500/30 text-emerald-400 mb-6">
-        Accountability Protocol · Solana
+        Accountability Protocol &middot; Solana
       </span>
       <h1 className="font-serif text-4xl sm:text-5xl font-bold text-foreground leading-tight mb-6">
         No excuses.
@@ -150,8 +149,8 @@ function SectionHowItWorks() {
   const steps = [
     {
       n: "01",
-      title: "Create a Quest",
-      desc: "Set a title, deadline, and proof type (GitHub / Vercel / Live URL). Lock your SOL. The quest goes live on-chain immediately.",
+      title: "Lock SOL",
+      desc: "Set a title, deadline, and proof type. Lock your SOL. The quest goes live on-chain immediately.",
     },
     {
       n: "02",
@@ -161,12 +160,12 @@ function SectionHowItWorks() {
     {
       n: "03",
       title: "Submit Proof",
-      desc: "Before the deadline, submit your proof URL. GitHub commit, Vercel deployment, or live URL.",
+      desc: "Before the deadline, submit your proof URL. GitHub commit or Vercel deployment.",
     },
     {
       n: "04",
-      title: "Oracle Decides",
-      desc: "The oracle validates automatically via GitHub/Vercel APIs. SHIPPED → reclaim your stake. SLASHED → lose it. On-chain. Final.",
+      title: "Shipped or Slashed",
+      desc: "The oracle validates automatically. SHIPPED — reclaim your stake. SLASHED — lose it. On-chain. Final.",
     },
   ];
 
@@ -209,18 +208,18 @@ function SectionTwoModes() {
             <h3 className="font-bold font-display text-foreground text-lg">Self-Stake</h3>
           </div>
           <p className="text-sm text-primary font-medium mb-3">
-            Personal accountability. No external participants in v0.
+            Personal accountability for indie builders.
           </p>
           <ul className="space-y-2 text-sm text-muted-foreground mb-4">
             {[
               "Lock SOL on your own deadline",
               "Submit proof URL before deadline",
-              "SHIPPED → reclaim stake minus fee",
-              "SLASHED → stake burned or donated (you choose at creation)",
-              "Fee: 2% / 1.5% / 1% tiered by stake size",
+              "SHIPPED — reclaim stake minus fee",
+              "SLASHED — stake sent to slash destination (you choose at creation)",
+              "Fee: tiered by stake size, reduced by streak",
             ].map((item) => (
               <li key={item} className="flex items-start gap-2">
-                <span className="text-primary mt-0.5 shrink-0">•</span>
+                <span className="text-primary mt-0.5 shrink-0">&bull;</span>
                 {item}
               </li>
             ))}
@@ -248,12 +247,13 @@ function SectionTwoModes() {
           <ul className="space-y-2 text-sm text-muted-foreground mb-4">
             {[
               "Foundation creates a grant program with fixed slash rule",
-              "Builder posts a matching stake to receive the tranche",
-              "SHIPPED → builder gets stake + tranche − 1.5% fee",
-              "SLASHED → stake → foundation escrow, tranche returned",
+              "Builder posts matching collateral to receive the tranche",
+              "SHIPPED — builder gets stake + tranche minus fee",
+              "SLASHED — foundation capital returned automatically",
+              "No committees, no chasing invoices",
             ].map((item) => (
               <li key={item} className="flex items-start gap-2">
-                <span className="text-primary mt-0.5 shrink-0">•</span>
+                <span className="text-primary mt-0.5 shrink-0">&bull;</span>
                 {item}
               </li>
             ))}
@@ -280,7 +280,7 @@ function SectionTwoModes() {
               ["Who creates the quest", "Builder", "Builder (within a program)"],
               ["Who defines slash rule", "Builder", "Foundation"],
               ["External participants", "None (v0)", "Foundation"],
-              ["Fee", "2 / 1.5 / 1% tiered", "1.5% on tranche"],
+              ["Fee", "Tiered by stake size", "On tranche only"],
               ["Slash destination", "Burn / donation", "Foundation escrow"],
             ].map(([label, a, b]) => (
               <tr key={String(label)} className="border-b border-border/50 last:border-0">
@@ -300,11 +300,11 @@ function SectionTwoModes() {
 
 function SectionProofScore() {
   const ranks = [
-    { label: "Novice", cls: "text-zinc-400 border-zinc-700 bg-zinc-800/50" },
-    { label: "Adept", cls: "text-blue-400 border-blue-500/30 bg-blue-500/10" },
-    { label: "Veteran", cls: "text-purple-400 border-purple-500/30 bg-purple-500/10" },
-    { label: "Legend", cls: "text-orange-400 border-orange-500/30 bg-orange-500/10" },
-    { label: "Mythic", cls: "text-yellow-400 border-yellow-500/30 bg-yellow-500/10" },
+    { label: "Novice", range: "0–25", cls: "text-zinc-400 border-zinc-700 bg-zinc-800/50" },
+    { label: "Adept", range: "26–50", cls: "text-blue-400 border-blue-500/30 bg-blue-500/10" },
+    { label: "Veteran", range: "51–75", cls: "text-purple-400 border-purple-500/30 bg-purple-500/10" },
+    { label: "Legend", range: "76–90", cls: "text-orange-400 border-orange-500/30 bg-orange-500/10" },
+    { label: "Mythic", range: "91–100", cls: "text-yellow-400 border-yellow-500/30 bg-yellow-500/10" },
   ];
 
   return (
@@ -314,63 +314,72 @@ function SectionProofScore() {
         Reputation, on-chain.
       </p>
       <p className="text-muted-foreground leading-relaxed mb-6 max-w-2xl">
-        PROOF Score is a 0–100 metric stored directly in your on-chain BuilderProfile. It cannot
-        be faked, deleted, or transferred. Every quest you complete — or miss — is permanently
+        PROOF Score is a 0&ndash;100 metric stored directly in your on-chain BuilderProfile. It cannot
+        be faked, deleted, or transferred. Every quest you complete &mdash; or miss &mdash; is permanently
         recorded.
       </p>
 
       <div className="bg-secondary border border-border rounded-lg p-4 font-mono text-sm mb-6 space-y-1.5 max-w-2xl overflow-x-auto">
         <p className="text-muted-foreground/60 text-xs mb-2">// formula</p>
         <p>
-          <span className="text-primary">base</span>
-          {"         = (shipped / total) × 60 "}
-          <span className="text-muted-foreground/50">// max 60</span>
+          <span className="text-primary">delivery_rate</span>
+          {"  = (shipped / total) "}
+          <span className="text-muted-foreground/50">// weight: 60</span>
         </p>
         <p>
-          <span className="text-primary">speed</span>
-          {"        = avg_early_delivery_days × 2 "}
-          <span className="text-muted-foreground/50">// max 15</span>
+          <span className="text-primary">ship_early</span>
+          {"    = early delivery bonus "}
+          <span className="text-muted-foreground/50">// weight: 15</span>
         </p>
         <p>
-          <span className="text-primary">stake_weight</span>
-          {" = log10(total_staked_SOL) × 5 "}
-          <span className="text-muted-foreground/50">// max 15</span>
+          <span className="text-primary">skin_in_game</span>
+          {"  = stake commitment factor "}
+          <span className="text-muted-foreground/50">// weight: 15</span>
         </p>
         <p>
-          <span className="text-primary">streak</span>
-          {"       = streak_current × 1 "}
-          <span className="text-muted-foreground/50">// max 10</span>
+          <span className="text-primary">consistency</span>
+          {"   = streak factor "}
+          <span className="text-muted-foreground/50">// weight: 10</span>
         </p>
         <div className="border-t border-border mt-3 pt-3">
           <p className="text-foreground font-bold">
-            PROOF Score = min(100, base + speed + stake_weight + streak)
+            PROOF = delivery_rate&times;60 + ship_early&times;15 + skin_in_game&times;15 + consistency&times;10
           </p>
         </div>
       </div>
 
       <div className="space-y-2 text-sm mb-6">
         {[
-          ["SHIPPED on time", "→ recompute formula"],
-          ["SHIPPED early", "→ speed bonus"],
-          ["SLASHED", "→ −15 pts (floor: 0)"],
-          ["Inactive > 90 days", "→ −1 pt/week (floor: 10)"],
+          ["SHIPPED on time", "Score recomputed upward"],
+          ["SHIPPED early", "Speed bonus applied"],
+          ["SLASHED", "&minus;15 pts (floor: 0)"],
+          ["Inactive > 90 days", "&minus;1 pt/week (floor: 10)"],
         ].map(([event, outcome]) => (
           <div key={String(event)} className="flex items-center gap-3">
             <span className="font-mono text-foreground/70 shrink-0 w-44">{event}</span>
-            <span className="text-muted-foreground">{outcome}</span>
+            <span className="text-muted-foreground" dangerouslySetInnerHTML={{ __html: String(outcome) }} />
           </div>
         ))}
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-8">
+      <div className="flex flex-wrap gap-2 mb-6">
         {ranks.map((rank) => (
           <span
             key={rank.label}
             className={cn("text-xs px-2.5 py-1 rounded-full font-medium border", rank.cls)}
           >
-            {rank.label}
+            {rank.label} ({rank.range})
           </span>
         ))}
+      </div>
+
+      <div className="border border-emerald-500/30 bg-emerald-500/5 rounded-lg p-4 mb-8 max-w-2xl">
+        <p className="text-sm text-emerald-400 font-medium mb-1">Composability</p>
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          Your PROOF Score is stored on-chain and readable by any Solana protocol.
+          Lending protocols, DAO grant programs, and job boards can read it directly.
+          Ship once. Prove it everywhere.
+        </p>
       </div>
 
       <div className="max-w-2xl">
@@ -387,11 +396,12 @@ function SectionOracle() {
     <section id="oracle" className="scroll-mt-24">
       <h2 className="text-2xl font-bold font-display text-foreground mb-1">Oracle</h2>
       <p className="text-sm font-mono text-primary uppercase tracking-wider mb-4">
-        Deterministic. Auditable. Unkillable.
+        Deterministic. Auditable. Final.
       </p>
       <p className="text-muted-foreground leading-relaxed mb-8">
-        The oracle is a Node.js service that validates proof URLs against GitHub and Vercel APIs.
-        Every validation is recomputable from public data. No human judgment. No appeals.
+        An oracle validates your proof automatically. It checks your submitted URL against
+        GitHub and Vercel APIs, determines whether you shipped, and writes the outcome on-chain.
+        No human judgment. No appeals. Resolution is final.
       </p>
 
       <div className="space-y-4 mb-8">
@@ -399,17 +409,12 @@ function SectionOracle() {
           {
             icon: "🔒",
             title: "Minimal blast radius",
-            desc: "The oracle can call report_outcome() — nothing else. It cannot move funds. If compromised: outcomes faked, funds safe.",
+            desc: "The oracle can only call report_outcome() — nothing else. It cannot move funds. If compromised: outcomes faked, funds safe.",
           },
           {
             icon: "⏱️",
             title: "48h timelock on replacement",
             desc: "Admin can replace the oracle with a 48-hour timelock. This prevents unilateral oracle changes without notice.",
-          },
-          {
-            icon: "🔁",
-            title: "Post-audit: multi-node consensus",
-            desc: "Multiple independent validators must agree before on-chain submission. Consensus before settlement.",
           },
         ].map((item) => (
           <div key={item.title} className="glass-card rounded-lg p-4 flex gap-4 items-start">
@@ -423,19 +428,15 @@ function SectionOracle() {
       </div>
 
       <h3 className="font-bold text-foreground mb-4">Supported proof types</h3>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {[
           {
             type: "GitHub Commit",
-            desc: "Validates author, timestamp, and lines changed via GitHub API.",
+            desc: "Submit a GitHub commit URL. The oracle validates it against the GitHub API.",
           },
           {
             type: "Vercel Deploy",
-            desc: "Validates readyState, createdAt, and production target.",
-          },
-          {
-            type: "Live URL",
-            desc: "Validates HTTP 200 response. Lower confidence — max score 60/100.",
+            desc: "Submit a Vercel deployment URL. The oracle validates it against the Vercel API.",
           },
         ].map((item) => (
           <div key={item.type} className="border border-border rounded-lg p-4">
@@ -462,31 +463,55 @@ function SectionSettlement() {
         <div className="border-l-4 border-emerald-500 bg-emerald-500/5 rounded-r-lg p-5">
           <p className="font-mono text-sm text-emerald-400 font-bold mb-3">SHIPPED</p>
           <ul className="space-y-1.5 text-sm text-muted-foreground">
-            <li>Builder submits proof → oracle validates (score ≥ 70)</li>
-            <li>→ contract releases stake to builder</li>
-            <li>→ fee deducted (tiered: 2% / 1.5% / 1%)</li>
-            <li>→ PROOF Score updated upward</li>
-            <li>→ streak incremented</li>
+            <li>Builder submits proof &rarr; oracle validates</li>
+            <li>&rarr; SOL returned to builder minus protocol fee</li>
+            <li>&rarr; PROOF Score updated upward</li>
+            <li>&rarr; streak incremented</li>
           </ul>
         </div>
 
         <div className="border-l-4 border-destructive bg-destructive/5 rounded-r-lg p-5">
           <p className="font-mono text-sm text-destructive font-bold mb-3">SLASHED</p>
           <ul className="space-y-1.5 text-sm text-muted-foreground">
-            <li>Deadline passes without valid proof (score &lt; 70)</li>
-            <li>→ stake sent to slash destination (set at creation, immutable)</li>
-            <li>→ fee: 0</li>
-            <li>→ PROOF Score −15</li>
-            <li>→ streak reset to 0</li>
+            <li>Deadline passes without valid proof</li>
+            <li>&rarr; SOL sent to slash destination (set at creation, immutable)</li>
+            <li>&rarr; PROOF Score &minus;15</li>
+            <li>&rarr; streak reset to 0</li>
           </ul>
         </div>
+      </div>
+
+      <h3 className="font-bold text-foreground mb-4">Fee tiers</h3>
+      <div className="overflow-x-auto rounded-lg border border-border mb-6">
+        <table className="w-full text-sm border-collapse">
+          <thead>
+            <tr className="border-b border-border bg-secondary/50">
+              <th className="text-left py-3 px-4 text-muted-foreground font-medium">Stake amount</th>
+              <th className="text-left py-3 px-4 text-muted-foreground font-medium">Fee</th>
+            </tr>
+          </thead>
+          <tbody className="text-muted-foreground">
+            {[
+              ["< 10 SOL", "Higher fee"],
+              ["10–100 SOL", "Mid fee"],
+              ["> 100 SOL", "Lower fee"],
+              ["Streak ≥ 3", "Reduced fee"],
+              ["Streak ≥ 5", "Zero fee"],
+            ].map(([condition, fee], i) => (
+              <tr key={i} className="border-b border-border/50 last:border-0">
+                <td className="py-3 px-4">{condition}</td>
+                <td className="py-3 px-4 font-mono text-foreground font-medium">{fee}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       <div className="border border-emerald-500/30 bg-emerald-500/5 rounded-lg p-4">
         <p className="text-sm text-emerald-400 font-medium mb-1">Note</p>
         <p className="text-sm text-muted-foreground">
           Slash destination is set at quest creation and cannot be changed. Ever. This is by design
-          — it prevents builders from changing the destination before a likely slash.
+          &mdash; it prevents builders from changing the destination before a likely slash.
         </p>
       </div>
     </section>
@@ -500,7 +525,7 @@ function SectionCreateAQuest() {
     {
       n: "Step 1",
       title: "Basics",
-      desc: "Title (max 64 chars), description (max 512 chars), category. Choose proof type: GitHub Commit, Vercel Deploy, or Live URL.",
+      desc: "Title (max 64 chars), description (max 512 chars), category. Choose proof type: GitHub Commit or Vercel Deploy.",
     },
     {
       n: "Step 2",
@@ -524,7 +549,7 @@ function SectionCreateAQuest() {
           <div key={step.n} className="glass-card rounded-lg p-5">
             <div className="flex items-center gap-3 mb-2">
               <span className="text-xs font-mono text-primary uppercase">{step.n}</span>
-              <span className="text-foreground font-bold font-display">— {step.title}</span>
+              <span className="text-foreground font-bold font-display">&mdash; {step.title}</span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
           </div>
@@ -560,7 +585,7 @@ function SectionSubmitProof() {
         </p>
         <p>
           The transaction is signed by your wallet. The submission timestamp is recorded on-chain.
-          Submissions after the deadline are rejected by the program — not the frontend.
+          Submissions after the deadline are rejected by the program &mdash; not the frontend.
         </p>
       </div>
 
@@ -568,7 +593,6 @@ function SectionSubmitProof() {
         {[
           ["GitHub Commit", "https://github.com/user/repo/commit/abc123def"],
           ["Vercel Deploy", "https://myapp-abc123.vercel.app"],
-          ["Live URL", "https://myapp.com"],
         ].map(([type, example]) => (
           <div key={String(type)} className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
             <span className="font-mono text-sm text-primary shrink-0 w-36">{type}</span>
@@ -594,15 +618,15 @@ function SectionClaimingStake() {
         Once the oracle has submitted a{" "}
         <span className="font-mono text-emerald-400 text-sm">SHIPPED</span> outcome on-chain, you
         can claim your returned stake from your Portfolio page. The protocol fee is deducted
-        automatically at settlement — no separate fee transaction required.
+        automatically at settlement &mdash; no separate fee transaction required.
       </p>
 
       <div className="glass-card rounded-lg p-5">
         <p className="font-medium font-display text-foreground mb-3">Claim flow</p>
         <ol className="space-y-2 text-sm text-muted-foreground">
           {[
-            "Go to /portfolio → find your settled quest",
-            'Click "Claim" — the transaction is pre-populated',
+            "Go to /portfolio — find your settled quest",
+            "Click \"Claim\" — the transaction is pre-populated",
             "Sign with your connected wallet",
             "SOL returns to your wallet, minus protocol fee",
           ].map((step, i) => (
@@ -617,43 +641,17 @@ function SectionClaimingStake() {
   );
 }
 
-// ─── Content: Taking Positions ────────────────────────────────────────────────
+// ─── Content: Supporters (v2) ─────────────────────────────────────────────────
 
-function SectionTakingPositions() {
+function SectionSupportersV2() {
   return (
-    <section id="taking-positions" className="scroll-mt-24">
-      <h2 className="text-2xl font-bold font-display text-foreground mb-3">Taking Positions</h2>
-      <span className="inline-block text-xs font-mono px-2.5 py-1 rounded-full border border-emerald-500/30 text-emerald-400 mb-6">
-        Coming in v1
-      </span>
-      <p className="text-muted-foreground leading-relaxed mb-4">
-        In v1, external supporters will be able to take positions on builder quests — staking
-        alongside or against completion. This creates a prediction market layer on top of the
-        accountability protocol.
-      </p>
-      <p className="text-muted-foreground leading-relaxed">
-        v0 is purely self-stake. No external participants. No speculative positions. This page will
-        be updated when the Supporters module goes live.
-      </p>
-    </section>
-  );
-}
-
-// ─── Content: Claiming Settlement ────────────────────────────────────────────
-
-function SectionClaimingSettlement() {
-  return (
-    <section id="claiming-settlement" className="scroll-mt-24">
-      <h2 className="text-2xl font-bold font-display text-foreground mb-3">
-        Claiming Settlement
-      </h2>
-      <span className="inline-block text-xs font-mono px-2.5 py-1 rounded-full border border-emerald-500/30 text-emerald-400 mb-6">
-        Coming in v1
+    <section id="supporters-v2" className="scroll-mt-24">
+      <h2 className="text-2xl font-bold font-display text-foreground mb-3">Supporters</h2>
+      <span className="inline-block text-xs font-mono px-2.5 py-1 rounded-full border border-amber-500/30 text-amber-400 mb-6">
+        Coming in v2
       </span>
       <p className="text-muted-foreground leading-relaxed">
-        Settlement claims for position holders will be available once the Supporters module launches
-        in v1. Supporters who backed a correct outcome will be able to claim their returns from the
-        protocol.
+        Supporter mechanics &mdash; coming in v2.
       </p>
     </section>
   );
@@ -665,14 +663,14 @@ function SectionGrantOverview() {
   return (
     <section id="grant-overview" className="scroll-mt-24">
       <h2 className="text-2xl font-bold font-display text-foreground mb-1">
-        Grant Guard — Overview
+        Grant Guard &mdash; Overview
       </h2>
       <span className="inline-block text-xs font-mono px-2.5 py-1 rounded-full border border-emerald-500/30 text-emerald-400 mb-6">
         Private Beta
       </span>
       <p className="text-muted-foreground leading-relaxed mb-6">
         Grant Guard is the B2B configuration of SHIPSTAKE. Foundations and DAOs use it to enforce
-        grant milestones automatically — no manual review, no governance vote, no chasing builders.
+        grant milestones automatically &mdash; no manual review, no governance vote, no chasing builders.
       </p>
 
       <div className="glass-card rounded-lg p-5">
@@ -680,8 +678,8 @@ function SectionGrantOverview() {
         <ol className="space-y-3 text-sm text-muted-foreground">
           {[
             "Foundation creates a Grant Program on-chain: defines milestones, slash rules, and escrows the tranche.",
-            "Builder applies, posts matching stake (equal to tranche), and receives the quest.",
-            "Oracle evaluates proof at deadline. SHIPPED → builder gets stake + tranche minus fee. SLASHED → stake and tranche return to foundation escrow.",
+            "Builder posts matching collateral and receives the quest.",
+            "Oracle evaluates proof at deadline. SHIPPED — funds release automatically to builder. SLASHED — foundation capital returned.",
           ].map((step, i) => (
             <li key={i} className="flex gap-3">
               <span className="font-mono text-primary shrink-0">{i + 1}.</span>
@@ -704,7 +702,7 @@ function SectionForFoundations() {
 
       <p className="text-muted-foreground leading-relaxed mb-6">
         Grant Guard eliminates milestone ambiguity. The slash rule is defined at program creation
-        and is immutable — builders know exactly what&apos;s required before they apply.
+        and is immutable &mdash; builders know exactly what&apos;s required before they apply.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
@@ -763,12 +761,12 @@ function SectionGrantPricing() {
           </thead>
           <tbody className="text-muted-foreground">
             {[
-              ["Self-Stake", "Stake < 10 SOL", "2%"],
-              ["Self-Stake", "Stake 10–100 SOL", "1.5%"],
-              ["Self-Stake", "Stake ≥ 100 SOL", "1%"],
-              ["Self-Stake", "Streak ≥ 3", "1%"],
-              ["Self-Stake", "Streak ≥ 5", "0%"],
-              ["Grant Guard", "On tranche only", "1.5%"],
+              ["Self-Stake", "Stake < 10 SOL", "Higher"],
+              ["Self-Stake", "Stake 10–100 SOL", "Mid"],
+              ["Self-Stake", "Stake > 100 SOL", "Lower"],
+              ["Self-Stake", "Streak ≥ 3", "Reduced"],
+              ["Self-Stake", "Streak ≥ 5", "Zero"],
+              ["Grant Guard", "On tranche only", "Flat rate"],
             ].map(([mode, condition, fee], i) => (
               <tr key={i} className="border-b border-border/50 last:border-0">
                 <td className="py-3 px-4 font-mono text-primary">{mode}</td>
@@ -799,12 +797,8 @@ function SectionFAQ() {
       a: "No. Title, deadline, stake, and slash destination are immutable once the quest is on-chain. This is intentional — mutability would undermine the accountability mechanism.",
     },
     {
-      q: "What happens if the oracle is wrong?",
-      a: "The oracle scores based on objective, recomputable criteria. If you believe a result was incorrect, contact the team. Admin can override outcomes as a last resort, but this requires manual review and is logged publicly.",
-    },
-    {
       q: "What proof types are supported?",
-      a: "GitHub Commit URL, Vercel Deployment URL, or Live URL. GitHub and Vercel give higher confidence scores. Live URL alone maxes at 60/100 — unlikely to reach the 70 threshold without additional validation.",
+      a: "GitHub Commit URL and Vercel Deployment URL. These are the two accepted proof types.",
     },
     {
       q: "What is the minimum stake?",
@@ -815,12 +809,16 @@ function SectionFAQ() {
       a: "Yes. Each quest is an independent on-chain account.",
     },
     {
-      q: "What is the fee?",
-      a: "Fees are only charged on SHIPPED outcomes, never on SLASHED. Stake < 10 SOL → 2%. Stake 10–100 SOL → 1.5%. Stake ≥ 100 SOL → 1%. Builders with a streak ≥ 3 pay 1%, streak ≥ 5 pay 0%.",
+      q: "What happens if the oracle is wrong?",
+      a: "The oracle scores based on objective, deterministic criteria. Resolution is final.",
     },
     {
       q: "Is SHIPSTAKE available in my country?",
-      a: "SHIPSTAKE is not available in France, the United States, the United Kingdom, Australia, Canada, and other restricted jurisdictions. See our Terms of Service for the full list.",
+      a: "SHIPSTAKE is geo-blocked in 7 jurisdictions: the United States, the United Kingdom, France, Australia, Canada, North Korea, and Iran. See our Terms of Service for the full list.",
+    },
+    {
+      q: "Is SHIPSTAKE gambling?",
+      a: "No. SHIPSTAKE is an accountability protocol. You are committing your own capital against your own deliverable. There is no counterparty, no odds, and no house edge.",
     },
     {
       q: "When is Grant Guard available?",
@@ -828,7 +826,7 @@ function SectionFAQ() {
     },
     {
       q: "Is the smart contract audited?",
-      a: "Not yet. Audit with Sec3 or OtterSec is planned before mainnet. Do not use SHIPSTAKE on mainnet with significant amounts until the audit is complete and published.",
+      a: "Not yet. Audit is planned before mainnet. Currently on Solana Devnet. Do not use SHIPSTAKE with significant amounts until the audit is complete and published.",
     },
   ];
 
@@ -852,15 +850,14 @@ function SectionFAQ() {
 function SectionGlossary() {
   const terms: [string, string][] = [
     ["Quest", "A public delivery commitment with SOL locked as collateral"],
-    ["SHIPPED", "Outcome: proof validated, stake returned to builder"],
-    ["SLASHED", "Outcome: deadline missed or proof invalid, stake distributed"],
     ["PROOF Score", "On-chain reputation metric (0–100), stored in BuilderProfile"],
-    ["Oracle", "Off-chain service that validates proofs and calls report_outcome()"],
-    ["PoolVault", "PDA (program-derived address) holding a builder's stake"],
-    ["Grant Guard", "B2B mode: foundation creates a program, builder posts matching stake"],
-    ["Endorsement", "Gasless on-chain signal of support for a builder's quest"],
+    ["Slash Destination", "Fixed address receiving slashed SOL (set at creation, immutable)"],
+    ["Oracle", "Service that validates proofs and writes the outcome on-chain"],
     ["Streak", "Consecutive SHIPPED count; resets to 0 on any SLASHED"],
-    ["Slash destination", "Fixed address receiving slashed SOL (set at creation, immutable)"],
+    ["Ship Rate", "Percentage of quests resolved as SHIPPED out of total quests created"],
+    ["SHIPPED", "Outcome: proof validated, stake returned to builder"],
+    ["SLASHED", "Outcome: deadline missed or proof invalid, stake sent to slash destination"],
+    ["Grant Guard", "B2B mode: foundation creates a program, builder posts matching collateral"],
   ];
 
   return (
@@ -901,14 +898,19 @@ function SectionSecurity() {
             desc: "Admin cannot silently swap the oracle. Any replacement is delayed 48 hours, giving users time to react.",
           },
           {
-            status: "⏳",
-            title: "Smart contract audit pending",
-            desc: "Audit with Sec3 or OtterSec is planned before mainnet launch. Pre-audit — use with appropriate caution.",
+            status: "✅",
+            title: "Geo-blocking enforced",
+            desc: "SHIPSTAKE is geo-blocked in 7 jurisdictions: US, UK, France, Australia, Canada, North Korea, and Iran.",
+          },
+          {
+            status: "✅",
+            title: "Not a gambling product",
+            desc: "SHIPSTAKE is an accountability protocol. Builders commit their own capital against their own deliverables. No counterparty, no odds, no house edge.",
           },
           {
             status: "⏳",
-            title: "Multi-node oracle consensus",
-            desc: "Post-audit, the oracle will require consensus from multiple independent validators before submitting on-chain.",
+            title: "Smart contract audit pending",
+            desc: "Audit is planned before mainnet launch. Pre-audit — use with appropriate caution.",
           },
           {
             status: "⚠️",
@@ -1052,8 +1054,7 @@ export function DocsContent() {
           <SectionCreateAQuest />
           <SectionSubmitProof />
           <SectionClaimingStake />
-          <SectionTakingPositions />
-          <SectionClaimingSettlement />
+          <SectionSupportersV2 />
           <SectionGrantOverview />
           <SectionForFoundations />
           <SectionGrantPricing />

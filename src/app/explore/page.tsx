@@ -15,7 +15,6 @@ import { useState, useMemo } from "react";
 const STATUS_OPTIONS: QuestStatus[] = [
   "Open",
   "InProgress",
-  "Validating",
   "Shipped",
   "Slashed",
 ];

@@ -1,8 +1,8 @@
 import type { ProofType } from "@/lib/solana/idl";
 import { cn } from "@/lib/utils";
-import { GitBranch, Globe, Link as LinkIcon } from "lucide-react";
+import { GitBranch, Globe } from "lucide-react";
 
-const proofConfig: Record<ProofType, { icon: React.ReactNode; label: string }> = {
+const proofConfig: Record<string, { icon: React.ReactNode; label: string }> = {
   GithubCommit: {
     icon: <GitBranch className="h-3 w-3" />,
     label: "GitHub",
@@ -10,10 +10,6 @@ const proofConfig: Record<ProofType, { icon: React.ReactNode; label: string }> =
   VercelDeployment: {
     icon: <Globe className="h-3 w-3" />,
     label: "Vercel",
-  },
-  LiveUrl: {
-    icon: <LinkIcon className="h-3 w-3" />,
-    label: "Live URL",
   },
 };
 
@@ -23,7 +19,7 @@ interface ProofTypeBadgeProps {
 }
 
 export function ProofTypeBadge({ type, className }: ProofTypeBadgeProps) {
-  const config = proofConfig[type];
+  const config = proofConfig[type] ?? proofConfig.GithubCommit;
   return (
     <span
       className={cn(

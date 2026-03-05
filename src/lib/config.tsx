@@ -122,7 +122,7 @@ export const siteConfig = {
       {
         name: "base",
         label: "Delivery rate",
-        formula: "(shipped / total) x 100",
+        formula: "(shipped / total) x 60",
         description: "Your lifetime delivery rate across all quests",
         weight: "x60",
         icon: <CheckCircleIcon className="h-4 w-4" />,
@@ -229,11 +229,6 @@ export const siteConfig = {
         icon: <Icons.twitter className="h-5 w-5" aria-hidden="true" />,
         url: "https://x.com/shipstake",
         label: "SHIPSTAKE on X (Twitter)",
-      },
-      {
-        icon: <Icons.discord className="h-5 w-5" aria-hidden="true" />,
-        url: "https://discord.gg/shipstake",
-        label: "SHIPSTAKE Discord server",
       },
     ],
     links: [

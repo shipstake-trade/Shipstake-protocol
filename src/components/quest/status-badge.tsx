@@ -1,16 +1,12 @@
 import type { QuestStatus } from "@/lib/solana/idl";
 import { cn } from "@/lib/utils";
 
-const statusConfig: Record<QuestStatus, { color: string; dotColor: string }> = {
+const statusConfig: Record<string, { color: string; dotColor: string }> = {
   Open: {
     color: "bg-blue-500/20 text-blue-400 border-blue-500/30",
     dotColor: "bg-blue-400",
   },
   InProgress: {
-    color: "bg-amber-500/20 text-amber-400 border-amber-500/30",
-    dotColor: "bg-amber-400",
-  },
-  Validating: {
     color: "bg-amber-500/20 text-amber-400 border-amber-500/30",
     dotColor: "bg-amber-400",
   },
@@ -24,10 +20,9 @@ const statusConfig: Record<QuestStatus, { color: string; dotColor: string }> = {
   },
 };
 
-export const statusDisplayLabels: Record<QuestStatus, string> = {
+export const statusDisplayLabels: Record<string, string> = {
   Open: "OPEN",
-  InProgress: "VALIDATING",
-  Validating: "VALIDATING",
+  InProgress: "VALIDATING...",
   Shipped: "SHIPPED",
   Slashed: "SLASHED",
 };
@@ -38,7 +33,7 @@ interface StatusBadgeProps {
 }
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {
-  const config = statusConfig[status];
+  const config = statusConfig[status] ?? statusConfig.Open;
   return (
     <span
       className={cn(

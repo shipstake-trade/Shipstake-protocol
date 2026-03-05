@@ -50,11 +50,11 @@ export default function QuestDetailPage({
   const isShipped = quest.status === "Shipped";
   const isSlashed = quest.status === "Slashed";
 
-  // Fee calculation for display
+  // Fee calculation for display (use builder's streak for tiered discount)
   const feeInfo =
     quest.mode === "GrantGuard" && grantTrancheSol !== null
       ? calcGrantGuardFee(stakeSol, grantTrancheSol)
-      : calcSelfStakeFee(stakeSol);
+      : calcSelfStakeFee(stakeSol, quest.builderStreak);
 
   return (
     <>
@@ -222,7 +222,7 @@ export default function QuestDetailPage({
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">
-                        Protocol fee ({quest.mode === "GrantGuard" ? "1.5%" : "2%"})
+                        Protocol fee ({feeInfo.bps / 100}%)
                       </span>
                       <span className="font-mono text-amber-400">
                         {feeInfo.fee.toFixed(4)} SOL

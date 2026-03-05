@@ -8,7 +8,7 @@ import { useShipstakeProgram } from "./useShipstakeProgram"
 export interface SubmitProofInput {
   questPda: string     // base58
   proofUrl: string
-  proofType: number    // 0 = GithubCommit, 1 = VercelDeployment, 2 = LiveUrl
+  proofType: number    // 0 = GithubCommit, 1 = VercelDeployment
 }
 
 /**

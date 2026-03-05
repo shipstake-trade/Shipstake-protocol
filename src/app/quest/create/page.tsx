@@ -16,7 +16,6 @@ const CATEGORIES: Category[] = ["DeFi", "NFT", "Gaming", "Infrastructure", "Tool
 const PROOF_TYPES: { value: ProofType; label: string; description: string }[] = [
   { value: "GithubCommit", label: "GitHub Commit", description: "Link to a specific commit on GitHub" },
   { value: "VercelDeployment", label: "Vercel Deploy", description: "Production deployment URL" },
-  { value: "LiveUrl", label: "Live URL", description: "Any publicly accessible URL" },
 ];
 
 type Mode = "self-stake" | "grant-guard";
@@ -309,10 +308,8 @@ export default function CreateQuestPage() {
               {/* Fee preview with streak discount */}
               {mode === "self-stake" && (() => {
                 const streak = mockBuilderProfile.currentStreak;
-                let feePct = stakeSol >= 100 ? 1 : stakeSol >= 10 ? 1.5 : 2;
-                if (streak >= 5) feePct = 0;
-                else if (streak >= 3) feePct = 1;
-                const fee = (stakeSol * feePct) / 100;
+                const { fee, bps } = calcSelfStakeFee(stakeSol, streak);
+                const feePct = bps / 100;
                 return (
                   <div className={cn(
                     "rounded-lg border p-3 flex items-center justify-between text-sm",
@@ -325,7 +322,7 @@ export default function CreateQuestPage() {
                     <span className="text-muted-foreground">Your fee</span>
                     <span className={cn("font-mono font-bold", streak >= 3 ? "text-emerald-400" : "text-amber-400")}>
                       {feePct}% ({fee.toFixed(4)} SOL)
-                      {streak >= 5 && " — FREE 🔥🔥🔥"}
+                      {streak >= 5 && " — 0.5% floor 🔥🔥🔥"}
                       {streak >= 3 && streak < 5 && " — streak discount 🔥"}
                     </span>
                   </div>
@@ -345,13 +342,13 @@ export default function CreateQuestPage() {
                   <div className="flex justify-between text-muted-foreground">
                     <span>You receive</span>
                     <span className="font-mono text-emerald-brand">
-                      {calcSelfStakeFee(stakeSol).builderReceives.toFixed(4)} SOL
+                      {calcSelfStakeFee(stakeSol, mockBuilderProfile.currentStreak).builderReceives.toFixed(4)} SOL
                     </span>
                   </div>
                   <div className="flex justify-between text-muted-foreground">
-                    <span>Protocol fee (2%)</span>
+                    <span>Protocol fee ({(calcSelfStakeFee(stakeSol, mockBuilderProfile.currentStreak).bps / 100)}%)</span>
                     <span className="font-mono text-amber-400">
-                      {calcSelfStakeFee(stakeSol).fee.toFixed(4)} SOL
+                      {calcSelfStakeFee(stakeSol, mockBuilderProfile.currentStreak).fee.toFixed(4)} SOL
                     </span>
                   </div>
                   <hr className="border-border/30" />
@@ -449,16 +446,16 @@ export default function CreateQuestPage() {
                   <span className="text-muted-foreground">Protocol fee (if shipped)</span>
                   <span className="font-mono text-xs text-amber-400">
                     {mode === "self-stake"
-                      ? calcSelfStakeFee(stakeSol).fee.toFixed(4)
+                      ? calcSelfStakeFee(stakeSol, mockBuilderProfile.currentStreak).fee.toFixed(4)
                       : calcGrantGuardFee(stakeSol, grantTrancheSol).fee.toFixed(4)
-                    } SOL ({mode === "self-stake" ? "2%" : "1.5%"})
+                    } SOL ({mode === "self-stake" ? `${calcSelfStakeFee(stakeSol, mockBuilderProfile.currentStreak).bps / 100}%` : "1.5%"})
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">You receive (if shipped)</span>
                   <span className="font-mono font-bold text-emerald-brand">
                     {mode === "self-stake"
-                      ? calcSelfStakeFee(stakeSol).builderReceives.toFixed(4)
+                      ? calcSelfStakeFee(stakeSol, mockBuilderProfile.currentStreak).builderReceives.toFixed(4)
                       : calcGrantGuardFee(stakeSol, grantTrancheSol).builderReceives.toFixed(4)
                     } SOL
                   </span>

@@ -7,19 +7,31 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// ─── Protocol fee calculation (whitepaper v0.4) ─────────────────────────────
+// ─── Protocol fee calculation (aligned with on-chain ProtocolConfig) ─────────
+// Tiered BPS: <10 SOL = 200bps, 10-100 SOL = 150bps, >100 SOL = 100bps
+// Streak discount: ≥3 = -100bps, ≥5 = floor at 50bps (0.5%)
 
-export const SELF_STAKE_FEE_BPS = 200; // 2%
-export const GRANT_FEE_BPS = 150; // 1.5%
+export const FEE_BPS_LOW = 200;  // <10 SOL — 2%
+export const FEE_BPS_MID = 150;  // 10-100 SOL — 1.5%
+export const FEE_BPS_HIGH = 100; // >100 SOL — 1%
+export const GRANT_FEE_BPS = 150; // 1.5% on grant tranche
 
-export function calcSelfStakeFee(stakeSol: number) {
-  const fee = (stakeSol * SELF_STAKE_FEE_BPS) / 10000;
-  return { fee, builderReceives: stakeSol - fee };
+export function getSelfStakeFeeBps(stakeSol: number, streak: number = 0): number {
+  let bps = stakeSol >= 100 ? FEE_BPS_HIGH : stakeSol >= 10 ? FEE_BPS_MID : FEE_BPS_LOW;
+  if (streak >= 5) bps = Math.min(bps, 50); // floor 0.5%
+  else if (streak >= 3) bps = Math.max(bps - 100, 0);
+  return bps;
+}
+
+export function calcSelfStakeFee(stakeSol: number, streak: number = 0) {
+  const bps = getSelfStakeFeeBps(stakeSol, streak);
+  const fee = (stakeSol * bps) / 10000;
+  return { fee, builderReceives: stakeSol - fee, bps };
 }
 
 export function calcGrantGuardFee(stakeSol: number, trancheSol: number) {
   const fee = (trancheSol * GRANT_FEE_BPS) / 10000;
-  return { fee, builderReceives: stakeSol + trancheSol - fee };
+  return { fee, builderReceives: stakeSol + trancheSol - fee, bps: GRANT_FEE_BPS };
 }
 
 export function absoluteUrl(path: string) {

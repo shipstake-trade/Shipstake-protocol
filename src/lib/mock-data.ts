@@ -111,7 +111,7 @@ export const mockQuests: MockQuest[] = [
     status: "Slashed" as QuestStatus,
     outcome: "Slashed",
     proofUrl: null,
-    proofType: "LiveUrl" as ProofType,
+    proofType: "GithubCommit" as ProofType,
     bump: 252,
     slashDestination: "burn",
     createdAt: now - 20 * DAY,
@@ -133,7 +133,7 @@ export const mockQuests: MockQuest[] = [
     status: "Open" as QuestStatus,
     outcome: null,
     proofUrl: null,
-    proofType: "LiveUrl" as ProofType,
+    proofType: "VercelDeployment" as ProofType,
     bump: 251,
     slashDestination: "burn",
     createdAt: now - 3 * DAY,
@@ -201,8 +201,8 @@ export interface TickerItem {
 
 export const mockTickerItems: TickerItem[] = [
   { builder: "9pLm...2dFn", stakeAmount: 3.0, title: "DAO Voting Dashboard", status: "Shipped", proofType: "GithubCommit" },
-  { builder: "2nWp...6cRm", stakeAmount: 8.0, title: "Infrastructure Monitor", status: "Open", proofType: "LiveUrl" },
+  { builder: "2nWp...6cRm", stakeAmount: 8.0, title: "Infrastructure Monitor", status: "Open", proofType: "VercelDeployment" },
   { builder: "7xKX...4nPq", stakeAmount: 5.0, title: "DEX Aggregator v2", status: "Open", proofType: "GithubCommit" },
   { builder: "3mRq...8vKx", stakeAmount: 2.0, title: "NFT Collection Generator", status: "InProgress", proofType: "VercelDeployment" },
-  { builder: "5kHj...7gTs", stakeAmount: 1.5, title: "Solana Mobile dApp", status: "Slashed", proofType: "LiveUrl" },
+  { builder: "5kHj...7gTs", stakeAmount: 1.5, title: "Solana Mobile dApp", status: "Slashed", proofType: "GithubCommit" },
 ]

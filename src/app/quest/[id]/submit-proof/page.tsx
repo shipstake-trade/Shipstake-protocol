@@ -12,10 +12,9 @@ import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-const PROOF_GUIDANCE: Record<ProofType, string> = {
+const PROOF_GUIDANCE: Record<string, string> = {
   GithubCommit: "https://github.com/user/repo/commit/abc123...",
   VercelDeployment: "https://your-project.vercel.app",
-  LiveUrl: "https://your-shipped-project.com",
 };
 
 export default function SubmitProofPage({

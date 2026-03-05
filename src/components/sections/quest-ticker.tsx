@@ -5,20 +5,18 @@ import Marquee from "@/components/ui/marquee";
 import { mockTickerItems } from "@/lib/mock-data";
 import type { QuestStatus } from "@/lib/solana/idl";
 import { statusDisplayLabels } from "@/components/quest/status-badge";
-import { GitBranch, Globe, Link as LinkIcon } from "lucide-react";
+import { GitBranch, Globe } from "lucide-react";
 
-const statusColors: Record<QuestStatus, string> = {
+const statusColors: Record<string, string> = {
   Open: "bg-blue-500/20 text-blue-400 border-blue-500/30",
   InProgress: "bg-amber-500/20 text-amber-400 border-amber-500/30",
-  Validating: "bg-amber-500/20 text-amber-400 border-amber-500/30",
   Shipped: "bg-emerald-brand/20 text-emerald-brand border-emerald-brand/30",
   Slashed: "bg-danger/20 text-danger border-danger/30",
 };
 
-const proofIcons = {
+const proofIcons: Record<string, React.ReactNode> = {
   GithubCommit: <GitBranch className="h-3 w-3" />,
   VercelDeployment: <Globe className="h-3 w-3" />,
-  LiveUrl: <LinkIcon className="h-3 w-3" />,
 };
 
 function TickerCard({
