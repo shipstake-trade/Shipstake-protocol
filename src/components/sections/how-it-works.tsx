@@ -97,11 +97,14 @@ export function HowItWorks() {
           </div>
         </BlurFade>
 
-        {/* Incentive strip */}
+        {/* Self-Stake callout — centré */}
         <BlurFade delay={BLUR_FADE_DELAY * 6}>
-          <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-border/40 border border-border/40 rounded-lg overflow-hidden">
+          <div className="flex justify-center">
             {INCENTIVES.map((card) => (
-              <div key={card.title} className="p-5 bg-[var(--bg-secondary)]">
+              <div
+                key={card.title}
+                className="w-full max-w-sm border border-border/40 rounded-lg overflow-hidden bg-[var(--bg-secondary)] p-5 text-center"
+              >
                 <h4 className="text-xs font-mono font-bold text-primary uppercase tracking-widest mb-3">
                   {card.title}
                 </h4>

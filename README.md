@@ -11,11 +11,7 @@ No committee. No vote. No discretion. Math, not feelings.
 
 Builders face zero financial consequences for missing deadlines. Grant programs disburse capital before delivery. Roadmaps are announced and forgotten. SHIPSTAKE inverts this by making non-delivery financially painful — automatically and on-chain.
 
-The protocol exposes two modes:
-
-**Self-Stake** — A builder locks SOL, sets a public deadline, and submits proof before it expires. Score 70 or above: stake returned. Below 70: slashed. No external participants. No appeals.
-
-**Grant Guard** — A foundation locks a grant tranche on-chain. The builder posts matching stake. The oracle validates the milestone. SHIPPED: builder recovers stake and receives the tranche. SLASHED: stake transfers to the foundation, tranche returns untouched.
+**Self-Stake** — A builder locks SOL, sets a public deadline, and submits proof before it expires. Proof validates: stake returned minus a 2% fee. Deadline missed or proof fails: stake slashed. No external participants. No appeals.
 
 Settlement is automatic. The rule is frozen at quest creation. Nothing changes after the builder signs.
 
@@ -24,8 +20,7 @@ Settlement is automatic. The rule is frozen at quest creation. Nothing changes a
 ## How It Works
 
 ```
-Builder posts stake
-  → Quest published on-chain
+Builder locks SOL → Quest published on-chain
   → Builder submits proof URL before deadline
   → Oracle fetches GitHub / Vercel API
   → Score computed deterministically
@@ -38,15 +33,10 @@ The oracle is not an AI judge. It is a deterministic proof checker. Every API ca
 
 ## PROOF Score
 
-Every builder has an on-chain reputation metric stored in `BuilderProfile`. It is computed automatically at each settlement. It cannot be purchased or transferred.
+Every builder has an on-chain counter stored in `BuilderProfile`. It increments on each SHIPPED outcome and is queryable by any Solana program.
 
 ```
-base         = (quests_shipped / quests_total) × 60    // max 60
-speed        = avg_early_delivery_days × 2             // max 15
-stake_weight = log10(total_staked_lifetime_SOL) × 5    // max 15
-streak       = streak_current × 1                      // max 10
-
-proof_score  = min(100, base + speed + stake_weight + streak)
+proof_score = quests_shipped
 ```
 
 PROOF Score is queryable on-chain by any Solana program. Lending protocols, grant programs, job boards, and DAOs can gate access or extend credit based on verified delivery history.
@@ -57,12 +47,10 @@ PROOF Score is queryable on-chain by any Solana program. Lending protocols, gran
 
 Fees apply only on SHIPPED outcomes. The protocol does not profit from builder failure.
 
-| Mode        | Outcome | Fee  | Applied to    |
-| ----------- | ------- | ---- | ------------- |
-| Self-Stake  | SHIPPED | 2%   | Stake amount  |
-| Self-Stake  | SLASHED | 0%   | —             |
-| Grant Guard | SHIPPED | 1.5% | Grant tranche |
-| Grant Guard | SLASHED | 0%   | —             |
+| Outcome | Fee | Applied to   |
+| ------- | ---- | ------------ |
+| SHIPPED | 2%   | Stake amount |
+| SLASHED | 0%   | —            |
 
 Fee parameters are stored in `ProtocolConfig` and updatable by admin with a 48-hour timelock. Changes apply only to quests created after the update.
 
@@ -72,37 +60,31 @@ Fee parameters are stored in `ProtocolConfig` and updatable by admin with a 48-h
 
 ### On-Chain Accounts
 
-**QuestAccount** — The core primitive. Stores builder pubkey, mode, title, description, stake amount, deadline, status, proof URL, proof type, slash destination, and grant tranche.
+**QuestAccount** — The core primitive. Stores builder pubkey, title, description, stake amount, deadline, status, proof URL, proof type, and slash destination.
 
 **PoolVault** — PDA holding builder stake for a given quest. Releases funds on settlement only.
 
-**BuilderProfile** — Stores PROOF Score, quest history, streak, and lifetime stake. Updated automatically at every settlement.
-
-**GrantProgram** — Created by foundations. Defines the slash rule for all quests under that program. Fixed at creation.
+**BuilderProfile** — Stores PROOF Score (quests shipped count), quest history, and lifetime stake. Updated automatically at every settlement.
 
 **ProtocolConfig** — Admin-controlled configuration. Oracle pubkey, fee parameters, fee vault, minimum stake, pause flag.
 
 ### PDA Derivation
 
 ```
-Quest PDA:        ["quest", builder_pubkey, title_bytes]
-PoolVault PDA:    ["pool_vault", quest_pda]
-GrantProgram PDA: ["grant_program", foundation_pubkey, name_bytes]
-Config PDA:       ["config"]
+Quest PDA:     ["quest", builder_pubkey, title_bytes]
+PoolVault PDA: ["pool_vault", quest_pda]
+Config PDA:    ["config"]
 ```
 
 ### Instructions
 
-| Instruction            | Actor      | Description                                 |
-| ---------------------- | ---------- | ------------------------------------------- |
-| `initialize_protocol`  | Admin      | Setup ProtocolConfig                        |
-| `create_grant_program` | Foundation | Setup GrantProgram with fixed slash rule    |
-| `create_quest`         | Builder    | Lock stake, create QuestAccount + PoolVault |
-| `submit_proof`         | Builder    | Submit proof URL, transition to IN_PROGRESS |
-| `report_outcome`       | Oracle     | SHIPPED or SLASHED, execute settlement      |
-| `claim_stake`          | Builder    | Reclaim stake after SHIPPED                 |
-
-No `take_position`. No `claim_settlement` for external participants. Not in v0.
+| Instruction           | Actor   | Description                                 |
+| --------------------- | ------- | ------------------------------------------- |
+| `initialize_protocol` | Admin   | Setup ProtocolConfig                        |
+| `create_quest`        | Builder | Lock stake, create QuestAccount + PoolVault |
+| `submit_proof`        | Builder | Submit proof URL, transition to IN_PROGRESS |
+| `report_outcome`      | Oracle  | SHIPPED or SLASHED, execute settlement      |
+| `claim_stake`         | Builder | Reclaim stake after SHIPPED                 |
 
 ### Quest Lifecycle
 
@@ -111,12 +93,12 @@ OPEN → IN_PROGRESS → SHIPPED
                    → SLASHED
 ```
 
-| State       | Trigger                       | Actor   |
-| ----------- | ----------------------------- | ------- |
-| OPEN        | Quest created, stake locked   | Builder |
-| IN_PROGRESS | Proof submitted               | Builder |
-| SHIPPED     | Oracle validates, score >= 70 | Oracle  |
-| SLASHED     | Deadline missed or score < 70 | Oracle  |
+| State       | Trigger                    | Actor   |
+| ----------- | -------------------------- | ------- |
+| OPEN        | Quest created, stake locked | Builder |
+| IN_PROGRESS | Proof submitted            | Builder |
+| SHIPPED     | Oracle validates proof     | Oracle  |
+| SLASHED     | Deadline missed or invalid | Oracle  |
 
 ---
 
@@ -143,14 +125,6 @@ if deployment.createdAt <= deadline:      +30
 if deployment.target == "production":     +20
 ```
 
-CI Pass (GitHub Actions)
-
-```
-if workflow_run.conclusion == "success":  +60
-if workflow_run.created_at <= deadline:   +30
-if repo matches declared repo:            +10
-```
-
 Threshold: score >= 70 = SHIPPED. Below = SLASHED.
 
 The oracle keypair can call exactly one instruction: `report_outcome`. It cannot transfer funds. If compromised, an attacker can affect outcomes but cannot access user funds.
@@ -163,7 +137,8 @@ The oracle keypair can call exactly one instruction: `report_outcome`. It cannot
 | -------------- | ----------------------------------- |
 | Smart contract | Anchor (Rust), Solana devnet        |
 | Frontend       | Next.js 15, React 19, Tailwind v4   |
-| Wallet         | Privy (Phantom, Solflare, Backpack) |
+| Wallet auth    | Privy (Phantom, Solflare, Backpack) |
+| GitHub OAuth   | Next.js API routes, AES-256-GCM     |
 | UI components  | shadcn/ui, MagicUI                  |
 | Oracle         | Node.js, Railway                    |
 | Deployment     | Vercel                              |
@@ -173,30 +148,35 @@ The oracle keypair can call exactly one instruction: `report_outcome`. It cannot
 ## Repository Structure
 
 ```
-shipstake-frontend/
-  src/
-    app/
-      explore/          Quest board
-      quest/
-        [id]/           Quest detail + submit proof
-        create/         Create quest wizard
-      portfolio/        Builder's own quests
-      leaderboard/      PROOF Score rankings
-      builder/[address] Builder profile
-      gate/             Wallet connection gate
-    components/
-      sections/         Landing page sections
-      quest/            Quest card, status badge, proof type badge
-      builder/          Builder card, PROOF Score ring
-      ui/               Primitives (sol-amount, wallet-address, etc.)
-    lib/
-      solana/
-        idl.ts          Program types and IDL (read-only)
-        shipstake.ts    Anchor hooks (read-only)
-        provider.tsx    Privy + Solana provider (read-only)
-      mock-data.ts      Dev mock data
-      utils.ts          Fee calculation helpers
-    middleware.ts       Geo-blocking (read-only)
+src/
+  app/
+    api/
+      auth/github/          GitHub OAuth initiation + callback
+      github/               status, repos, disconnect endpoints
+      waitlist/             Waitlist signup
+    explore/                Quest board
+    quest/
+      [id]/                 Quest detail + submit proof
+      create/               Create quest wizard (5 steps)
+    portfolio/              Builder's own quests + GitHub connect
+    leaderboard/            PROOF Score rankings
+    builder/[address]/      Public builder profile
+    gate/                   Wallet connection gate
+  components/
+    github/                 GitHubConnect, RepoSelector
+    sections/               Landing page sections
+    quest/                  Quest card, status badge, proof type badge
+    builder/                Builder card, PROOF Score ring
+    ui/                     Primitives (sol-amount, wallet-address, etc.)
+  lib/
+    github.ts               GitHub OAuth utilities (server-only, AES-256-GCM)
+    solana/
+      idl.ts                Program types and IDL (immutable)
+      shipstake.ts          Anchor hooks (immutable)
+      provider.tsx          Privy + Solana provider (immutable)
+    mock-data.ts            Dev mock data
+    utils.ts                Shared utilities
+  middleware.ts             Geo-blocking (immutable)
 ```
 
 ---
@@ -204,9 +184,20 @@ shipstake-frontend/
 ## Environment Variables
 
 ```bash
-NEXT_PUBLIC_PRIVY_APP_ID=cmm8h3txq00yp0cjsg61arbz5
-NEXT_PUBLIC_SOLANA_RPC_URL=https://api.devnet.solana.com
-NEXT_PUBLIC_PROGRAM_ID=3B2hgPZf15sUqZ9DhhNBjE6Lyi6NirbXLb9TMWpGAbeq
+# App
+NEXT_PUBLIC_APP_URL=https://shipstake.trade/
+NEXT_PUBLIC_PRIVY_APP_ID=
+
+# GitHub OAuth (create app at https://github.com/settings/developers)
+# Callback URL: <APP_URL>/api/auth/github/callback
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+# Generate: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+GITHUB_TOKEN_ENCRYPTION_KEY=
+
+# Email (Resend)
+RESEND_API_KEY=
+RESEND_AUDIENCE_ID=
 ```
 
 ---
@@ -218,11 +209,10 @@ NEXT_PUBLIC_PROGRAM_ID=3B2hgPZf15sUqZ9DhhNBjE6Lyi6NirbXLb9TMWpGAbeq
 pnpm install
 
 # Run dev server (requires Node 22 LTS)
-nvm use 22
 pnpm dev
 
 # Type check
-pnpm tsc --noEmit
+pnpm exec tsc --noEmit
 
 # Lint
 pnpm lint
@@ -242,6 +232,8 @@ Four files are non-negotiable and must never be modified without a protocol vers
 - `src/lib/solana/provider.tsx`
 - `src/middleware.ts`
 
+GitHub access tokens are encrypted at rest using AES-256-GCM in httpOnly cookies. The plaintext token is never stored or logged. The `GITHUB_TOKEN_ENCRYPTION_KEY` must be rotated if compromised.
+
 The slash destination for each quest is frozen at creation. The oracle cannot move funds. Admin actions require a 48-hour timelock. Builder double-claim is prevented by `builder_claimed: bool` on PoolVault.
 
 ---
@@ -259,7 +251,7 @@ Prohibited terminology throughout the codebase: bet, gamble, odds, prediction ma
 ## Status
 
 - Network: Solana Devnet
-- Version: 0.4
+- Version: 0.5
 - Audit: Pre-audit
 - Mainnet: Pending audit completion
 
