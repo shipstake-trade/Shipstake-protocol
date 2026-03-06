@@ -5,7 +5,7 @@ import { DocsContent } from "./docs-client";
 
 export const metadata = constructMetadata({
   title: "Docs",
-  description: `Protocol documentation for ${siteConfig.name}. How quests, proof submission, oracle settlement, PROOF Score, and Grant Guard work.`,
+  description: `Protocol documentation for ${siteConfig.name}. Self-Stake, quest creation, GitHub connect, oracle settlement, and PROOF Score.`,
 });
 
 const Header = dynamic(() =>
