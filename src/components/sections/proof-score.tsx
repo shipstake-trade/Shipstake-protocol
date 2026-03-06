@@ -18,7 +18,7 @@ export function ProofScore() {
       flickerOpacity={0.06}
     >
       <div className="border-x border-b p-6 lg:p-12">
-        {/* Formula components grid */}
+        {/* Score components grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
           {proofScore.components.map((component, i) => (
             <BlurFade
@@ -55,10 +55,10 @@ export function ProofScore() {
               Example PROOF score
             </div>
             <div className="text-5xl font-mono font-bold text-primary mb-1">
-              82
+              13
             </div>
             <div className="text-xs text-muted-foreground">
-              13 shipped / 15 total · 5-delivery streak · 47.5 SOL staked
+              13 quests shipped
             </div>
           </div>
         </BlurFade>

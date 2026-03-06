@@ -24,11 +24,24 @@ const STEPS = [
     step: 4,
     title: "Shipped or slashed",
     description:
-      "Proof validates → your SOL comes back minus a small fee. Proof fails or deadline passes → your SOL is gone. PROOF Score updates either way. No appeals. Final.",
+      "Proof validates → your SOL comes back minus a 2% fee. Proof fails or deadline passes → your SOL is gone. No appeals. Final.",
   },
 ];
 
+// MVP: Streak Rewards, Early Bonus removed. Keeping only the core Your Score card.
 const INCENTIVES = [
+  {
+    title: "Your PROOF Score",
+    lines: [
+      "Every settlement writes to your PROOF Score.",
+      "Quests shipped. On-chain. Permanent.",
+    ],
+    tagline: "Earned one delivery at a time.",
+  },
+];
+
+/* Removed for MVP — re-enable in future sprint:
+const REMOVED_INCENTIVES = [
   {
     title: "Streak Rewards",
     lines: ["Streak ≥3 → reduced fee", "Streak ≥5 → zero fee"],
@@ -39,15 +52,8 @@ const INCENTIVES = [
     lines: ["Ship before the deadline", "Earn from the fee vault"],
     tagline: "The faster you deliver, the more you keep.",
   },
-  {
-    title: "Your Score",
-    lines: [
-      "Every settlement writes to your PROOF Score.",
-      "0–100. On-chain. Permanent.",
-    ],
-    tagline: "Earned one delivery at a time.",
-  },
 ];
+*/
 
 export function HowItWorks() {
   return (

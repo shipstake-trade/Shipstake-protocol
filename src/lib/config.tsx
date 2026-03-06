@@ -2,10 +2,7 @@ import { Icons } from "@/components/icons";
 import {
   AnchorIcon,
   CheckCircleIcon,
-  FlameIcon,
-  GlobeIcon,
   RocketIcon,
-  ShieldCheckIcon,
   TargetIcon,
   ZapIcon,
 } from "lucide-react";
@@ -41,7 +38,6 @@ export const siteConfig = {
   navLinks: [
     { label: "How It Works", href: "/#how-it-works" },
     { label: "Self-Stake", href: "/#modes" },
-    { label: "Grant Guard", href: "/#modes" },
     { label: "Leaderboard", href: "/leaderboard" },
     { label: "Docs", href: "/docs" },
   ] as { label: string; href: string; external?: boolean }[],
@@ -55,7 +51,7 @@ export const siteConfig = {
     cta: "Lock SOL on a Deadline",
     ctaDescription: "Lock SOL as collateral on your next deadline",
     secondaryCta: "See Who's Shipping",
-    incentiveLine: "Streak ≥3 → lower fee. Streak ≥5 → zero fee. Ship early → earn bonus.",
+    incentiveLine: "Flat 2% settlement fee on SHIPPED outcomes. No fee on slash.",
   },
   stats: [
     { label: "avg PROOF Score", suffix: "", pending: true },
@@ -95,17 +91,8 @@ export const siteConfig = {
   ],
   modes: [
     {
-      name: "Grant Guard",
-      tag: "B2B · Foundations & DAOs",
-      description: "For foundations",
-      longDescription:
-        "Foundations lose money on grants that never ship. It happens constantly. A builder gets funded, disappears, and there's no enforcement mechanism besides reputation damage — which doesn't recover the capital.\n\nGrant Guard locks funds in the smart contract. Builders post matching collateral. If the milestone ships, funds release automatically. If it doesn't, the foundation's capital is returned. No committees. No chasing invoices. The contract settles it.",
-      icon: <ShieldCheckIcon className="h-6 w-6" />,
-      cta: "Protect a grant",
-    },
-    {
       name: "Self-Stake",
-      tag: "B2C · Indie Builders",
+      tag: "Indie Builders · Solana",
       description: "For builders",
       longDescription:
         "Anyone can say they're building something. Most of them never ship. The ones who do have no way to prove consistency — just a Twitter thread and a pinned repo.\n\nSelf-Stake lets you lock your own SOL against your own deadline. Ship and get it back. Miss and lose it. Every settled commitment writes to your PROOF Score. Over time, that score becomes the only credential that matters — because you can't buy it.",
@@ -117,39 +104,15 @@ export const siteConfig = {
     title: "PROOF Score",
     subtitle: "Your track record, computed.",
     description:
-      "A number from 0 to 100 that reflects how reliably you deliver. Calculated automatically every time a commitment settles. Stored on-chain. You can't edit it, buy it, or reset it.",
+      "A counter of how many quests you've shipped. Stored on-chain. You can't edit it, buy it, or reset it.",
     components: [
       {
-        name: "base",
-        label: "Delivery rate",
-        formula: "(shipped / total) x 60",
-        description: "Your lifetime delivery rate across all quests",
-        weight: "x60",
+        name: "shipped",
+        label: "Quests Shipped",
+        formula: "quests_shipped",
+        description: "Total number of quests you've successfully delivered",
+        weight: "counter",
         icon: <CheckCircleIcon className="h-4 w-4" />,
-      },
-      {
-        name: "speed",
-        label: "Ship early",
-        formula: "max(0, (deadline - submitted) / deadline) x 15",
-        description: "Bonus for shipping ahead of schedule",
-        weight: "x15",
-        icon: <ZapIcon className="h-4 w-4" />,
-      },
-      {
-        name: "stake_weight",
-        label: "Skin in game",
-        formula: "log2(total_sol_staked + 1) x 5",
-        description: "Higher stakes signal higher conviction",
-        weight: "x15",
-        icon: <AnchorIcon className="h-4 w-4" />,
-      },
-      {
-        name: "streak",
-        label: "Consistency",
-        formula: "min(consecutive_ships x 2, 10)",
-        description: "Consecutive deliveries compound your score",
-        weight: "x10",
-        icon: <FlameIcon className="h-4 w-4" />,
       },
     ],
     tags: ["On-chain", "Non-gameable", "Composable"],
@@ -180,7 +143,7 @@ export const siteConfig = {
     {
       question: "What's the protocol fee?",
       answer:
-        "2% on Self-Stake settlements. 1.5% on Grant Guard tranches. Only on SHIPPED outcomes — we don't profit from your failure.",
+        "Flat 2% settlement fee on SHIPPED outcomes. No fee if you get slashed — we don't profit from your failure.",
     },
     {
       question: "Is this a speculative market?",
@@ -197,7 +160,6 @@ export const siteConfig = {
         links: [
           { text: "How It Works", url: "/#how-it-works" },
           { text: "Self-Stake", url: "/#modes" },
-          { text: "Grant Guard", url: "/#modes" },
           { text: "Docs", url: "/docs" },
         ],
       },

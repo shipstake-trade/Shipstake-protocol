@@ -51,9 +51,6 @@ export default function LeaderboardPage() {
                 <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider p-4 hidden md:table-cell">
                   TOTAL STAKED
                 </th>
-                <th className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wider p-4 hidden lg:table-cell">
-                  STREAK
-                </th>
                 <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider p-4 hidden lg:table-cell">
                   SHIPPED
                 </th>
@@ -97,11 +94,6 @@ export default function LeaderboardPage() {
                   <td className="p-4 text-right hidden md:table-cell">
                     <span className="text-sm font-mono text-primary">
                       {entry.totalStaked.toFixed(1)} SOL
-                    </span>
-                  </td>
-                  <td className="p-4 text-center hidden lg:table-cell">
-                    <span className="text-sm font-mono text-foreground">
-                      {entry.streak > 0 ? `${entry.streak}x` : "\u2014"}
                     </span>
                   </td>
                   <td className="p-4 text-right hidden lg:table-cell">

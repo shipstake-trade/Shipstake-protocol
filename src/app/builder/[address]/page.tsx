@@ -6,7 +6,6 @@ import { ProofScoreRing } from "@/components/builder/proof-score-ring";
 import { StatusBadge } from "@/components/quest/status-badge";
 import { WalletAddress } from "@/components/ui/wallet-address";
 import { mockBuilderProfile, mockQuests } from "@/lib/mock-data";
-import { siteConfig } from "@/lib/config";
 import { lamportsToSol } from "@/lib/solana/shipstake";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -53,8 +52,6 @@ export default function BuilderProfilePage({
             <div className="flex flex-col items-center gap-3 md:w-40 shrink-0">
               <ProofScoreRing
                 score={profile.proofScore}
-                streak={profile.currentStreak}
-                showNextRank
                 size="lg"
               />
               <WalletAddress
@@ -73,14 +70,13 @@ export default function BuilderProfilePage({
               </p>
             </div>
 
-            {/* Right: stats + progress */}
+            {/* Right: stats */}
             <div className="flex-1">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {[
                   { label: "Quests Shipped", value: profile.questsShipped, cls: "text-foreground" },
-                  { label: "Current Streak", value: `🔥 ${profile.currentStreak}`, cls: "text-amber-400" },
+                  { label: "Ship Rate", value: `${shipRate}%`, cls: "text-primary" },
                   { label: "SOL Staked", value: `${profile.totalSolStaked.toFixed(1)} SOL`, cls: "text-primary" },
-                  { label: "Best Streak", value: profile.bestStreak, cls: "text-foreground" },
                 ].map((s) => (
                   <div key={s.label} className="bg-secondary/50 rounded-lg p-3">
                     <p className={cn("text-xl font-mono font-bold", s.cls)}>{s.value}</p>
@@ -88,76 +84,7 @@ export default function BuilderProfilePage({
                   </div>
                 ))}
               </div>
-
-              {/* Progress to next rank */}
-              <div className="bg-secondary/30 rounded-lg p-4 mb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-xs text-muted-foreground">
-                    Progress to next rank
-                  </p>
-                  <p className="text-xs font-medium text-foreground">
-                    {profile.questsTotal > 0
-                      ? `${Math.round((profile.questsShipped / profile.questsTotal) * 100)}% ship rate`
-                      : "—"
-                    }
-                  </p>
-                </div>
-                <div className="h-1.5 rounded-full bg-border overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-primary transition-all duration-700"
-                    style={{ width: `${profile.proofScore}%` }}
-                  />
-                </div>
-                <p className="text-[10px] text-muted-foreground mt-1">
-                  {profile.proofScore < 91
-                    ? `${profile.proofScore}/100 · ${(() => {
-                        if (profile.proofScore < 26) return `${26 - profile.proofScore} pts to Adept`;
-                        if (profile.proofScore < 51) return `${51 - profile.proofScore} pts to Veteran`;
-                        if (profile.proofScore < 76) return `${76 - profile.proofScore} pts to Legend`;
-                        return `${91 - profile.proofScore} pts to Mythic`;
-                      })()}`
-                    : "Mythic — maximum rank achieved"
-                  }
-                </p>
-              </div>
-
-              {/* Incentive active */}
-              {profile.currentStreak >= 5 ? (
-                <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-4 py-3 text-sm text-emerald-400 font-medium">
-                  🔥🔥🔥 0% fee — FREE SHIPPING active
-                </div>
-              ) : profile.currentStreak >= 3 ? (
-                <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3 text-sm text-emerald-400">
-                  🔥 1% fee active · Ship {5 - profile.currentStreak} more for 0%
-                </div>
-              ) : (
-                <div className="rounded-lg border border-border bg-secondary/30 px-4 py-3 text-xs text-muted-foreground">
-                  Start a streak → earn fee reductions · Ship 3 in a row for 1%
-                </div>
-              )}
             </div>
-          </div>
-        </div>
-
-        {/* PROOF Score Formula */}
-        <div className="glass-card rounded-lg p-5 mb-8">
-          <h3 className="text-sm font-medium text-foreground mb-4">
-            PROOF Score breakdown
-          </h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {siteConfig.proofScore.components.map((comp) => (
-              <div key={comp.name} className="text-center">
-                <div className="flex items-center justify-center gap-1 mb-1">
-                  {comp.icon}
-                  <span className="text-xs font-medium text-foreground">
-                    {comp.label}
-                  </span>
-                </div>
-                <code className="text-[10px] font-mono text-muted-foreground block">
-                  {comp.weight}
-                </code>
-              </div>
-            ))}
           </div>
         </div>
 

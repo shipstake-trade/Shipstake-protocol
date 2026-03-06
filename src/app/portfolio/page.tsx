@@ -4,6 +4,7 @@ import { Header } from "@/components/sections/header";
 import { Footer } from "@/components/sections/footer";
 import { ProofScoreRing } from "@/components/builder/proof-score-ring";
 import { StatusBadge } from "@/components/quest/status-badge";
+import { GitHubConnect } from "@/components/github/github-connect";
 import { Button } from "@/components/ui/button";
 import { usePrivyWallet } from "@/lib/solana/shipstake";
 import { useLinkAccount } from "@privy-io/react-auth";
@@ -75,18 +76,16 @@ export default function PortfolioPage() {
     <>
       <Header />
       <main className="container mx-auto max-w-[var(--container-max-width)] px-4 py-8">
-        {/* PROOF Score Journey */}
+        {/* PROOF Score */}
         <div className="glass-card rounded-lg p-6 mb-8">
-          <div className="flex flex-col sm:flex-row items-center gap-6 mb-6">
+          <div className="flex flex-col sm:flex-row items-center gap-6">
             <ProofScoreRing
               score={profile.proofScore}
-              streak={profile.currentStreak}
-              showNextRank
               size="lg"
             />
             <div className="flex-1 text-center sm:text-left">
               <p className="text-xs font-mono text-primary uppercase tracking-widest mb-1">
-                Your PROOF Score Journey
+                PROOF Score
               </p>
               <h1 className="text-2xl font-display font-bold text-foreground">
                 My Quests
@@ -94,12 +93,11 @@ export default function PortfolioPage() {
               <p className="text-sm text-muted-foreground mt-1">
                 Your on-chain reputation. Permanent.
               </p>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
                 {[
                   { label: "Quests Shipped", value: profile.questsShipped, cls: "text-foreground" },
-                  { label: "Current Streak", value: `🔥 ${profile.currentStreak}`, cls: "text-amber-400" },
+                  { label: "Ship Rate", value: `${profile.questsTotal > 0 ? Math.round((profile.questsShipped / profile.questsTotal) * 100) : 0}%`, cls: "text-primary" },
                   { label: "SOL Staked", value: `${profile.totalSolStaked.toFixed(1)}`, cls: "text-primary" },
-                  { label: "Best Streak", value: profile.bestStreak, cls: "text-foreground" },
                 ].map((s) => (
                   <div key={s.label} className="bg-secondary/50 rounded-lg p-3 text-center">
                     <p className={cn("text-lg font-mono font-bold", s.cls)}>{s.value}</p>
@@ -108,81 +106,20 @@ export default function PortfolioPage() {
                 ))}
               </div>
             </div>
-            <Link href="/quest/create" className="shrink-0">
-              <Button className="text-primary-foreground">
-                Create a Quest
-              </Button>
-            </Link>
+            <div className="flex flex-col gap-3 shrink-0 items-stretch">
+              <Link href="/quest/create">
+                <Button className="text-primary-foreground w-full">
+                  Create a Quest
+                </Button>
+              </Link>
+              <div className="border-t border-border/30 pt-3">
+                <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-2 font-mono">
+                  GitHub
+                </p>
+                <GitHubConnect returnTo="/portfolio" />
+              </div>
+            </div>
           </div>
-
-          {/* Streak status card */}
-          {/* Early delivery tracker */}
-          {(() => {
-            const outcomes = ["early", "on-time", "late"] as const;
-            type Outcome = typeof outcomes[number];
-            const outcomeStyle: Record<Outcome, { label: string; cls: string }> = {
-              early: { label: "Early", cls: "bg-emerald-500/20 border-emerald-500/40 text-emerald-400" },
-              "on-time": { label: "On time", cls: "bg-blue-500/20 border-blue-500/40 text-blue-400" },
-              late: { label: "Late", cls: "bg-destructive/20 border-destructive/40 text-destructive" },
-            };
-            return (
-              <div className="mb-4 flex flex-wrap items-center gap-3">
-                <span className="text-[10px] text-muted-foreground/60 font-mono uppercase tracking-wider">
-                  Last 3 deliveries
-                </span>
-                <div className="flex gap-1.5">
-                  {outcomes.map((o, i) => (
-                    <span
-                      key={i}
-                      className={cn(
-                        "text-[10px] font-mono px-2 py-0.5 rounded-full border",
-                        outcomeStyle[o].cls
-                      )}
-                    >
-                      {outcomeStyle[o].label}
-                    </span>
-                  ))}
-                </div>
-                <span className="text-[10px] text-muted-foreground/50">
-                  Ship early on your next quest to earn from the reward pool.
-                </span>
-              </div>
-            );
-          })()}
-
-          {profile.currentStreak >= 5 ? (
-            <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-4 flex items-center gap-3">
-              <span className="text-2xl">🔥🔥🔥</span>
-              <div>
-                <p className="text-sm font-bold text-emerald-400">FREE SHIPPING ACTIVE · 0% fee on your next quest</p>
-                <p className="text-xs text-muted-foreground">Streak of {profile.currentStreak} — keep it going.</p>
-              </div>
-            </div>
-          ) : profile.currentStreak >= 3 ? (
-            <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-4 flex items-center gap-3">
-              <span className="text-2xl">🔥</span>
-              <div>
-                <p className="text-sm font-bold text-emerald-400">REDUCED FEE ACTIVE · 1% on your next quest</p>
-                <p className="text-xs text-muted-foreground">Streak of {profile.currentStreak} · Ship 2 more for 0% fee.</p>
-              </div>
-            </div>
-          ) : profile.currentStreak > 0 ? (
-            <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-4 flex items-center gap-3">
-              <span className="text-2xl">⚡</span>
-              <div>
-                <p className="text-sm font-medium text-amber-400">Streak: {profile.currentStreak}/3 — keep going for fee reduction</p>
-                <p className="text-xs text-muted-foreground">Ship 3 in a row → 1% fee · Ship 5 in a row → 0% fee.</p>
-              </div>
-            </div>
-          ) : (
-            <div className="rounded-lg border border-border bg-secondary/30 p-4 flex items-center gap-3">
-              <span className="text-2xl">🎯</span>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Start a streak — ship 3 in a row for 1% fee</p>
-                <p className="text-xs text-muted-foreground">Ship 5 in a row → 0% fee forever.</p>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Tabs */}
