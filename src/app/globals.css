@@ -18,18 +18,18 @@
   --accent-gold: #E3B341;
   --accent-danger: #F85149;
 
-  /* Background — GitHub Dark Protocol */
-  --bg-primary: #080B0F;
-  --bg-secondary: #0D1117;
-  --bg-tertiary: #161B22;
+  /* Background — Cyber Night */
+  --bg-primary: #060D12;
+  --bg-secondary: #0A1419;
+  --bg-tertiary: #0F1E24;
   --bg-base: var(--bg-primary);
   --bg-card: var(--bg-secondary);
   --bg-card-hover: var(--bg-tertiary);
 
-  /* Border — tight, neutral */
-  --border-subtle: #21262D;
+  /* Border — tight, teal-shifted */
+  --border-subtle: #1A2730;
   --border-active: rgba(0, 255, 163, 0.4);
-  --border-accent: #30363D;
+  --border-accent: #243540;
 
   /* Text */
   --text-muted: #484F58;
@@ -40,6 +40,18 @@
   --danger-dim: rgba(248, 81, 73, 0.12);
   --warning: #E3B341;
   --danger: #F85149;
+
+  /* Teal cold accent */
+  --teal: #1AFFEA;
+  --teal-dim: rgba(26, 255, 234, 0.08);
+
+  /* Warm / amber — deadline, warning states */
+  --warm: #E3651D;
+  --warm-dim: rgba(227, 101, 29, 0.12);
+
+  /* Text aliases */
+  --text-primary: var(--foreground);
+  --text-secondary: var(--muted-foreground);
 
   /* Glow Effects */
   --glow-green: 0 0 20px rgba(0, 255, 163, 0.25);
@@ -131,6 +143,12 @@
   --color-bg-tertiary: #161B22;
 
   /* shadcn mappings */
+  /* New tokens */
+  --color-base: var(--bg-base);
+  --color-warm: var(--warm);
+  --color-teal: var(--teal);
+  --color-accent-dim: var(--accent-dim);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -404,4 +422,101 @@
 
 .animate-border-glow {
   animation: border-glow 3s ease-in-out infinite;
+}
+
+/* ============================================================
+   CYBER NIGHT DESIGN SYSTEM — additions
+   ============================================================ */
+
+/* Grain noise overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.025;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Card — canonical global style */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.card:hover {
+  border-color: rgba(0, 255, 163, 0.3);
+  background: var(--bg-card-hover);
+}
+
+/* Danger card hover */
+.card-danger:hover {
+  border-color: rgba(248, 81, 73, 0.35);
+}
+
+/* Accent left border — feature callout (Kamino style) */
+.card-feature {
+  border-left: 2px solid var(--accent-primary) !important;
+}
+
+/* Section labels */
+.section-label {
+  font-family: 'JetBrains Mono Variable', 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Stats / numbers */
+.stat-mono {
+  font-family: 'JetBrains Mono Variable', 'Space Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Color utilities */
+.text-warm  { color: var(--warm); }
+.text-teal  { color: var(--teal); }
+
+/* Hero */
+.hero {
+  background:
+    radial-gradient(ellipse 900px 500px at 50% -10%,
+      rgba(0, 255, 163, 0.04) 0%,
+      transparent 70%
+    ),
+    var(--bg-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-h1 { font-size: clamp(36px, 8vw, 72px); }
+
+/* CSS Rain — hero only */
+.rain-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.rain-drop {
+  position: absolute;
+  top: -20px;
+  width: 1px;
+  height: 60px;
+  background: linear-gradient(to bottom, transparent, var(--teal));
+  will-change: transform;
+  animation: rain-fall linear infinite;
+}
+@keyframes rain-fall {
+  to {
+    transform: translateY(110vh);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rain-drop { display: none; }
 }

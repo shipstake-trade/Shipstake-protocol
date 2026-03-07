@@ -50,15 +50,10 @@ export function ProofScore() {
             {/* Section label */}
             <div>
               <p
-                className="font-mono uppercase"
-                style={{
-                  fontSize: "11px",
-                  letterSpacing: "0.15em",
-                  color: "var(--text-muted)",
-                  marginBottom: "12px",
-                }}
+                className="section-label"
+                style={{ marginBottom: "12px" }}
               >
-                Your builder reputation
+                Your Builder Reputation
               </p>
               <h2
                 className="font-mono font-bold text-foreground leading-tight"
@@ -89,13 +84,13 @@ export function ProofScore() {
                 >
                   <span className="text-base">{stat.emoji}</span>
                   <span
-                    className="font-mono text-sm"
+                    className="stat-mono text-sm"
                     style={{ color: "var(--muted-foreground)" }}
                   >
                     {stat.label}:
                   </span>
                   <span
-                    className="font-mono text-base font-bold tabular-nums"
+                    className="stat-mono text-base font-bold"
                     style={{ color: stat.chipStyle.color }}
                   >
                     {stat.value}

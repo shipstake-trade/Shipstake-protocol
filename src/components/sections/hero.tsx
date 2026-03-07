@@ -7,24 +7,25 @@ export function Hero() {
   return (
     <section
       id="hero"
-      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden"
-      style={{ background: "var(--bg-primary)" }}
+      className="hero flex min-h-screen flex-col items-center justify-center"
     >
-      {/* Subtle hero radial gradient — single allowed glow effect */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse 800px 400px at 50% 0%, rgba(0,255,163,0.04) 0%, transparent 70%)",
-        }}
-      />
+      {/* Rain — pure CSS, zero JS */}
+      <div className="rain-container" aria-hidden="true">
+        {Array.from({ length: 24 }).map((_, i) => (
+          <span key={i} className="rain-drop" style={{
+            left: `${(i * 4.17) % 100}%`,
+            animationDelay: `${(i * 0.37) % 3}s`,
+            animationDuration: `${1.5 + (i * 0.13) % 2}s`,
+            opacity: 0.15 + (i * 0.01) % 0.25,
+          }} />
+        ))}
+      </div>
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center text-center px-4 max-w-[90vw]">
         <h1
-          className="font-mono font-bold leading-[1.1] tracking-tight"
+          className="hero-h1 font-mono font-bold leading-[1.1] tracking-tight"
           style={{
-            fontSize: "clamp(2.5rem, 7vw, 4.5rem)",
             color: "var(--foreground)",
             maxWidth: "800px",
           }}
