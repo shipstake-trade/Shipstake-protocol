@@ -62,7 +62,7 @@ export function HowItWorks() {
                 <div className="flex items-start justify-between">
                   <span
                     className="font-mono"
-                    style={{ fontSize: "11px", color: "var(--text-muted)" }}
+                    style={{ fontSize: "12px", color: "var(--muted-foreground)" }}
                   >
                     {step.n}
                   </span>
