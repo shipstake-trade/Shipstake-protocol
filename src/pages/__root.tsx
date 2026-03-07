@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { SolanaProvider } from '@/lib/solana/provider'
 import { Analytics } from '@vercel/analytics/react'
 import { Toaster } from 'sonner'
+import { Suspense } from 'react'
 
 const queryClient = new QueryClient()
 
@@ -13,7 +14,9 @@ export const Route = createRootRoute({
     <SolanaProvider>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-          <Outlet />
+          <Suspense fallback={<div>Loading...</div>}>
+            <Outlet />
+          </Suspense>
           <Toaster
             theme="dark"
             position="bottom-right"

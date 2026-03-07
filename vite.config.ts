@@ -16,4 +16,18 @@ export default defineConfig({
   define: {
     'process.env': {},
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-core': ['react', 'react-dom'],
+          'router': ['@tanstack/react-router'],
+          'wallet': ['@privy-io/react-auth'],
+          'solana': ['@solana/web3.js'],
+          'anchor': ['@coral-xyz/anchor'],
+          'motion': ['framer-motion'],
+        },
+      },
+    },
+  },
 })
