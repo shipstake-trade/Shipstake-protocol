@@ -1,169 +1,72 @@
 "use client";
 
-import { AuroraText } from "@/components/aurora-text";
-import { Section } from "@/components/section";
-import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
 import { buttonVariants } from "@/components/ui/button";
-import { NumberTicker } from "@/components/ui/number-ticker";
-import { siteConfig } from "@/lib/config";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 import Link from "next/link";
 
-const ease = [0.16, 1, 0.3, 1];
-
-function HeroBadge() {
+export function Hero() {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8, ease }}
+    <section
+      id="hero"
+      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden"
+      style={{ background: "#0a0a0c" }}
     >
-      <AnimatedGradientText>{siteConfig.hero.badge}</AnimatedGradientText>
-    </motion.div>
-  );
-}
+      {/* Animated dot grid */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage: "radial-gradient(circle, #00C896 1px, transparent 1px)",
+          backgroundSize: "28px 28px",
+          opacity: 0.08,
+          animation: "dot-pulse 4s ease-in-out infinite",
+        }}
+      />
 
-function HeroTitles() {
-  return (
-    <div className="flex w-full max-w-3xl flex-col overflow-hidden pt-8">
-      <motion.h1
-        className="text-left text-4xl font-semibold leading-tighter text-foreground sm:text-5xl md:text-6xl tracking-tighter"
-        initial={{ filter: "blur(10px)", opacity: 0, y: 50 }}
-        animate={{ filter: "blur(0px)", opacity: 1, y: 0 }}
-        transition={{ duration: 1, ease, staggerChildren: 0.2 }}
-      >
-        <motion.span
-          className="inline-block text-balance"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5, ease }}
+      {/* Radial glow */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 60% 40% at 50% 50%, rgba(0,200,150,0.07) 0%, transparent 70%)",
+        }}
+      />
+
+      <style>{`
+        @keyframes dot-pulse {
+          0%, 100% { opacity: 0.06; }
+          50% { opacity: 0.12; }
+        }
+      `}</style>
+
+      {/* Content */}
+      <div className="relative z-10 flex flex-col items-center text-center px-4 max-w-[90vw]">
+        <h1
+          className="font-serif font-bold leading-[1.05] tracking-tight text-foreground"
+          style={{
+            fontSize: "clamp(2.8rem, 7vw, 7rem)",
+            maxWidth: "70vw",
+          }}
         >
-          <AuroraText
-            className="leading-normal font-bold"
-            colors={["#00C896", "#00FFB2", "#00C896", "#00FFB2", "#00C896"]}
-          >
-            {siteConfig.hero.title}
-          </AuroraText>{" "}
-          <span className="font-bold">{siteConfig.hero.titleHighlight}</span>
-        </motion.span>
-      </motion.h1>
-      <motion.p
-        className="text-left max-w-xl leading-normal text-muted-foreground sm:text-lg sm:leading-normal text-balance mt-4 whitespace-pre-line"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6, duration: 0.8, ease }}
-      >
-        {siteConfig.hero.description}
-      </motion.p>
-      <motion.p
-        className="text-left text-sm font-mono text-primary/80 mt-3 italic"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.75, duration: 0.8, ease }}
-      >
-        {siteConfig.hero.tensionLine}
-      </motion.p>
-    </div>
-  );
-}
+          Put your money where your roadmap is.
+        </h1>
 
-function HeroCTA() {
-  return (
-    <motion.div
-      className="flex flex-col items-start mt-8 gap-4"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.8, duration: 0.8, ease }}
-    >
-      <div className="flex w-full max-w-2xl flex-col items-start justify-start space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
+        <p
+          className="mt-6 text-muted-foreground font-sans"
+          style={{ fontSize: "clamp(1rem, 1.8vw, 1.25rem)" }}
+        >
+          Lock funds. Ship proof. Get paid&nbsp;&mdash; or get wrecked.
+        </p>
+
         <Link
           href="/quest/create"
           className={cn(
             buttonVariants({ variant: "default", size: "lg" }),
-            "text-primary-foreground rounded-lg font-medium",
+            "mt-10 rounded-lg font-medium text-primary-foreground px-8 py-4 text-base",
           )}
         >
-          {siteConfig.hero.cta} →
-        </Link>
-        <Link
-          href="/explore"
-          className={cn(
-            buttonVariants({ variant: "ghost", size: "lg" }),
-            "rounded-lg",
-          )}
-        >
-          {siteConfig.hero.secondaryCta}
+          Start a commitment &rarr;
         </Link>
       </div>
-      <p className="text-xs text-muted-foreground/70 font-mono">
-        {siteConfig.hero.incentiveLine}
-      </p>
-    </motion.div>
-  );
-}
-
-function HeroStats({ buildersCount }: { buildersCount?: number }) {
-  const stats = siteConfig.stats.map((stat) =>
-    stat.label === "builders" && buildersCount != null
-      ? { ...stat, value: buildersCount }
-      : stat,
-  );
-
-  return (
-    <motion.div
-      className="mt-12 pb-2"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: 1.0, duration: 0.8 }}
-    >
-      <div className="flex flex-wrap gap-x-8 gap-y-4">
-        {stats.map((stat, i) => (
-          <div key={stat.label} className="flex flex-col">
-            <div className="flex items-baseline gap-1">
-              {stat.pending ? (
-                <span className="text-2xl font-bold font-mono text-muted-foreground/40">
-                  —
-                </span>
-              ) : (
-                <>
-                  <NumberTicker
-                    value={stat.value ?? 0}
-                    delay={0.2 * i}
-                    className="text-2xl font-bold font-mono text-foreground"
-                  />
-                  {stat.suffix && (
-                    <span className="text-2xl font-bold font-mono text-foreground">
-                      {stat.suffix}
-                    </span>
-                  )}
-                </>
-              )}
-            </div>
-            <span className="text-xs text-slate-400 uppercase tracking-wider mt-1">
-              {stat.label}
-            </span>
-          </div>
-        ))}
-      </div>
-      <p className="text-xs text-muted-foreground/50 italic mt-4">
-        PROOF Score: 0–100. Stored permanently on the blockchain. Can&apos;t be bought. Can&apos;t be faked.
-      </p>
-    </motion.div>
-  );
-}
-
-export function Hero({ buildersCount }: { buildersCount?: number }) {
-  return (
-    <Section id="hero" flickerColor="#00C896" flickerOpacity={0.15}>
-      <div className="relative grid grid-cols-1 gap-x-8 w-full p-6 lg:p-12 border-x overflow-hidden">
-        <div className="flex flex-col justify-start items-start">
-          <HeroBadge />
-          <HeroTitles />
-          <HeroCTA />
-          <HeroStats buildersCount={buildersCount} />
-        </div>
-      </div>
-    </Section>
+    </section>
   );
 }

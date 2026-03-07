@@ -1,85 +1,62 @@
 "use client";
 
 import { Section } from "@/components/section";
-import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
 import { BlurFade } from "@/components/ui/blur-fade";
-import { siteConfig, BLUR_FADE_DELAY } from "@/lib/config";
+import { BLUR_FADE_DELAY } from "@/lib/config";
+
+const MOCK_STATS = [
+  { emoji: "\u2705", label: "Shipped", value: "8" },
+  { emoji: "\uD83D\uDC80", label: "Missed", value: "1" },
+  { emoji: "\uD83D\uDCC8", label: "Score", value: "847" },
+];
 
 export function ProofScore() {
-  const { proofScore } = siteConfig;
-
   return (
     <Section
       id="proof-score"
-      title={proofScore.title}
-      subtitle={proofScore.subtitle}
-      description={proofScore.description}
       flickerColor="#00C896"
       flickerOpacity={0.06}
     >
       <div className="border-x border-b p-6 lg:p-12">
-        {/* Score components grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-          {proofScore.components.map((component, i) => (
-            <BlurFade
-              key={component.name}
-              delay={BLUR_FADE_DELAY * (i + 1)}
-            >
-              <div className="glass-card rounded-lg p-5 glass-card-hover transition-all duration-300">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="flex items-center justify-center w-7 h-7 rounded-md bg-primary/10 text-primary">
-                    {component.icon}
-                  </div>
-                  <h4 className="text-sm font-display font-bold text-foreground">
-                    {component.label}
-                  </h4>
-                  <span className="ml-auto text-xs font-mono text-muted-foreground">
-                    {component.weight}
-                  </span>
+        <BlurFade delay={BLUR_FADE_DELAY}>
+          <div className="flex flex-col items-center text-center gap-6 max-w-xl mx-auto">
+            {/* Label */}
+            <div>
+              <p className="text-xs font-mono text-primary uppercase tracking-widest mb-2">
+                On-chain reputation
+              </p>
+              <h2
+                className="font-serif font-bold text-foreground leading-tight"
+                style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}
+              >
+                PROOF Score
+              </h2>
+              <p className="mt-3 text-muted-foreground text-base max-w-sm mx-auto">
+                Like a credit score&nbsp;&mdash; but for builders. And it actually means something.
+              </p>
+            </div>
+
+            {/* Stat pills */}
+            <div className="flex items-center gap-4 flex-wrap justify-center">
+              {MOCK_STATS.map((stat) => (
+                <div
+                  key={stat.label}
+                  className="flex items-center gap-2 px-5 py-3 rounded-full border border-border bg-[var(--bg-secondary)]"
+                >
+                  <span className="text-lg">{stat.emoji}</span>
+                  <span className="font-mono text-sm text-muted-foreground">{stat.label}:</span>
+                  <span className="font-mono text-lg font-bold text-foreground">{stat.value}</span>
                 </div>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {component.description}
-                </p>
-              </div>
-            </BlurFade>
-          ))}
-        </div>
+              ))}
+            </div>
 
-        {/* Mock profile display */}
-        <BlurFade delay={BLUR_FADE_DELAY * 6}>
-          <div className="glass-card rounded-lg p-6 text-center mb-6">
-            <div className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">
-              Example PROOF score
-            </div>
-            <div className="text-5xl font-mono font-bold text-primary mb-1">
-              13
-            </div>
-            <div className="text-xs text-muted-foreground">
-              13 commitments shipped
-            </div>
-          </div>
-        </BlurFade>
-
-        {/* Credit score callout */}
-        <BlurFade delay={BLUR_FADE_DELAY * 6.5}>
-          <div className="text-center mb-6 space-y-2">
-            <p className="text-sm text-foreground font-medium">
-              Like a credit score — but for builders. And it actually means something.
+            {/* Threat line */}
+            <p className="text-sm text-muted-foreground/70 max-w-sm">
+              One bad delivery follows you forever.{" "}
+              <span className="text-foreground font-medium">
+                Every future grant committee sees it.
+              </span>
             </p>
-            <p className="text-xs text-muted-foreground">
-              One bad delivery follows you forever. Every future grant committee sees it.
-            </p>
-          </div>
-        </BlurFade>
-
-        {/* Tags */}
-        <BlurFade delay={BLUR_FADE_DELAY * 7}>
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            {proofScore.tags.map((tag) => (
-              <AnimatedGradientText key={tag} className="text-xs">
-                {tag}
-              </AnimatedGradientText>
-            ))}
           </div>
         </BlurFade>
       </div>
