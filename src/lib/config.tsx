@@ -14,8 +14,8 @@ export const BLUR_FADE_DELAY = 0.15;
 
 export const siteConfig = {
   name: "SHIPSTAKE",
-  description: "Prove it on-chain.",
-  cta: "Start a Quest",
+  description: "Prove it on the blockchain.",
+  cta: "Start a Commitment",
   url: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
   keywords: [
     "SHIPSTAKE",
@@ -42,11 +42,11 @@ export const siteConfig = {
     { label: "Docs", href: "/docs" },
   ] as { label: string; href: string; external?: boolean }[],
   hero: {
-    badge: "Accountability Protocol · Solana",
-    title: "Your reputation.",
-    titleHighlight: "On-chain. Forever.",
+    badge: "Proof-of-Delivery Protocol · Solana",
+    title: "Put your money where your roadmap is.",
+    titleHighlight: "",
     description:
-      "Lock SOL before you start building.\nShip the proof. Get it back. Miss the deadline. Lose it.",
+      "Lock funds on a deadline. Deliver → get them back. Miss → lose them.",
     tensionLine: "Talk is mass-produced. Your PROOF Score isn't.",
     cta: "Lock SOL on a Deadline",
     ctaDescription: "Lock SOL as collateral on your next deadline",
@@ -62,28 +62,28 @@ export const siteConfig = {
   howItWorks: [
     {
       step: 1,
-      title: "Put SOL on the line",
+      title: "Set a commitment",
       description:
-        "Pick a deadline. Deposit SOL into the smart contract. That SOL is frozen until the deadline passes. Think of it as a security deposit on your own promise.",
+        "Pick a deadline. Define what you're shipping. Your commitment is public and permanent on the blockchain from the moment you lock in.",
       icon: <AnchorIcon className="h-5 w-5" />,
     },
     {
       step: 2,
-      title: "Build against the clock",
+      title: "Lock your deposit",
       description:
-        "Your commitment is public and on-chain. Anyone can see it. The deadline doesn't move. The oracle doesn't care why you're behind.",
+        "Deposit SOL into the smart contract. That SOL is frozen until the deadline passes. No extensions. No exceptions.",
       icon: <RocketIcon className="h-5 w-5" />,
     },
     {
       step: 3,
-      title: "Submit a link",
+      title: "Ship the proof (GitHub commit or Vercel deployment)",
       description:
-        "Paste a GitHub commit URL or a Vercel deploy link before the deadline. That's it. The oracle calls the API and checks if the proof is real.",
+        "Paste a GitHub commit URL or a Vercel deploy link before the deadline. The automatic validator calls the API and checks if the proof is real.",
       icon: <ZapIcon className="h-5 w-5" />,
     },
     {
       step: 4,
-      title: "Shipped or slashed",
+      title: "Get paid or get penalized — automatically",
       description:
         "Proof validates → your SOL comes back minus a small fee. Proof fails or deadline passes → your SOL is gone. PROOF Score updates either way. No appeals. Final.",
       icon: <CheckCircleIcon className="h-5 w-5" />,
@@ -104,13 +104,13 @@ export const siteConfig = {
     title: "PROOF Score",
     subtitle: "Your track record, computed.",
     description:
-      "A counter of how many quests you've shipped. Stored on-chain. You can't edit it, buy it, or reset it.",
+      "A counter of how many commitments you've shipped. Stored permanently on the blockchain. You can't edit it, buy it, or reset it.",
     components: [
       {
         name: "shipped",
-        label: "Quests Shipped",
+        label: "Commitments Shipped",
         formula: "quests_shipped",
-        description: "Total number of quests you've successfully delivered",
+        description: "Total number of commitments you've successfully delivered",
         weight: "counter",
         icon: <CheckCircleIcon className="h-4 w-4" />,
       },
@@ -123,27 +123,27 @@ export const siteConfig = {
     {
       question: "What happens if I miss the deadline?",
       answer:
-        "Your stake is slashed. It goes to the destination you set at quest creation — burn address or a fixed donation address. The oracle doesn't care why you missed it.",
+        "You lose your deposit. It goes to the destination you set at commitment creation — burn address or a fixed donation address. The automatic validator doesn't care why you missed it.",
     },
     {
       question: "Who validates my proof?",
       answer:
-        "A deterministic oracle. It calls the GitHub or Vercel API, runs a scoring algorithm, and submits the result on-chain. No human in the loop. The logic is public and replayable.",
+        "An automatic validator. It calls the GitHub or Vercel API, runs a scoring algorithm, and submits the result permanently on the blockchain. No human in the loop. The logic is public and replayable.",
     },
     {
       question: "Can I extend my deadline?",
       answer:
-        "No. The deadline is frozen at quest creation. That's the point.",
+        "No. The deadline is frozen at commitment creation. That's the point.",
     },
     {
       question: "What is a PROOF Score?",
       answer:
-        "An on-chain reputation metric (0-100) that reflects your delivery history. It's computed automatically at every settlement. You can't buy it. You can't fake it.",
+        "A permanent on-blockchain reputation metric (0-100) that reflects your delivery history. It's computed automatically at every settlement. You can't buy it. You can't fake it.",
     },
     {
       question: "What's the protocol fee?",
       answer:
-        "Flat 2% settlement fee on SHIPPED outcomes. No fee if you get slashed — we don't profit from your failure.",
+        "Flat 2% settlement fee on SHIPPED outcomes. No fee if you get penalized — we don't profit from your failure.",
     },
     {
       question: "Is this a speculative market?",
@@ -152,8 +152,8 @@ export const siteConfig = {
     },
   ],
   footer: {
-    tagline: "Prove it on-chain.",
-    subTagline: "Your reputation. On-chain. Forever.",
+    tagline: "Prove it on the blockchain.",
+    subTagline: "Your track record. Permanent. Verifiable.",
     columns: [
       {
         heading: "Protocol",

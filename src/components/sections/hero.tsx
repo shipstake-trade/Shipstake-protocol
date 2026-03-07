@@ -147,7 +147,7 @@ function HeroStats({ buildersCount }: { buildersCount?: number }) {
         ))}
       </div>
       <p className="text-xs text-muted-foreground/50 italic mt-4">
-        PROOF Score: 0–100. Stored on-chain. Can&apos;t be bought. Can&apos;t be faked.
+        PROOF Score: 0–100. Stored permanently on the blockchain. Can&apos;t be bought. Can&apos;t be faked.
       </p>
     </motion.div>
   );

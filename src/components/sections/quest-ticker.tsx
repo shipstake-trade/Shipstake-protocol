@@ -59,7 +59,7 @@ export function QuestTicker() {
       <div className="border-x border-b py-8 overflow-hidden">
         <div className="text-center mb-6">
           <h3 className="text-sm text-muted-foreground font-semibold uppercase tracking-wider">
-            Live quest feed
+            Live commitment feed
           </h3>
         </div>
         <div className="space-y-3">

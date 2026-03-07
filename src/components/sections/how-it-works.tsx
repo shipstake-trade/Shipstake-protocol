@@ -7,22 +7,22 @@ import { BLUR_FADE_DELAY } from "@/lib/config";
 const STEPS = [
   {
     step: 1,
-    title: "Put SOL on the line",
-    description: "Pick a deadline. Deposit SOL into the smart contract. That SOL is frozen until the deadline passes. A security deposit on your own promise.",
+    title: "Set a commitment",
+    description: "Pick a deadline. Define what you're shipping. Your commitment is public and permanent on the blockchain from the moment you lock in.",
   },
   {
     step: 2,
-    title: "Build against the clock",
-    description: "Your commitment is public and on-chain. Anyone can see it. The deadline doesn't move. The oracle doesn't care why you're behind.",
+    title: "Lock your deposit",
+    description: "Deposit SOL into the smart contract. That SOL is frozen until the deadline passes. No extensions. No exceptions.",
   },
   {
     step: 3,
-    title: "Submit a link",
-    description: "Paste a GitHub commit URL or a Vercel deploy link before the deadline. The oracle calls the API and checks if the proof is real.",
+    title: "Ship the proof (GitHub commit or Vercel deployment)",
+    description: "Paste a GitHub commit URL or a Vercel deploy link before the deadline. The automatic validator calls the API and checks if the proof is real.",
   },
   {
     step: 4,
-    title: "Shipped or slashed",
+    title: "Get paid or get penalized — automatically",
     description:
       "Proof validates → your SOL comes back minus a 2% fee. Proof fails or deadline passes → your SOL is gone. No appeals. Final.",
   },
@@ -34,7 +34,7 @@ const INCENTIVES = [
     title: "Your PROOF Score",
     lines: [
       "Every settlement writes to your PROOF Score.",
-      "Quests shipped. On-chain. Permanent.",
+      "Commitments shipped. Permanent. On the blockchain.",
     ],
     tagline: "Earned one delivery at a time.",
   },

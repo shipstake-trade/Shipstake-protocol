@@ -37,9 +37,6 @@ export function ProofScore() {
                     {component.weight}
                   </span>
                 </div>
-                <code className="block text-xs font-mono text-primary/80 mb-2">
-                  {component.formula}
-                </code>
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   {component.description}
                 </p>
@@ -58,8 +55,20 @@ export function ProofScore() {
               13
             </div>
             <div className="text-xs text-muted-foreground">
-              13 quests shipped
+              13 commitments shipped
             </div>
+          </div>
+        </BlurFade>
+
+        {/* Credit score callout */}
+        <BlurFade delay={BLUR_FADE_DELAY * 6.5}>
+          <div className="text-center mb-6 space-y-2">
+            <p className="text-sm text-foreground font-medium">
+              Like a credit score — but for builders. And it actually means something.
+            </p>
+            <p className="text-xs text-muted-foreground">
+              One bad delivery follows you forever. Every future grant committee sees it.
+            </p>
           </div>
         </BlurFade>
 

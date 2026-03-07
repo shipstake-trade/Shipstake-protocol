@@ -24,7 +24,7 @@ export const statusDisplayLabels: Record<string, string> = {
   Open: "OPEN",
   InProgress: "VALIDATING...",
   Shipped: "SHIPPED",
-  Slashed: "SLASHED",
+  Slashed: "PENALIZED",
 };
 
 interface StatusBadgeProps {

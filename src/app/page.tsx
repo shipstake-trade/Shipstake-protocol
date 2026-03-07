@@ -9,6 +9,9 @@ const BuiltOn = dynamic(() =>
 const HowItWorks = dynamic(() =>
   import("@/components/sections/how-it-works").then((m) => ({ default: m.HowItWorks }))
 );
+const AntiScam = dynamic(() =>
+  import("@/components/sections/anti-scam").then((m) => ({ default: m.AntiScam }))
+);
 const TwoModes = dynamic(() =>
   import("@/components/sections/two-modes").then((m) => ({ default: m.TwoModes }))
 );
@@ -30,6 +33,7 @@ export default async function Home() {
       <Hero buildersCount={buildersCount} />
       <BuiltOn />
       <HowItWorks />
+      <AntiScam />
       <TwoModes />
       <ProofScore />
       <QuestTicker />
