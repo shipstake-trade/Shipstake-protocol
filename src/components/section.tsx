@@ -57,7 +57,10 @@ const Section = forwardRef<HTMLElement, SectionProps>(
               )}
             >
               {title && (
-                <h2 className="text-sm text-muted-foreground text-balance font-semibold tracking-tigh uppercase">
+                <h2
+                  className="font-mono uppercase text-balance"
+                  style={{ fontSize: "11px", letterSpacing: "0.15em", color: "var(--text-muted)" }}
+                >
                   {title}
                 </h2>
               )}

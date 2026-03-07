@@ -13,18 +13,18 @@ export const Route = createLazyFileRoute('/gate')({
 const TEASER_CARDS = [
   {
     icon: '🏦',
-    title: 'Borrow more with a shipping history',
-    sub: 'Lending protocols will be able to read your PROOF Score and adjust your terms. Builders who deliver consistently get better rates. No paperwork — just your on-chain record.',
+    title: 'Better loan terms for builders who ship',
+    sub: 'Lending protocols read your PROOF Score. Consistent shippers get better rates. No pitch deck.',
   },
   {
     icon: '🏛️',
-    title: 'Skip the grant application pile',
-    sub: 'Foundations will be able to require a minimum PROOF Score before accepting applications. Your delivery history becomes your cover letter.',
+    title: 'Your commit history is your grant application',
+    sub: 'Foundations gate on PROOF Score. Qualify or don\u2019t. No 10-page forms.',
   },
   {
     icon: '✅',
-    title: 'One score. Every platform.',
-    sub: 'Job boards, DAOs, and protocols will reference the same on-chain score. Ship once, prove it everywhere. No badges to collect. No profiles to maintain.',
+    title: 'One score. Every protocol. Forever.',
+    sub: 'DAOs, launchpads, job boards. Ship once, prove it everywhere.',
   },
 ]
 
@@ -117,20 +117,20 @@ function GatePage() {
           Accountability Protocol · Solana
         </span>
 
-        <h1 className="font-serif text-4xl sm:text-5xl font-bold text-foreground mb-4 tracking-tight leading-tight">
-          Prove it on-chain.
+        <h1 className="font-mono text-4xl sm:text-5xl font-bold text-foreground mb-4 tracking-tight leading-tight">
+          The accountability layer Solana was missing.
         </h1>
 
         <p className="text-muted-foreground mb-8 text-sm leading-relaxed max-w-sm">
-          SHIPSTAKE is launching soon. Lock SOL on your delivery commitments. Build a PROOF Score
-          that other protocols can read and trust.
+          Stake SOL. Ship code. Build the reputation that unlocks the ecosystem.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mb-10">
           {TEASER_CARDS.map((card) => (
             <div
               key={card.title}
-              className="rounded-lg border border-border bg-secondary/40 p-4 text-left"
+              className="proto-card border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-4 text-left transition-colors duration-150 hover:bg-[var(--bg-tertiary)]"
+              style={{ borderRadius: "6px" }}
             >
               <span className="text-2xl mb-2 block">{card.icon}</span>
               <p className="text-xs font-medium text-foreground mb-1 leading-snug">{card.title}</p>

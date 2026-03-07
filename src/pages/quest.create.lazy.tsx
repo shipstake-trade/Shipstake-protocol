@@ -90,8 +90,8 @@ function CreateQuestPage() {
     <>
       <Header />
       <main className="container mx-auto max-w-2xl px-4 py-8">
-        <h1 className="text-3xl font-display font-bold text-foreground mb-2">Create a Quest</h1>
-        <p className="text-muted-foreground text-sm mb-8">Lock SOL. Set a deadline. Prove it.</p>
+        <h1 className="text-3xl font-mono font-bold text-foreground mb-2">Stake a Build</h1>
+        <p className="text-muted-foreground text-sm mb-8">Define it. Lock SOL. Ship it.</p>
 
         <div className="flex items-center gap-2 mb-8">
           {steps.map((s, i) => (
