@@ -27,7 +27,7 @@ const STEPS = [
     n: "04",
     emoji: "\uD83C\uDFC6",
     title: "Get paid or get wrecked",
-    sentence: "Delivered \u2192 deposit back + PROOF Score up. Missed \u2192 slashed.",
+    sentence: "Delivered \u2192 deposit back + PROOF Score up. Missed \u2192 penalized.",
   },
 ];
 

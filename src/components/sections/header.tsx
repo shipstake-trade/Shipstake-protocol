@@ -152,15 +152,6 @@ export function Header() {
 
         {/* Right: CTAs */}
         <div className="hidden lg:flex items-center gap-x-3">
-          <Link
-            href="/leaderboard"
-            className={cn(
-              buttonVariants({ variant: "ghost", size: "sm" }),
-              "text-sm"
-            )}
-          >
-            Leaderboard
-          </Link>
           {ready && authenticated && walletAddress ? (
             <>
               <NavProofScore

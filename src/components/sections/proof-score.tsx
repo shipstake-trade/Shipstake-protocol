@@ -23,7 +23,7 @@ export function ProofScore() {
             {/* Label */}
             <div>
               <p className="text-xs font-mono text-primary uppercase tracking-widest mb-2">
-                On-chain reputation
+                Your builder reputation
               </p>
               <h2
                 className="font-serif font-bold text-foreground leading-tight"

@@ -37,7 +37,7 @@ export const siteConfig = {
   },
   navLinks: [
     { label: "How It Works", href: "/#how-it-works" },
-    { label: "Self-Stake", href: "/#modes" },
+    { label: "Create", href: "/quest/create" },
     { label: "Leaderboard", href: "/leaderboard" },
     { label: "Docs", href: "/docs" },
   ] as { label: string; href: string; external?: boolean }[],
