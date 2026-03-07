@@ -9,7 +9,7 @@ import { mockQuests } from "@/lib/mock-data";
 import type { ProofType } from "@/lib/solana/idl";
 import { cn } from "@/lib/utils";
 import { use, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 const PROOF_GUIDANCE: Record<string, string> = {
@@ -23,7 +23,7 @@ export default function SubmitProofPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const router = useRouter();
+  const navigate = useNavigate();
   const { ready, authenticated, connected, login } = usePrivyWallet();
   const { linkWallet } = useLinkAccount();
   const { submitProof, isPending } = useSubmitProof();
@@ -58,14 +58,13 @@ export default function SubmitProofPage({
     const result = await submitProof({
       questPda: id,
       proofUrl,
-      proofType,
     });
 
     if (result) {
       toast.success("Proof submitted.", {
         description: "The oracle will validate your delivery automatically.",
       });
-      router.push(`/quest/${id}`);
+      navigate({ to: "/quest/$id", params: { id } });
     }
   };
 

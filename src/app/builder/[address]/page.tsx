@@ -8,7 +8,7 @@ import { WalletAddress } from "@/components/ui/wallet-address";
 import { mockBuilderProfile, mockQuests } from "@/lib/mock-data";
 import { lamportsToSol } from "@/lib/solana/shipstake";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 import { use, useState } from "react";
 import type { QuestStatus } from "@/lib/solana/idl";
 
@@ -139,7 +139,7 @@ export default function BuilderProfilePage({
                   >
                     <td className="p-4">
                       <Link
-                        href={`/quest/${quest.publicKey}`}
+                        to="/quest/$id" params={{ id: quest.publicKey }}
                         className="text-sm font-medium text-foreground hover:text-primary transition-colors"
                       >
                         {quest.title}

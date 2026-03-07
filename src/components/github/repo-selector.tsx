@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { GitBranchIcon, LockIcon, GlobeIcon } from "lucide-react";
 import type { GitHubRepo } from "@/lib/github";
+import { API_URL } from "@/lib/api";
 
 // Re-export so callers can import the type from here
 export type { GitHubRepo };
@@ -42,7 +43,7 @@ export function RepoSelector({ value, onChange }: RepoSelectorProps) {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    fetch("/api/github/repos")
+    fetch(`${API_URL}/auth/github/repos`, { credentials: "include" })
       .then(async (res) => {
         if (res.status === 401) {
           setLoadState("not_connected");
@@ -72,7 +73,7 @@ export function RepoSelector({ value, onChange }: RepoSelectorProps) {
           size="sm"
           variant="secondary"
           onClick={() =>
-            (window.location.href = "/api/auth/github?return_to=/quest/create")
+            (window.location.href = `${API_URL}/auth/github?return_to=/quest/create`)
           }
           className="gap-2"
         >

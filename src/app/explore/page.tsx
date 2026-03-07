@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { mockQuests } from "@/lib/mock-data";
 import type { QuestStatus, Category, ProofType } from "@/lib/solana/idl";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 import { usePrivyWallet } from "@/lib/solana/shipstake";
 import { useState, useMemo } from "react";
 
@@ -88,7 +88,7 @@ export default function ExplorePage() {
             </p>
           </div>
           {connected && (
-            <Link href="/quest/create">
+            <Link to="/quest/create">
               <Button className="text-primary-foreground">
                 Create a Quest
               </Button>
@@ -190,7 +190,7 @@ export default function ExplorePage() {
             <p className="text-muted-foreground mb-4">
               Be the first builder to put SOL on the line.
             </p>
-            <Link href="/quest/create">
+            <Link to="/quest/create">
               <Button variant="default" className="text-primary-foreground">
                 Create a Quest
               </Button>

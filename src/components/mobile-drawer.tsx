@@ -14,7 +14,7 @@ import { siteConfig } from "@/lib/config";
 import { cn } from "@/lib/utils";
 import { usePrivy } from "@privy-io/react-auth";
 import { useWallets } from "@privy-io/react-auth/solana";
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 import { Menu, LogOut, Copy } from "lucide-react";
 import { toast } from "sonner";
 
@@ -43,7 +43,7 @@ export function MobileDrawer() {
       <DrawerContent>
         <DrawerHeader className="px-6">
           <Link
-            href="/"
+            to="/"
             className="flex items-center gap-2.5"
           >
             <img
@@ -57,22 +57,25 @@ export function MobileDrawer() {
         </DrawerHeader>
 
         <nav className="flex flex-col gap-y-2 px-6 py-4">
-          {siteConfig.navLinks.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
-              {...(link.external ? { target: "_blank", rel: "noopener" } : {})}
-            >
-              {link.label}
-              {link.external && " →"}
-            </Link>
-          ))}
+          {siteConfig.navLinks.map((link) => {
+            if (link.external || link.href.startsWith("http") || link.href.includes("#")) {
+              return (
+                <a key={link.label} href={link.href} target={link.external ? "_blank" : undefined} rel={link.external ? "noopener" : undefined} className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2">
+                  {link.label}{link.external && " →"}
+                </a>
+              );
+            }
+            return (
+              <Link key={link.label} to={link.href as never} className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2">
+                {link.label}
+              </Link>
+            );
+          })}
         </nav>
 
         <DrawerFooter className="flex flex-col gap-y-2">
           <Link
-            href="/explore"
+            to="/explore"
             className={cn(
               buttonVariants({ variant: "ghost" }),
               "w-full rounded-lg"
@@ -105,7 +108,7 @@ export function MobileDrawer() {
             </>
           ) : (
             <Link
-              href="/gate"
+              to="/gate"
               className={cn(
                 buttonVariants({ variant: "default" }),
                 "w-full text-primary-foreground rounded-lg"

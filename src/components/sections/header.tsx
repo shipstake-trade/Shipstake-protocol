@@ -15,7 +15,7 @@ import { usePrivy } from "@privy-io/react-auth";
 import { useWallets } from "@privy-io/react-auth/solana";
 import { LAMPORTS_PER_SOL, Connection, PublicKey } from "@solana/web3.js";
 import { ChevronDown, Copy, ExternalLink, LogOut } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { mockBuilderProfile } from "@/lib/mock-data";
 import { toast } from "sonner";
@@ -35,7 +35,8 @@ function proofScoreColor(score: number): string {
 function NavProofScore({ address, score, streak }: { address: string; score: number; streak: number }) {
   return (
     <Link
-      href={`/builder/${address}`}
+      to="/builder/$address"
+      params={{ address }}
       className={cn(
         "hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-secondary/50 hover:border-[var(--border-active)] transition-colors text-sm font-mono",
         proofScoreColor(score)
@@ -127,7 +128,7 @@ export function Header() {
     <header className="sticky top-0 h-[var(--header-height)] z-50 p-0 bg-background/80 backdrop-blur-md">
       <div className="flex justify-between items-center container mx-auto max-w-[var(--container-max-width)] p-2">
         {/* Logo */}
-        <Link href="/">
+        <Link to="/">
           <img
             src="/brand/shipstake-mark.svg"
             alt="SHIPSTAKE"
@@ -137,17 +138,27 @@ export function Header() {
 
         {/* Center nav — hidden on mobile */}
         <nav className="hidden lg:flex items-center gap-x-6">
-          {siteConfig.navLinks.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              {...(link.external ? { target: "_blank", rel: "noopener" } : {})}
-            >
-              {link.label}
-              {link.external && " →"}
-            </Link>
-          ))}
+          {siteConfig.navLinks.map((link) => {
+            if (link.external || link.href.startsWith("http")) {
+              return (
+                <a key={link.label} href={link.href} target="_blank" rel="noopener" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  {link.label} →
+                </a>
+              );
+            }
+            if (link.href.includes("#")) {
+              return (
+                <a key={link.label} href={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  {link.label}
+                </a>
+              );
+            }
+            return (
+              <Link key={link.label} to={link.href as never} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                {link.label}
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Right: CTAs */}
@@ -163,7 +174,7 @@ export function Header() {
             </>
           ) : (
             <Link
-              href="/gate"
+              to="/gate"
               className={cn(
                 buttonVariants({ variant: "default", size: "sm" }),
                 "text-primary-foreground rounded-lg font-medium"

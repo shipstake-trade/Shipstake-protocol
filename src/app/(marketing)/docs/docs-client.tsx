@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
@@ -83,7 +83,7 @@ function SidebarNav({
       ))}
       <div className="pt-4 border-t border-border">
         <Link
-          href="/"
+          to="/"
           className="block text-sm py-1.5 px-2 text-muted-foreground hover:text-foreground transition-colors"
         >
           &larr; Back to app
@@ -710,7 +710,7 @@ function DocsCTA() {
       </p>
       <div className="flex gap-4 justify-center flex-wrap">
         <Link
-          href="/quest/create"
+          to="/quest/create"
           className={cn(
             buttonVariants({ variant: "default", size: "lg" }),
             "text-primary-foreground rounded-lg font-medium"
@@ -719,7 +719,7 @@ function DocsCTA() {
           Start a Commitment
         </Link>
         <Link
-          href="/explore"
+          to="/explore"
           className={cn(buttonVariants({ variant: "outline", size: "lg" }), "rounded-lg")}
         >
           See Who&apos;s Shipping

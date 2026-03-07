@@ -12,7 +12,7 @@ interface SolanaProviderProps {
 export function SolanaProvider({ children }: SolanaProviderProps) {
   return (
     <PrivyProvider
-      appId="cmm8h3txq00yp0cjsg61arbz5"
+      appId={import.meta.env.VITE_PRIVY_APP_ID}
       config={{
         appearance: {
           walletChainType: "solana-only",

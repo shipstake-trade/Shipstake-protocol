@@ -1,77 +1,84 @@
-"use client";
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
+import FlickeringGrid from '@/components/ui/flickering-grid'
+import { Button } from '@/components/ui/button'
+import { Icons } from '@/components/icons'
+import { usePrivyWallet } from '@/lib/solana/shipstake'
+import { API_URL } from '@/lib/api'
 
-import FlickeringGrid from "@/components/ui/flickering-grid";
-import { Button } from "@/components/ui/button";
-import { Icons } from "@/components/icons";
-import { usePrivyWallet } from "@/lib/solana/shipstake";
-import { useNavigate } from "@tanstack/react-router";
-import { useEffect, useState, Suspense } from "react";
+export const Route = createFileRoute('/gate')({
+  validateSearch: (search: Record<string, string>) => ({
+    blocked: search.blocked as string | undefined,
+  }),
+  component: GatePage,
+})
 
 const TEASER_CARDS = [
   {
-    icon: "🏦",
-    title: "Borrow more with a shipping history",
-    sub: "Lending protocols will be able to read your PROOF Score and adjust your terms. Builders who deliver consistently get better rates. No paperwork — just your on-chain record.",
+    icon: '🏦',
+    title: 'Borrow more with a shipping history',
+    sub: 'Lending protocols will be able to read your PROOF Score and adjust your terms. Builders who deliver consistently get better rates. No paperwork — just your on-chain record.',
   },
   {
-    icon: "🏛️",
-    title: "Skip the grant application pile",
-    sub: "Foundations will be able to require a minimum PROOF Score before accepting applications. Your delivery history becomes your cover letter.",
+    icon: '🏛️',
+    title: 'Skip the grant application pile',
+    sub: 'Foundations will be able to require a minimum PROOF Score before accepting applications. Your delivery history becomes your cover letter.',
   },
   {
-    icon: "✅",
-    title: "One score. Every platform.",
-    sub: "Job boards, DAOs, and protocols will reference the same on-chain score. Ship once, prove it everywhere. No badges to collect. No profiles to maintain.",
+    icon: '✅',
+    title: 'One score. Every platform.',
+    sub: 'Job boards, DAOs, and protocols will reference the same on-chain score. Ship once, prove it everywhere. No badges to collect. No profiles to maintain.',
   },
-];
+]
 
-function GateContent() {
-  const { ready, connected } = usePrivyWallet();
-  const navigate = useNavigate();
-  const isGeoBlocked = new URLSearchParams(window.location.search).get("blocked") === "geo";
+function GatePage() {
+  const { ready, connected } = usePrivyWallet()
+  const navigate = useNavigate()
+  const { blocked } = Route.useSearch()
+  const isGeoBlocked = blocked === 'geo'
 
-  const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [buildersCount, setBuildersCount] = useState<number | null>(null);
+  const [email, setEmail] = useState('')
+  const [submitted, setSubmitted] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [buildersCount, setBuildersCount] = useState<number | null>(null)
 
   useEffect(() => {
-    fetch("/api/waitlist/count")
+    fetch(`${API_URL}/waitlist/count`)
       .then((r) => r.json())
       .then((d) => setBuildersCount(d.count))
-      .catch(() => {});
-  }, []);
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     if (ready && connected && !isGeoBlocked) {
-      navigate({ to: "/explore" });
+      navigate({ to: '/explore' })
     }
-  }, [ready, connected, isGeoBlocked, navigate]);
+  }, [ready, connected, isGeoBlocked, navigate])
 
-  if (!ready) return null;
+  if (!ready) return null
 
   const handleNotify = async () => {
-    if (!email.trim() || loading) return;
-    setError("");
-    setLoading(true);
+    if (!email.trim() || loading) return
+    setError('')
+    setLoading(true)
     try {
-      const res = await fetch("/api/waitlist", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch(`${API_URL}/waitlist`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim() }),
-      });
+      })
       if (!res.ok) {
-        setError("Something went wrong. Please try again.");
+        setError('Something went wrong. Please try again.')
       } else {
-        setSubmitted(true);
+        setSubmitted(true)
       }
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError('Something went wrong. Please try again.')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   if (isGeoBlocked) {
     return (
@@ -85,20 +92,14 @@ function GateContent() {
           className="absolute inset-0 size-full -z-10"
         />
         <div className="relative z-10 flex flex-col items-center text-center px-6 max-w-md">
-          <img
-            src="/brand/shipstake-mark.svg"
-            alt="SHIPSTAKE"
-            className="h-12 w-12 mb-6"
-          />
-          <h1 className="text-3xl font-display font-bold text-foreground mb-3">
-            Region restricted
-          </h1>
+          <img src="/brand/shipstake-mark.svg" alt="SHIPSTAKE" className="h-12 w-12 mb-6" />
+          <h1 className="text-3xl font-display font-bold text-foreground mb-3">Region restricted</h1>
           <p className="text-muted-foreground text-sm leading-relaxed">
             SHIPSTAKE is not available in your jurisdiction.
           </p>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -113,11 +114,7 @@ function GateContent() {
       />
 
       <div className="relative z-10 flex flex-col items-center text-center px-6 w-full max-w-xl">
-        <img
-          src="/brand/shipstake-mark.svg"
-          alt="SHIPSTAKE"
-          className="h-12 w-12 mb-6"
-        />
+        <img src="/brand/shipstake-mark.svg" alt="SHIPSTAKE" className="h-12 w-12 mb-6" />
 
         <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-mono border border-emerald-500/30 text-emerald-400 mb-6">
           Accountability Protocol · Solana
@@ -128,11 +125,10 @@ function GateContent() {
         </h1>
 
         <p className="text-muted-foreground mb-8 text-sm leading-relaxed max-w-sm">
-          SHIPSTAKE is launching soon. Lock SOL on your delivery commitments.
-          Build a PROOF Score that other protocols can read and trust.
+          SHIPSTAKE is launching soon. Lock SOL on your delivery commitments. Build a PROOF Score
+          that other protocols can read and trust.
         </p>
 
-        {/* Teaser cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mb-10">
           {TEASER_CARDS.map((card) => (
             <div
@@ -146,7 +142,6 @@ function GateContent() {
           ))}
         </div>
 
-        {/* Waitlist */}
         {submitted ? (
           <div className="text-center">
             <p className="text-sm font-mono text-primary mb-2">
@@ -163,7 +158,7 @@ function GateContent() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleNotify()}
+                onKeyDown={(e) => e.key === 'Enter' && handleNotify()}
                 placeholder="you@example.com"
                 disabled={loading}
                 className="flex-1 rounded-lg border border-border bg-secondary/50 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
@@ -174,16 +169,10 @@ function GateContent() {
                 disabled={loading}
                 className="rounded-lg text-primary-foreground font-medium shrink-0"
               >
-                {loading ? (
-                  <Icons.spinner className="h-4 w-4 animate-spin" />
-                ) : (
-                  "Notify me"
-                )}
+                {loading ? <Icons.spinner className="h-4 w-4 animate-spin" /> : 'Notify me'}
               </Button>
             </div>
-            {error && (
-              <p className="text-[11px] text-red-400 text-center">{error}</p>
-            )}
+            {error && <p className="text-[11px] text-red-400 text-center">{error}</p>}
             <p className="text-[10px] text-muted-foreground/60 text-center">
               Early builders get Founder status and zero fee on their first commitment.
             </p>
@@ -191,10 +180,7 @@ function GateContent() {
         )}
 
         <p className="mt-8 text-xs text-muted-foreground font-mono">
-          <span className="text-primary font-bold">
-            {buildersCount ?? "—"}
-          </span>
-          {" "}builders waiting
+          <span className="text-primary font-bold">{buildersCount ?? '—'}</span> builders waiting
         </p>
 
         <p className="mt-6 text-[10px] text-muted-foreground/40 max-w-sm">
@@ -208,7 +194,6 @@ function GateContent() {
           className="mt-6 inline-flex items-center gap-1.5 text-[10px] text-muted-foreground/30 hover:text-muted-foreground/50 transition-colors"
         >
           powered by
-          {/* Resend logo mark */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 60 60"
@@ -222,19 +207,5 @@ function GateContent() {
         </a>
       </div>
     </div>
-  );
-}
-
-export default function GatePage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center">
-          <Icons.spinner className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      }
-    >
-      <GateContent />
-    </Suspense>
-  );
+  )
 }

@@ -8,7 +8,6 @@ import { useShipstakeProgram } from "./useShipstakeProgram"
 export interface SubmitProofInput {
   questPda: string     // base58
   proofUrl: string
-  proofType: number    // 0 = GithubCommit, 1 = VercelDeployment
 }
 
 /**
@@ -28,7 +27,6 @@ export function useSubmitProofReal() {
         publicKey,
         questKey,
         input.proofUrl,
-        input.proofType,
       )
 
       const signature = await txBuilder.rpc()

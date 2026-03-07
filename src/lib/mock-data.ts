@@ -1,5 +1,4 @@
 import type {
-  QuestAccount,
   QuestStatus,
   ProofType,
   Category,
@@ -15,14 +14,29 @@ export const mockStats = {
   totalQuests: 312,
 }
 
-// ─── Mock Quest type (extends QuestAccount with UI-only fields) ──────────────
+// ─── Mock Quest type (standalone display type for UI) ───────────────────────
 
-export type MockQuest = QuestAccount & {
+export type MockQuest = {
   publicKey: string
+  builder: string
   mode: "SelfStake" | "GrantGuard"
+  title: string
+  description: string
+  stakeAmount: number
+  grantTranche: number | null
+  deadline: number
+  positionCloseTs: number
+  category: Category
+  status: QuestStatus
+  outcome: "Shipped" | "Slashed" | null
+  proofUrl: string | null
+  proofType: ProofType | null
+  repoOwner: string
+  repoName: string
   slashDestination: string
   createdAt: number
   resolvedAt: number | null
+  bump: number
   builderProofScore: number
   builderStreak: number
 }
@@ -46,6 +60,8 @@ export const mockQuests: MockQuest[] = [
     outcome: null,
     proofUrl: null,
     proofType: "GithubCommit" as ProofType,
+    repoOwner: "builder",
+    repoName: "dex-aggregator-v2",
     bump: 255,
     slashDestination: "burn",
     createdAt: now - 1 * DAY,
@@ -68,6 +84,8 @@ export const mockQuests: MockQuest[] = [
     outcome: null,
     proofUrl: "https://github.com/builder/nft-gen/actions/runs/12345",
     proofType: "VercelDeployment" as ProofType,
+    repoOwner: "builder",
+    repoName: "nft-gen",
     bump: 254,
     slashDestination: "burn",
     createdAt: now - 8 * DAY,
@@ -90,6 +108,8 @@ export const mockQuests: MockQuest[] = [
     outcome: "Shipped",
     proofUrl: "https://github.com/builder/dao-vote/commit/abc123",
     proofType: "GithubCommit" as ProofType,
+    repoOwner: "builder",
+    repoName: "dao-vote",
     bump: 253,
     slashDestination: "foundation_escrow",
     createdAt: now - 15 * DAY,
@@ -112,6 +132,8 @@ export const mockQuests: MockQuest[] = [
     outcome: "Slashed",
     proofUrl: null,
     proofType: "GithubCommit" as ProofType,
+    repoOwner: "builder",
+    repoName: "solana-mobile-dapp",
     bump: 252,
     slashDestination: "burn",
     createdAt: now - 20 * DAY,
@@ -134,6 +156,8 @@ export const mockQuests: MockQuest[] = [
     outcome: null,
     proofUrl: null,
     proofType: "VercelDeployment" as ProofType,
+    repoOwner: "builder",
+    repoName: "infra-monitor",
     bump: 251,
     slashDestination: "burn",
     createdAt: now - 3 * DAY,

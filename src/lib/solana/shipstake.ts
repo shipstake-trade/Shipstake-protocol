@@ -5,8 +5,8 @@ import { PublicKey, Connection, Transaction } from "@solana/web3.js"
 import { Program, AnchorProvider, BN } from "@coral-xyz/anchor"
 import { usePrivy } from "@privy-io/react-auth"
 import { useWallets as useSolanaWallets } from "@privy-io/react-auth/solana"
-import { IDL, PROGRAM_ID, type Category, type ProofType, type PositionSide, categoryToAnchor, sideToAnchor, proofTypeToAnchor } from "./idl"
-import type { BuilderProfileAccount, GrantProgramAccount } from "./idl"
+import { IDL, PROGRAM_ID } from "./idl"
+import type { BuilderProfileAccount } from "./idl"
 import { LAMPORTS_PER_SOL } from "@solana/web3.js"
 
 // Re-export PROGRAM_ID as PublicKey for external consumers
@@ -19,11 +19,11 @@ export const PROGRAM_PUBKEY = new PublicKey(PROGRAM_ID)
 
 export function useIsMounted() {
   const [mounted, setMounted] = useState(false)
-  
+
   useEffect(() => {
     setMounted(true)
   }, [])
-  
+
   return mounted
 }
 
@@ -35,29 +35,6 @@ export function getConfigPda(): PublicKey {
   return PublicKey.findProgramAddressSync([Buffer.from("config")], PROG)[0]
 }
 
-export function getQuestPda(builder: PublicKey, title: string): PublicKey {
-  return PublicKey.findProgramAddressSync(
-    [Buffer.from("quest"), builder.toBuffer(), Buffer.from(title)],
-    PROG
-  )[0]
-}
-
-export function getPoolVaultPda(quest: PublicKey): PublicKey {
-  return PublicKey.findProgramAddressSync(
-    [Buffer.from("pool_vault"), quest.toBuffer()],
-    PROG
-  )[0]
-}
-
-export function getCommitmentPda(quest: PublicKey, supporter: PublicKey): PublicKey {
-  return PublicKey.findProgramAddressSync(
-    [Buffer.from("commitment"), quest.toBuffer(), supporter.toBuffer()],
-    PROG
-  )[0]
-}
-
-// ─── New PDA helpers (real contract: nonce-based quests, builder profiles) ──
-
 export function getBuilderProfilePda(builder: PublicKey): PublicKey {
   return PublicKey.findProgramAddressSync(
     [Buffer.from("builder_profile"), builder.toBuffer()],
@@ -65,20 +42,20 @@ export function getBuilderProfilePda(builder: PublicKey): PublicKey {
   )[0]
 }
 
-export function getGrantProgramPda(foundation: PublicKey, name: string): PublicKey {
-  return PublicKey.findProgramAddressSync(
-    [Buffer.from("grant_program"), foundation.toBuffer(), Buffer.from(name)],
-    PROG
-  )[0]
-}
-
-/** Nonce-based quest PDA (real contract). nonce is u64 LE. */
+/** Nonce-based quest PDA (deployed contract). nonce is u64 LE 8 bytes. */
 export function getQuestPdaByNonce(builder: PublicKey, nonce: number | BN): PublicKey {
   const buf = Buffer.alloc(8)
   const n = typeof nonce === "number" ? BigInt(nonce) : BigInt(nonce.toString())
   buf.writeBigUInt64LE(n)
   return PublicKey.findProgramAddressSync(
     [Buffer.from("quest"), builder.toBuffer(), buf],
+    PROG
+  )[0]
+}
+
+export function getPoolVaultPda(quest: PublicKey): PublicKey {
+  return PublicKey.findProgramAddressSync(
+    [Buffer.from("pool_vault"), quest.toBuffer()],
     PROG
   )[0]
 }
@@ -94,16 +71,14 @@ export async function fetchBuilderProfile(
     const account = await (program.account as any).builderProfile.fetch(pda)
     return {
       builder: account.builder.toBase58(),
-      proofScore: account.proofScore,
       questsTotal: account.questsTotal,
       questsShipped: account.questsShipped,
       questsSlashed: account.questsSlashed,
       totalStakedLifetime: account.totalStakedLifetime.toNumber(),
-      streakCurrent: account.streakCurrent,
-      streakBest: account.streakBest,
       questNonce: account.questNonce.toNumber(),
       lastQuestAt: account.lastQuestAt.toNumber(),
       joinedAt: account.joinedAt.toNumber(),
+      githubOauthId: account.githubOauthId,
       bump: account.bump,
     } as BuilderProfileAccount
   } catch {
@@ -140,11 +115,10 @@ export interface CreateQuestRealParams {
   title: string
   description: string
   deadline: BN
-  mode: number               // 0 = SelfStake, 1 = GrantGuard
   slashDestination: PublicKey
   stakeAmount: BN
-  grantTranche: BN
-  grantProgram: PublicKey
+  repoOwner: string
+  repoName: string
 }
 
 export async function buildCreateQuestTx(
@@ -163,11 +137,10 @@ export async function buildCreateQuestTx(
       params.title,
       params.description,
       params.deadline,
-      params.mode,
       params.slashDestination,
       params.stakeAmount,
-      params.grantTranche,
-      params.grantProgram,
+      params.repoOwner,
+      params.repoName,
     )
     .accounts({
       builder,
@@ -183,10 +156,9 @@ export async function buildSubmitProofTx(
   builder: PublicKey,
   questPda: PublicKey,
   proofUrl: string,
-  proofType: number,
 ) {
   return program.methods
-    .submitProof(proofUrl, proofType)
+    .submitProof(proofUrl)
     .accounts({
       builder,
       quest: questPda,
@@ -224,15 +196,14 @@ export function solToLamports(sol: number): number {
 export function parseAnchorError(error: unknown): string {
   if (error instanceof Error) {
     const msg = error.message
-    if (msg.includes("BuilderCannotTakePosition")) return "Tu ne peux pas parier sur ta propre quest."
-    if (msg.includes("AlreadyHasPosition")) return "Tu as déjà une position sur cette quest."
-    if (msg.includes("PositionsClosed")) return "La fenêtre de positions est fermée."
     if (msg.includes("QuestDeadlinePassed")) return "La deadline de la quest est dépassée."
-    if (msg.includes("QuestNotResolved")) return "La quest n'est pas encore résolue."
+    if (msg.includes("QuestNotOpen")) return "La quest n'est pas ouverte."
+    if (msg.includes("QuestNotInProgress")) return "La quest n'est pas en cours."
+    if (msg.includes("QuestNotShipped")) return "La quest n'est pas shipped."
     if (msg.includes("AlreadyClaimed")) return "Déjà réclamé."
-    if (msg.includes("WrongDirection")) return "Mauvaise direction pour ce résultat."
     if (msg.includes("StakeBelowMinimum")) return "Stake minimum : 0.1 SOL."
-    if (msg.includes("PositionBelowMinimum")) return "Position minimum : 0.01 SOL."
+    if (msg.includes("ProtocolPaused")) return "Le protocole est en pause."
+    if (msg.includes("Unauthorized")) return "Non autorisé."
     if (msg.includes("User rejected") || msg.includes("cancelled")) return "Transaction annulée."
     if (msg.includes("0x1") || msg.includes("insufficient")) return "SOL insuffisant. Besoin de SOL devnet."
     return msg
@@ -286,10 +257,10 @@ export function usePrivyWallet() {
   const mounted = useIsMounted()
   const { ready, authenticated, login, logout } = usePrivy()
   const { wallets } = useSolanaWallets()
-  
+
   // Get the first connected Solana wallet
   const wallet = wallets[0]
-  
+
   const publicKey = useMemo(() => {
     if (!mounted || !wallet?.address) return null
     try {
@@ -298,9 +269,9 @@ export function usePrivyWallet() {
       return null
     }
   }, [mounted, wallet?.address])
-  
+
   const connection = useMemo(() => {
-    return new Connection("https://api.devnet.solana.com", "confirmed")
+    return new Connection(import.meta.env.VITE_SOLANA_RPC_URL || "https://api.devnet.solana.com", "confirmed")
   }, [])
 
   return {
@@ -351,9 +322,9 @@ export function useProgram() {
     return new Program(IDL as any, provider)
   }, [connection, wallet, publicKey, mounted, connected])
 
-  return { 
-    getProgram, 
-    connected, 
+  return {
+    getProgram,
+    connected,
     publicKey,
     mounted,
     ready,
@@ -364,14 +335,14 @@ export function useProgram() {
 // CREATE QUEST HOOK
 // ============================================
 
-interface CreateQuestParams {
+export interface CreateQuestParams {
   title: string
   description: string
-  category: Category
-  stakeSol: number
-  deadlineDays: number        // days from now
-  positionCloseDays: number   // days from now
-  grantTrancheSol: number | null  // null = self-stake, number = grant-guard
+  deadline: BN           // Unix timestamp as BN
+  slashDestination: PublicKey
+  stakeAmount: BN        // lamports as BN
+  repoOwner: string
+  repoName: string
 }
 
 export function useCreateQuest() {
@@ -385,33 +356,32 @@ export function useCreateQuest() {
 
       setPending()
       try {
-        const now = Math.floor(Date.now() / 1000)
-        const deadline = new BN(now + params.deadlineDays * 86400)
-        const positionCloseTs = new BN(now + params.positionCloseDays * 86400)
-        const stakeAmount = new BN(Math.floor(params.stakeSol * LAMPORTS_PER_SOL))
-        const grantTranche = params.grantTrancheSol !== null
-          ? new BN(Math.floor(params.grantTrancheSol * LAMPORTS_PER_SOL))
-          : null
+        // Fetch builder profile to get current quest_nonce; default to 0 if no profile yet
+        const profile = await fetchBuilderProfile(program, publicKey)
+        const nonce = new BN(profile?.questNonce ?? 0)
 
-        const questPda = getQuestPda(publicKey, params.title)
+        const questPda = getQuestPdaByNonce(publicKey, nonce)
         const poolVaultPda = getPoolVaultPda(questPda)
         const configPda = getConfigPda()
+        const builderProfilePda = getBuilderProfilePda(publicKey)
 
         const tx = await program.methods
           .createQuest(
+            nonce,
             params.title,
             params.description,
-            deadline,
-            positionCloseTs,
-            categoryToAnchor(params.category) as any,
-            stakeAmount,
-            grantTranche
+            params.deadline,
+            params.slashDestination,
+            params.stakeAmount,
+            params.repoOwner,
+            params.repoName,
           )
           .accounts({
+            builder: publicKey,
             config: configPda,
+            builderProfile: builderProfilePda,
             quest: questPda,
             poolVault: poolVaultPda,
-            builder: publicKey,
           })
           .rpc()
 
@@ -429,65 +399,12 @@ export function useCreateQuest() {
 }
 
 // ============================================
-// TAKE POSITION HOOK
-// ============================================
-
-interface TakePositionParams {
-  questPda: string
-  builderAddress: string   // needed to derive questPda if not provided as PDA
-  side: PositionSide       // "SHIP" | "FAIL"
-  amount: number           // in SOL
-}
-
-export function useTakePosition() {
-  const { getProgram, connected, publicKey, mounted } = useProgram()
-  const { status, reset, setPending, setSuccess, setError } = useTxStatus()
-
-  const takePosition = useCallback(
-    async (params: TakePositionParams) => {
-      const program = await getProgram()
-      if (!program || !publicKey) { setError("Wallet not connected"); return null }
-
-      setPending()
-      try {
-        const questKey = new PublicKey(params.questPda)
-        const poolVaultPda = getPoolVaultPda(questKey)
-        const commitmentPda = getCommitmentPda(questKey, publicKey)
-        const configPda = getConfigPda()
-        const amount = new BN(Math.floor(params.amount * LAMPORTS_PER_SOL))
-
-        const tx = await program.methods
-          .takePosition(sideToAnchor(params.side) as any, amount)
-          .accounts({
-            config: configPda,
-            quest: questKey,
-            poolVault: poolVaultPda,
-            commitment: commitmentPda,
-            supporter: publicKey,
-          })
-          .rpc()
-
-        setSuccess(tx)
-        return { signature: tx }
-      } catch (err) {
-        setError(parseAnchorError(err))
-        return null
-      }
-    },
-    [getProgram, publicKey, setPending, setSuccess, setError]
-  )
-
-  return { takePosition, isPending: status.pending, error: status.error, txSignature: status.signature, isSuccess: status.success, reset, connected, mounted }
-}
-
-// ============================================
 // SUBMIT PROOF HOOK
 // ============================================
 
 interface SubmitProofParams {
   questPda: string
   proofUrl: string
-  proofType: ProofType
 }
 
 export function useSubmitProof() {
@@ -504,7 +421,7 @@ export function useSubmitProof() {
         const questKey = new PublicKey(params.questPda)
 
         const tx = await program.methods
-          .submitProof(params.proofUrl, proofTypeToAnchor(params.proofType) as any)
+          .submitProof(params.proofUrl)
           .accounts({
             quest: questKey,
             builder: publicKey,
@@ -541,15 +458,13 @@ export function useClaimStake() {
       try {
         const questKey = new PublicKey(questPda)
         const poolVaultPda = getPoolVaultPda(questKey)
-        const configPda = getConfigPda()
 
         const tx = await program.methods
           .claimStake()
           .accounts({
-            config: configPda,
+            builder: publicKey,
             quest: questKey,
             poolVault: poolVaultPda,
-            builder: publicKey,
           })
           .rpc()
 
@@ -564,50 +479,6 @@ export function useClaimStake() {
   )
 
   return { claimStake, isPending: status.pending, error: status.error, txSignature: status.signature, isSuccess: status.success, reset, connected, mounted }
-}
-
-// ============================================
-// CLAIM SETTLEMENT HOOK (for scouts/bettors)
-// ============================================
-
-export function useClaimSettlement() {
-  const { getProgram, connected, publicKey, mounted } = useProgram()
-  const { status, reset, setPending, setSuccess, setError } = useTxStatus()
-
-  const claim = useCallback(
-    async (questPda: string) => {
-      const program = await getProgram()
-      if (!program || !publicKey) { setError("Wallet not connected"); return null }
-
-      setPending()
-      try {
-        const questKey = new PublicKey(questPda)
-        const poolVaultPda = getPoolVaultPda(questKey)
-        const commitmentPda = getCommitmentPda(questKey, publicKey)
-        const configPda = getConfigPda()
-
-        const tx = await program.methods
-          .claimSettlement()
-          .accounts({
-            config: configPda,
-            quest: questKey,
-            poolVault: poolVaultPda,
-            commitment: commitmentPda,
-            supporter: publicKey,
-          })
-          .rpc()
-
-        setSuccess(tx)
-        return { signature: tx }
-      } catch (err) {
-        setError(parseAnchorError(err))
-        return null
-      }
-    },
-    [getProgram, publicKey, setPending, setSuccess, setError]
-  )
-
-  return { claim, isPending: status.pending, error: status.error, txSignature: status.signature, isSuccess: status.success, reset, connected, mounted }
 }
 
 // ============================================

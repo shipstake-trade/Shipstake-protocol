@@ -10,7 +10,7 @@ import { WalletAddress } from "@/components/ui/wallet-address";
 import { mockQuests, mockBuilderProfile } from "@/lib/mock-data";
 import { lamportsToSol } from "@/lib/solana/shipstake";
 import { calcSelfStakeFee, calcGrantGuardFee } from "@/lib/utils";
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 import { use } from "react";
 
 function formatDate(timestamp: number): string {
@@ -63,7 +63,7 @@ export default function QuestDetailPage({
         {/* Breadcrumb */}
         <div className="text-xs text-muted-foreground mb-6">
           <Link
-            href="/explore"
+            to="/explore"
             className="hover:text-foreground transition-colors"
           >
             Explore
@@ -182,7 +182,7 @@ export default function QuestDetailPage({
                   </p>
                 </div>
               </div>
-              <Link href={`/builder/${quest.builder}`}>
+              <Link to="/builder/$address" params={{ address: quest.builder }}>
                 <Button variant="ghost" size="sm" className="w-full text-xs">
                   View profile
                 </Button>
@@ -286,7 +286,7 @@ export default function QuestDetailPage({
             {/* Actions */}
             <div className="glass-card rounded-lg p-5 space-y-2">
               {quest.status === "Open" && (
-                <Link href={`/quest/${quest.publicKey}/submit-proof`}>
+                <Link to="/quest/$id/submit-proof" params={{ id: quest.publicKey }}>
                   <Button className="w-full text-primary-foreground">
                     Submit proof
                   </Button>

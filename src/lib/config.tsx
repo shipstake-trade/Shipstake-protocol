@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 
 export const SHIPSTAKE_PROGRAM_ID = "H2NZtj6ncpknevBc6PUb3Qqd5UdeFXDyBrqWGEeqdaLv";
-export const SOLANA_RPC = process.env.NEXT_PUBLIC_SOLANA_RPC || "http://127.0.0.1:8899";
+export const SOLANA_RPC = import.meta.env.VITE_SOLANA_RPC_URL || "http://127.0.0.1:8899";
 
 export const BLUR_FADE_DELAY = 0.15;
 
@@ -16,7 +16,7 @@ export const siteConfig = {
   name: "SHIPSTAKE",
   description: "Prove it on the blockchain.",
   cta: "Start a Commitment",
-  url: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+  url: import.meta.env.VITE_APP_URL || "http://localhost:3000",
   keywords: [
     "SHIPSTAKE",
     "Solana",

@@ -6,11 +6,13 @@ import { Button } from "@/components/ui/button";
 import { RepoSelector } from "@/components/github/repo-selector";
 import type { GitHubRepo } from "@/components/github/repo-selector";
 import { useCreateQuest, usePrivyWallet } from "@/lib/solana/shipstake";
+import { BN } from "@coral-xyz/anchor";
+import { PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { useLinkAccount } from "@privy-io/react-auth";
 import type { Category, ProofType } from "@/lib/solana/idl";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 const CATEGORIES: Category[] = ["DeFi", "NFT", "Gaming", "Infrastructure", "Tools", "DAO", "Other"];
@@ -21,7 +23,7 @@ const PROOF_TYPES: { value: ProofType; label: string; description: string }[] = 
 
 // MVP: Grant Guard mode removed. Self-Stake only.
 export default function CreateQuestPage() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const { ready, authenticated, connected, login } = usePrivyWallet();
   const { linkWallet } = useLinkAccount();
   const { createQuest, isPending } = useCreateQuest();
@@ -57,21 +59,29 @@ export default function CreateQuestPage() {
       return;
     }
 
+    const now = Math.floor(Date.now() / 1000)
+    const deadline = new BN(now + deadlineDays * 86400)
+    const stakeAmount = new BN(Math.floor(stakeSol * LAMPORTS_PER_SOL))
+    // Slash to system program (burn) — user-configurable in a future version
+    const slashDestination = new PublicKey("11111111111111111111111111111111")
+    const repoOwner = selectedRepo ? selectedRepo.full_name.split("/")[0] : ""
+    const repoName = selectedRepo?.name ?? ""
+
     const result = await createQuest({
       title,
       description,
-      category,
-      stakeSol,
-      deadlineDays,
-      positionCloseDays: Math.max(1, deadlineDays - 3),
-      grantTrancheSol: null, // MVP: Self-Stake only
+      deadline,
+      slashDestination,
+      stakeAmount,
+      repoOwner,
+      repoName,
     });
 
     if (result) {
       toast.success("Quest created on-chain.", {
         description: `Signature: ${result.signature.slice(0, 16)}...`,
       });
-      router.push(`/quest/${result.questPda}`);
+      navigate({ to: "/quest/$id", params: { id: result.questPda } });
     }
   };
 

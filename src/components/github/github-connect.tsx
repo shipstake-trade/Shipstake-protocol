@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { API_URL } from "@/lib/api";
 
 interface GitHubStatus {
   connected: boolean;
@@ -31,7 +32,7 @@ export function GitHubConnect({ returnTo = "/portfolio", onStatusChange }: GitHu
 
   // Fetch current status from the server (reads httpOnly cookie)
   useEffect(() => {
-    fetch("/api/github/status")
+    fetch(`${API_URL}/auth/github/status`, { credentials: "include" })
       .then((r) => r.json())
       .then((data: GitHubStatus) => {
         setStatus(data);
@@ -70,13 +71,13 @@ export function GitHubConnect({ returnTo = "/portfolio", onStatusChange }: GitHu
   }, []);
 
   const handleConnect = () => {
-    window.location.href = `/api/auth/github?return_to=${encodeURIComponent(returnTo)}`;
+    window.location.href = `${API_URL}/auth/github?return_to=${encodeURIComponent(returnTo)}`;
   };
 
   const handleDisconnect = async () => {
     setDisconnecting(true);
     try {
-      const res = await fetch("/api/github/disconnect", { method: "POST" });
+      const res = await fetch(`${API_URL}/auth/github/disconnect`, { method: "DELETE", credentials: "include" });
       if (res.ok) {
         setStatus({ connected: false });
         onStatusChange?.(false);

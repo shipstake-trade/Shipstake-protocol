@@ -11,7 +11,7 @@ import { useLinkAccount } from "@privy-io/react-auth";
 import { mockBuilderProfile, mockQuests } from "@/lib/mock-data";
 import { lamportsToSol } from "@/lib/solana/shipstake";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -107,7 +107,7 @@ export default function PortfolioPage() {
               </div>
             </div>
             <div className="flex flex-col gap-3 shrink-0 items-stretch">
-              <Link href="/quest/create">
+              <Link to="/quest/create">
                 <Button className="text-primary-foreground w-full">
                   Create a Quest
                 </Button>
@@ -156,7 +156,7 @@ export default function PortfolioPage() {
               >
                 <div className="flex-1 min-w-0">
                   <Link
-                    href={`/quest/${quest.publicKey}`}
+                    to="/quest/$id" params={{ id: quest.publicKey }}
                     className="text-sm font-display font-bold text-foreground hover:text-primary transition-colors"
                   >
                     {quest.title}
@@ -192,7 +192,7 @@ export default function PortfolioPage() {
                     </Button>
                   )}
                   {quest.status === "Open" && (
-                    <Link href={`/quest/${quest.publicKey}/submit-proof`}>
+                    <Link to="/quest/$id/submit-proof" params={{ id: quest.publicKey }}>
                       <Button
                         size="sm"
                         variant="secondary"
@@ -220,7 +220,7 @@ export default function PortfolioPage() {
                   ? "No completed quests yet."
                   : "No quests found."}
               </p>
-              <Link href="/quest/create">
+              <Link to="/quest/create">
                 <Button className="text-primary-foreground">
                   Create a Quest
                 </Button>

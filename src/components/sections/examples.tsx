@@ -92,7 +92,7 @@ const agent = new Agent('ResearchAssistant');
 const openaiTool = new Tool('OpenAI', {
   action: async (prompt: string) => {
     const configuration = new Configuration({
-      apiKey: process.env.OPENAI_API_KEY,
+      apiKey: import.meta.env.VITE_OPENAI_API_KEY,
     });
     const openai = new OpenAIApi(configuration);
     const response = await openai.createCompletion({
@@ -106,8 +106,8 @@ const openaiTool = new Tool('OpenAI', {
 const searchTool = new Tool('GoogleSearch', {
   action: async (query: string) => {
     const url = new URL('https://www.googleapis.com/customsearch/v1');
-    url.searchParams.append('key', process.env.GOOGLE_API_KEY);
-    url.searchParams.append('cx', process.env.GOOGLE_SEARCH_ENGINE_ID);
+    url.searchParams.append('key', import.meta.env.VITE_GOOGLE_API_KEY);
+    url.searchParams.append('cx', import.meta.env.VITE_GOOGLE_SEARCH_ENGINE_ID);
     url.searchParams.append('q', query);
 
     const response = await fetch(url);

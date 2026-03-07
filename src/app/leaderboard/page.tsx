@@ -4,7 +4,7 @@ import { Header } from "@/components/sections/header";
 import { Footer } from "@/components/sections/footer";
 import { ProofScoreRing } from "@/components/builder/proof-score-ring";
 import { mockLeaderboard } from "@/lib/mock-data";
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 
 export default function LeaderboardPage() {
@@ -75,7 +75,7 @@ export default function LeaderboardPage() {
                   </td>
                   <td className="p-4">
                     <Link
-                      href={`/builder/${entry.address}`}
+                      to="/builder/$address" params={{ address: entry.address }}
                       className="text-sm font-mono text-foreground hover:text-primary transition-colors"
                     >
                       {entry.address}

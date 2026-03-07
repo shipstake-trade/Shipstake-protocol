@@ -16,11 +16,10 @@ export interface CreateQuestInput {
   title: string
   description: string
   deadlineDays: number
-  mode: number                    // 0 = SelfStake, 1 = GrantGuard
   slashDestination: string        // base58 pubkey
   stakeSol: number
-  grantTrancheSol: number         // 0 for SelfStake
-  grantProgram: string            // base58, use SystemProgram for SelfStake
+  repoOwner: string
+  repoName: string
 }
 
 /**
@@ -42,18 +41,16 @@ export function useCreateQuestReal() {
       const now = Math.floor(Date.now() / 1000)
       const deadline = new BN(now + input.deadlineDays * 86400)
       const stakeAmount = new BN(Math.floor(input.stakeSol * LAMPORTS_PER_SOL))
-      const grantTranche = new BN(Math.floor(input.grantTrancheSol * LAMPORTS_PER_SOL))
 
       const txBuilder = await buildCreateQuestTx(program, publicKey, {
         nonce,
         title: input.title,
         description: input.description,
         deadline,
-        mode: input.mode,
         slashDestination: new PublicKey(input.slashDestination),
         stakeAmount,
-        grantTranche,
-        grantProgram: new PublicKey(input.grantProgram),
+        repoOwner: input.repoOwner,
+        repoName: input.repoName,
       })
 
       const signature = await txBuilder.rpc()

@@ -2,7 +2,6 @@
 
 import { Section } from "@/components/section";
 import { AnimatePresence, motion } from "framer-motion";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 
 const companies = [
@@ -48,7 +47,7 @@ export function Logos() {
                     delay: Math.random() * 0.5,
                   }}
                 >
-                  <Image
+                  <img
                     width={112}
                     height={40}
                     src={`https://cdn.magicui.design/companies/${currentSet[idx]}.svg`}

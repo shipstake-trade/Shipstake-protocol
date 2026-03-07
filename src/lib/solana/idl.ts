@@ -41,38 +41,28 @@ export function proofTypeToAnchor(pt: ProofType): object {
 
 export type QuestStatus = "Open" | "InProgress" | "Validating" | "Shipped" | "Slashed"
 
-// ─── On-chain account types (backward-compatible interfaces) ────────────────
+// ─── On-chain account types ──────────────────────────────────────────────────
 
 export interface QuestAccount {
   builder: string        // PublicKey as base58
   title: string
   description: string
   stakeAmount: number    // lamports
-  grantTranche: number | null  // null = Self-Stake, number = Grant Guard (lamports)
-  deadline: number       // Unix timestamp (BN → number)
-  positionCloseTs: number
-  category: Category
+  deadline: number       // Unix timestamp
   status: QuestStatus
-  outcome: "Shipped" | "Slashed" | null
   proofUrl: string | null
-  proofType: ProofType | null
+  repoOwner: string
+  repoName: string
+  slashDestination: string
+  createdAt: number
+  resolvedAt: number
   bump: number
 }
 
 export interface PoolVault {
   quest: string
   builderStake: number       // lamports
-  totalSuccessCommitments: number
-  totalFailureCommitments: number
-  bump: number
-}
-
-export interface CommitmentAccount {
-  quest: string
-  supporter: string
-  direction: "SuccessCommitment" | "FailureCommitment"
-  amount: number
-  settled: boolean
+  builderClaimed: boolean
   bump: number
 }
 
@@ -80,41 +70,28 @@ export interface ProtocolConfig {
   admin: string
   oracle: string
   feeBps: number
-  grantFeeBps: number
   feeVault: string
   minStakeLamports: number
-  minPositionLamports: number
   paused: boolean
   bump: number
 }
 
-// ─── New on-chain types from real contract ───────────────────────────────────
+// ─── On-chain account types from real contract ───────────────────────────────
 
 export interface BuilderProfileAccount {
   builder: string
-  proofScore: number
   questsTotal: number
   questsShipped: number
   questsSlashed: number
   totalStakedLifetime: number
-  streakCurrent: number
-  streakBest: number
   questNonce: number
   lastQuestAt: number
   joinedAt: number
+  githubOauthId: string
   bump: number
 }
 
-export interface GrantProgramAccount {
-  foundation: string
-  name: string
-  slashToEscrow: boolean
-  active: boolean
-  questCount: number
-  bump: number
-}
-
-// ─── IDL (real contract from shipstake.json) ─────────────────────────────────
+// ─── IDL (matches deployed contract) ─────────────────────────────────────────
 
 export const IDL = {
   address: "H2NZtj6ncpknevBc6PUb3Qqd5UdeFXDyBrqWGEeqdaLv",
@@ -129,19 +106,6 @@ export const IDL = {
         { name: "pool_vault", writable: true, pda: { seeds: [{ kind: "const", value: [112, 111, 111, 108, 95, 118, 97, 117, 108, 116] }, { kind: "account", path: "quest" }] } },
       ],
       args: [],
-    },
-    {
-      name: "create_grant_program",
-      discriminator: [16, 63, 181, 58, 159, 223, 240, 178],
-      accounts: [
-        { name: "foundation", writable: true, signer: true },
-        { name: "grant_program", writable: true },
-        { name: "system_program", address: "11111111111111111111111111111111" },
-      ],
-      args: [
-        { name: "name", type: "string" },
-        { name: "slash_to_escrow", type: "bool" },
-      ],
     },
     {
       name: "create_quest",
@@ -159,11 +123,10 @@ export const IDL = {
         { name: "title", type: "string" },
         { name: "description", type: "string" },
         { name: "deadline", type: "i64" },
-        { name: "mode", type: "u8" },
         { name: "slash_destination", type: "pubkey" },
         { name: "stake_amount", type: "u64" },
-        { name: "grant_tranche", type: "u64" },
-        { name: "grant_program", type: "pubkey" },
+        { name: "repo_owner", type: "string" },
+        { name: "repo_name", type: "string" },
       ],
     },
     {
@@ -177,11 +140,7 @@ export const IDL = {
       ],
       args: [
         { name: "oracle", type: "pubkey" },
-        { name: "fee_bps_low", type: "u16" },
-        { name: "fee_bps_mid", type: "u16" },
-        { name: "fee_bps_high", type: "u16" },
-        { name: "grant_fee_bps", type: "u16" },
-        { name: "early_bonus_bps", type: "u16" },
+        { name: "fee_bps", type: "u16" },
         { name: "min_stake_lamports", type: "u64" },
       ],
     },
@@ -214,13 +173,11 @@ export const IDL = {
       ],
       args: [
         { name: "proof_url", type: "string" },
-        { name: "proof_type", type: "u8" },
       ],
     },
   ],
   accounts: [
     { name: "BuilderProfile", discriminator: [202, 117, 185, 141, 85, 237, 81, 168] },
-    { name: "GrantProgram", discriminator: [44, 6, 52, 35, 212, 162, 70, 105] },
     { name: "PoolVault", discriminator: [9, 184, 204, 69, 231, 82, 252, 154] },
     { name: "ProtocolConfig", discriminator: [207, 91, 250, 28, 152, 179, 215, 209] },
     { name: "QuestAccount", discriminator: [150, 179, 23, 90, 199, 60, 121, 92] },
@@ -244,28 +201,14 @@ export const IDL = {
       name: "BuilderProfile", type: {
         kind: "struct", fields: [
           { name: "builder", type: "pubkey" },
-          { name: "proof_score", type: "u8" },
           { name: "quests_total", type: "u32" },
           { name: "quests_shipped", type: "u32" },
           { name: "quests_slashed", type: "u32" },
           { name: "total_staked_lifetime", type: "u64" },
-          { name: "streak_current", type: "u16" },
-          { name: "streak_best", type: "u16" },
           { name: "quest_nonce", type: "u64" },
           { name: "last_quest_at", type: "i64" },
           { name: "joined_at", type: "i64" },
-          { name: "bump", type: "u8" },
-        ],
-      },
-    },
-    {
-      name: "GrantProgram", type: {
-        kind: "struct", fields: [
-          { name: "foundation", type: "pubkey" },
-          { name: "name", type: "string" },
-          { name: "slash_to_escrow", type: "bool" },
-          { name: "active", type: "bool" },
-          { name: "quest_count", type: "u32" },
+          { name: "github_oauth_id", type: "string" },
           { name: "bump", type: "u8" },
         ],
       },
@@ -285,11 +228,7 @@ export const IDL = {
         kind: "struct", fields: [
           { name: "admin", type: "pubkey" },
           { name: "oracle", type: "pubkey" },
-          { name: "fee_bps_low", type: "u16" },
-          { name: "fee_bps_mid", type: "u16" },
-          { name: "fee_bps_high", type: "u16" },
-          { name: "grant_fee_bps", type: "u16" },
-          { name: "early_bonus_bps", type: "u16" },
+          { name: "fee_bps", type: "u16" },
           { name: "fee_vault", type: "pubkey" },
           { name: "min_stake_lamports", type: "u64" },
           { name: "paused", type: "bool" },
@@ -301,17 +240,15 @@ export const IDL = {
       name: "QuestAccount", type: {
         kind: "struct", fields: [
           { name: "builder", type: "pubkey" },
-          { name: "mode", type: "u8" },
           { name: "title", type: "string" },
           { name: "description", type: "string" },
           { name: "stake_amount", type: "u64" },
           { name: "deadline", type: "i64" },
           { name: "status", type: "u8" },
           { name: "proof_url", type: "string" },
-          { name: "proof_type", type: "u8" },
+          { name: "repo_owner", type: "string" },
+          { name: "repo_name", type: "string" },
           { name: "slash_destination", type: "pubkey" },
-          { name: "grant_tranche", type: "u64" },
-          { name: "grant_program", type: "pubkey" },
           { name: "created_at", type: "i64" },
           { name: "resolved_at", type: "i64" },
           { name: "bump", type: "u8" },
@@ -325,28 +262,14 @@ export type Shipstake = typeof IDL
 
 // ─── Fee calculation helpers ────────────────────────────────────────────────
 
-export const SELF_STAKE_FEE_BPS = 200   // 2%
-export const GRANT_GUARD_FEE_BPS = 150  // 1.5%
+export const DEFAULT_FEE_BPS = 200   // 2%
 
-/** Compute protocol fee in lamports for a SHIPPED quest */
-export function computeShippedFee(
-  stakeAmountLamports: number,
-  grantTrancheLamports: number | null,
-): number {
-  if (grantTrancheLamports !== null) {
-    return Math.floor((grantTrancheLamports * GRANT_GUARD_FEE_BPS) / 10_000)
-  }
-  return Math.floor((stakeAmountLamports * SELF_STAKE_FEE_BPS) / 10_000)
+/** Compute protocol fee in lamports */
+export function computeShippedFee(stakeAmountLamports: number): number {
+  return Math.floor((stakeAmountLamports * DEFAULT_FEE_BPS) / 10_000)
 }
 
 /** Compute builder net payout in lamports for a SHIPPED quest */
-export function computeBuilderNetPayout(
-  stakeAmountLamports: number,
-  grantTrancheLamports: number | null,
-): number {
-  const fee = computeShippedFee(stakeAmountLamports, grantTrancheLamports)
-  if (grantTrancheLamports !== null) {
-    return stakeAmountLamports + grantTrancheLamports - fee
-  }
-  return stakeAmountLamports - fee
+export function computeBuilderNetPayout(stakeAmountLamports: number): number {
+  return stakeAmountLamports - computeShippedFee(stakeAmountLamports)
 }

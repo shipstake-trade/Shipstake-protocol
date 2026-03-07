@@ -6,7 +6,7 @@ import { BlurFade } from "@/components/ui/blur-fade";
 import { buttonVariants } from "@/components/ui/button";
 import { siteConfig, BLUR_FADE_DELAY } from "@/lib/config";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 
 // MVP: Single mode — Self-Stake only. Grant Guard commented out.
@@ -51,7 +51,7 @@ export function TwoModes() {
             </div>
 
             <Link
-              href="/quest/create"
+              to="/quest/create"
               className={cn(
                 buttonVariants({ variant: "default", size: "sm" }),
                 "w-fit text-primary-foreground rounded-lg font-medium mt-auto"

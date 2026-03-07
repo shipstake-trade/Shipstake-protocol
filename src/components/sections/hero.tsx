@@ -2,7 +2,7 @@
 
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 
 export function Hero() {
   return (
@@ -58,7 +58,7 @@ export function Hero() {
         </p>
 
         <Link
-          href="/quest/create"
+          to="/quest/create"
           className={cn(
             buttonVariants({ variant: "default", size: "lg" }),
             "mt-10 rounded-lg font-medium text-primary-foreground px-8 py-4 text-base",

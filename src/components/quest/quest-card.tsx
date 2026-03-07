@@ -6,7 +6,7 @@ import { BorderBeam } from "@/components/ui/border-beam";
 import type { MockQuest } from "@/lib/mock-data";
 import { lamportsToSol } from "@/lib/solana/shipstake";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 
 interface QuestCardProps {
@@ -54,7 +54,7 @@ export function QuestCard({ quest, showBuilder = true }: QuestCardProps) {
   const isSettled = quest.status === "Shipped" || quest.status === "Slashed";
 
   return (
-    <Link href={`/quest/${quest.publicKey}`}>
+    <Link to="/quest/$id" params={{ id: quest.publicKey }}>
       <div
         className={cn(
           "relative glass-card rounded-lg p-5 h-full flex flex-col transition-all duration-300 cursor-pointer",

@@ -3,7 +3,7 @@
 import { ProofScoreRing } from "@/components/builder/proof-score-ring";
 import type { BuilderProfile } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 
 interface BuilderCardProps {
   profile: BuilderProfile;
@@ -17,7 +17,7 @@ export function BuilderCard({ profile, className }: BuilderCardProps) {
       : 0;
 
   return (
-    <Link href={`/builder/${profile.address}`}>
+    <Link to="/builder/$address" params={{ address: profile.address }}>
       <div
         className={cn(
           "glass-card glass-card-hover rounded-lg p-5 flex items-center gap-4 cursor-pointer transition-all duration-300",

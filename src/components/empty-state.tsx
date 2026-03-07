@@ -1,6 +1,6 @@
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 
 interface EmptyStateProps {
   title?: string;
@@ -22,7 +22,7 @@ export function EmptyState({ title = "Nothing here.", description = "Yet.", acti
       </p>
       {action && (
         <Link
-          href={action.href}
+          to={action.href as never}
           className={cn(
             buttonVariants({ variant: "default" }),
             "text-primary-foreground"
