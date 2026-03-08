@@ -1,14 +1,19 @@
 import { createLazyFileRoute, Link } from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
 import { Header } from '@/components/sections/header'
 import { Footer } from '@/components/sections/footer'
 import { StatusBadge } from '@/components/quest/status-badge'
-import { ProofTypeBadge } from '@/components/quest/proof-type-badge'
-import { ProofScoreRing } from '@/components/builder/proof-score-ring'
 import { Button } from '@/components/ui/button'
 import { WalletAddress } from '@/components/ui/wallet-address'
-import { mockQuests, mockBuilderProfile } from '@/lib/mock-data'
+import { useBuilderProfile } from '@/hooks/useBuilderProfile'
+import { useClaimStakeReal } from '@/hooks/useClaimStake'
+import { useShipstakeProgram } from '@/hooks/useShipstakeProgram'
+import { API_URL } from '@/lib/api'
+import type { ApiQuest } from '@/lib/types'
+import { parseStatus, shipRate } from '@/lib/types'
 import { lamportsToSol } from '@/lib/solana/shipstake'
-import { calcSelfStakeFee, calcGrantGuardFee } from '@/lib/utils'
+import { toast } from 'sonner'
+import { Loader2, ExternalLink, RefreshCw } from 'lucide-react'
 
 export const Route = createLazyFileRoute('/quest/$id')({
   component: QuestDetailPage,
@@ -16,7 +21,7 @@ export const Route = createLazyFileRoute('/quest/$id')({
 
 function formatDate(timestamp: number): string {
   return new Date(timestamp * 1000).toLocaleDateString('en-US', {
-    month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit',
+    month: 'short', day: 'numeric', year: 'numeric',
   })
 }
 
@@ -32,20 +37,95 @@ function formatCountdown(timestamp: number): string {
   return `${minutes}m`
 }
 
+function BuilderSidebar({ builderAddress }: { builderAddress: string }) {
+  const { data: profile } = useBuilderProfile(builderAddress)
+  const rate = profile ? shipRate(profile.questsShipped, profile.questsTotal) : null
+
+  return (
+    <div className="glass-card rounded-lg p-5">
+      <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Builder</h3>
+      <div className="flex items-center gap-3 mb-3">
+        <div>
+          <WalletAddress address={builderAddress} className="text-sm" />
+          {rate !== null && (
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {profile?.questsShipped ?? 0}/{profile?.questsTotal ?? 0} shipped · {rate}% ship rate
+            </p>
+          )}
+        </div>
+      </div>
+      <Link to="/builder/$address" params={{ address: builderAddress }}>
+        <Button variant="ghost" size="sm" className="w-full text-xs">View profile</Button>
+      </Link>
+    </div>
+  )
+}
+
 function QuestDetailPage() {
   const { id } = Route.useParams()
-  const quest = mockQuests.find((q) => q.publicKey === id) ?? mockQuests[0]
-  const stakeSol = lamportsToSol(quest.stakeAmount)
-  const grantTrancheSol = quest.grantTranche !== null ? lamportsToSol(quest.grantTranche) : null
+  const { publicKey } = useShipstakeProgram()
+  const claimStake = useClaimStakeReal()
 
-  const isActive = quest.status === 'Open' || quest.status === 'InProgress'
-  const isShipped = quest.status === 'Shipped'
-  const isSlashed = quest.status === 'Slashed'
+  const { data: quest, isLoading, isError, refetch } = useQuery<ApiQuest>({
+    queryKey: ['quest', id],
+    queryFn: async () => {
+      const res = await fetch(`${API_URL}/quests/${id}`)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      return res.json()
+    },
+    refetchInterval: (q) => {
+      const s = q.state.data ? parseStatus(q.state.data.status) : null
+      return s === 'Open' || s === 'InProgress' || s === 'Validating' ? 20_000 : false
+    },
+    staleTime: 15_000,
+  })
 
-  const feeInfo =
-    quest.mode === 'GrantGuard' && grantTrancheSol !== null
-      ? calcGrantGuardFee(stakeSol, grantTrancheSol)
-      : calcSelfStakeFee(stakeSol, quest.builderStreak)
+  if (isLoading) {
+    return (
+      <>
+        <Header />
+        <main className="container mx-auto max-w-[var(--container-max-width)] px-4 py-16">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Loader2 className="w-5 h-5 animate-spin" /> Loading quest…
+          </div>
+        </main>
+        <Footer />
+      </>
+    )
+  }
+
+  if (isError || !quest) {
+    return (
+      <>
+        <Header />
+        <main className="container mx-auto max-w-[var(--container-max-width)] px-4 py-16 space-y-4">
+          <p className="text-muted-foreground">Quest not found.</p>
+          <Button variant="secondary" size="sm" onClick={() => refetch()} className="gap-2">
+            <RefreshCw className="w-4 h-4" /> Retry
+          </Button>
+          <div><Link to="/explore" className="text-sm text-primary hover:underline">← Back to Explore</Link></div>
+        </main>
+        <Footer />
+      </>
+    )
+  }
+
+  const status = parseStatus(quest.status)
+  const stakeSol = lamportsToSol(quest.stake_amount)
+  const isActive = status === 'Open' || status === 'InProgress'
+  const isShipped = status === 'Shipped'
+  const isSlashed = status === 'Slashed'
+  const isOwner = publicKey?.toBase58() === quest.builder
+  const fee = stakeSol * 0.02
+
+  const handleClaim = async () => {
+    try {
+      await claimStake.mutateAsync({ questPda: id })
+      toast.success('Stake claimed!', { description: `${(stakeSol * 0.98).toFixed(4)} SOL returned to your wallet.` })
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Claim failed')
+    }
+  }
 
   return (
     <>
@@ -58,44 +138,76 @@ function QuestDetailPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main */}
           <div className="lg:col-span-2 space-y-6">
             <div>
               <div className="flex items-center gap-3 mb-3">
-                <span className="text-xs font-mono uppercase text-muted-foreground tracking-wider">{quest.category}</span>
-                {quest.mode === 'GrantGuard' && <span className="text-xs font-mono uppercase text-amber-400 tracking-wider">Grant Guard</span>}
-                <StatusBadge status={quest.status} />
-                {quest.proofType && <ProofTypeBadge type={quest.proofType} />}
+                <StatusBadge status={status} />
+                {quest.repo_owner && quest.repo_name && (
+                  <span className="text-xs font-mono text-muted-foreground">
+                    {quest.repo_owner}/{quest.repo_name}
+                  </span>
+                )}
               </div>
               <h1 className="text-3xl font-display font-bold text-foreground mb-3">{quest.title}</h1>
-              <p className="text-muted-foreground leading-relaxed">{quest.description}</p>
+              {quest.description && (
+                <p className="text-muted-foreground leading-relaxed">{quest.description}</p>
+              )}
             </div>
 
+            {/* Timeline */}
             <div className="glass-card rounded-lg p-5">
               <h3 className="text-sm font-medium text-foreground mb-4">Timeline</h3>
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="w-2 h-2 rounded-full bg-primary" />
-                  <div className="flex-1">
+                  <div>
                     <p className="text-sm text-foreground">Quest created · stake locked</p>
-                    <p className="text-xs text-muted-foreground">{stakeSol.toFixed(1)} SOL locked</p>
+                    <p className="text-xs text-muted-foreground">
+                      {stakeSol.toFixed(3)} SOL locked
+                      {quest.tx_signature && (
+                        <>
+                          {' · '}
+                          <a
+                            href={`https://solscan.io/tx/${quest.tx_signature}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline inline-flex items-center gap-1"
+                          >
+                            {quest.tx_signature.slice(0, 8)}… <ExternalLink className="w-3 h-3" />
+                          </a>
+                        </>
+                      )}
+                    </p>
                   </div>
                 </div>
-                {quest.proofUrl && (
+                {quest.proof_url && (
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 rounded-full bg-primary" />
-                    <div className="flex-1">
+                    <div>
                       <p className="text-sm text-foreground">Proof submitted</p>
-                      <p className="text-xs font-mono text-muted-foreground break-all">{quest.proofUrl}</p>
+                      <a
+                        href={quest.proof_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs font-mono text-primary hover:underline break-all inline-flex items-center gap-1"
+                      >
+                        {quest.proof_url} <ExternalLink className="w-3 h-3 shrink-0" />
+                      </a>
                     </div>
                   </div>
                 )}
                 {(isShipped || isSlashed) && (
                   <div className="flex items-center gap-3">
                     <div className={`w-2 h-2 rounded-full ${isShipped ? 'bg-emerald-brand' : 'bg-danger'}`} />
-                    <div className="flex-1">
-                      <p className="text-sm text-foreground">{isShipped ? 'SHIPPED · stake returned' : 'SLASHED · stake burned'}</p>
+                    <div>
+                      <p className="text-sm text-foreground">
+                        {isShipped ? 'SHIPPED · stake ready to claim' : 'SLASHED · stake forfeited'}
+                      </p>
                       <p className="text-xs text-muted-foreground">
-                        {isShipped ? `Oracle verified — ${feeInfo.builderReceives.toFixed(4)} SOL returned` : 'Deadline missed — stake forfeited'}
+                        {isShipped
+                          ? `Oracle verified — ${(stakeSol * 0.98).toFixed(4)} SOL claimable`
+                          : 'Deadline missed — stake forfeited'}
                       </p>
                     </div>
                   </div>
@@ -103,7 +215,7 @@ function QuestDetailPage() {
                 {isActive && (
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 rounded-full bg-muted animate-pulse" />
-                    <div className="flex-1">
+                    <div>
                       <p className="text-sm text-muted-foreground">Deadline: {formatDate(quest.deadline)}</p>
                       <p className="text-xs font-mono text-primary">{formatCountdown(quest.deadline)} remaining</p>
                     </div>
@@ -113,44 +225,28 @@ function QuestDetailPage() {
             </div>
           </div>
 
+          {/* Sidebar */}
           <div className="space-y-4">
-            <div className="glass-card rounded-lg p-5">
-              <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Builder</h3>
-              <div className="flex items-center gap-3 mb-3">
-                <ProofScoreRing score={mockBuilderProfile.proofScore} size="sm" />
-                <div>
-                  <WalletAddress address={quest.builder} className="text-sm" />
-                  <p className="text-xs text-muted-foreground mt-0.5">{mockBuilderProfile.questsShipped}/{mockBuilderProfile.questsTotal} shipped</p>
-                </div>
-              </div>
-              <Link to="/builder/$address" params={{ address: quest.builder }}>
-                <Button variant="ghost" size="sm" className="w-full text-xs">View profile</Button>
-              </Link>
-            </div>
+            <BuilderSidebar builderAddress={quest.builder} />
 
+            {/* Pool vault */}
             <div className="glass-card rounded-lg p-5">
-              <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">POOL VAULT</h3>
+              <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Pool Vault</h3>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Builder stake</span>
                   <span className="font-mono font-bold text-primary">{stakeSol.toFixed(3)} SOL</span>
                 </div>
-                {grantTrancheSol !== null && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Grant tranche</span>
-                    <span className="font-mono font-bold text-primary">{grantTrancheSol.toFixed(3)} SOL</span>
-                  </div>
-                )}
                 <hr className="border-border/50" />
                 {isShipped && (
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Builder receives</span>
-                      <span className="font-mono text-emerald-brand">{feeInfo.builderReceives.toFixed(4)} SOL</span>
+                      <span className="font-mono text-emerald-brand">{(stakeSol - fee).toFixed(4)} SOL</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Protocol fee ({feeInfo.bps / 100}%)</span>
-                      <span className="font-mono text-amber-400">{feeInfo.fee.toFixed(4)} SOL</span>
+                      <span className="text-muted-foreground">Protocol fee (2%)</span>
+                      <span className="font-mono text-amber-400">{fee.toFixed(4)} SOL</span>
                     </div>
                   </div>
                 )}
@@ -161,39 +257,44 @@ function QuestDetailPage() {
                       <span className="font-mono text-danger">0 SOL</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Slash destination</span>
-                      <span className="font-mono text-xs text-danger">{quest.slashDestination}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Protocol fee</span>
                       <span className="font-mono">0 SOL</span>
                     </div>
                   </div>
                 )}
-                {isActive && <p className="text-[10px] text-muted-foreground">Locked until oracle settlement. Fee charged only on SHIPPED.</p>}
+                {isActive && <p className="text-[10px] text-muted-foreground">Locked until oracle settlement. Fee only on SHIPPED.</p>}
               </div>
             </div>
 
+            {/* Actions */}
             <div className="glass-card rounded-lg p-5 space-y-2">
-              {quest.status === 'Open' && (
-                <Link to="/quest/$id/submit-proof" params={{ id: quest.publicKey }}>
+              {isOwner && status === 'Open' && (
+                <Link to="/quest/$id/submit-proof" params={{ id: quest.pubkey }}>
                   <Button className="w-full text-primary-foreground">Submit proof</Button>
                 </Link>
               )}
-              {quest.status === 'InProgress' && (
-                <Button variant="secondary" className="w-full" disabled>Oracle is checking your proof.</Button>
+              {status === 'InProgress' && (
+                <Button variant="secondary" className="w-full" disabled>Oracle is validating…</Button>
               )}
-              {isShipped && (
-                <Button variant="default" className="w-full text-primary-foreground">Claim your SOL</Button>
+              {isOwner && isShipped && (
+                <Button
+                  variant="default"
+                  className="w-full text-primary-foreground"
+                  onClick={handleClaim}
+                  disabled={claimStake.isPending}
+                >
+                  {claimStake.isPending ? (
+                    <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Claiming…</>
+                  ) : (
+                    'Claim your SOL'
+                  )}
+                </Button>
               )}
               <Button
                 variant="ghost"
                 size="sm"
                 className="w-full text-xs text-muted-foreground"
-                onClick={() => {
-                  const text = `"${quest.title}" on SHIPSTAKE — ${stakeSol.toFixed(1)} SOL locked`
-                  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank')
-                }}
+                onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`"${quest.title}" on SHIPSTAKE — ${stakeSol.toFixed(1)} SOL locked`)}`, '_blank')}
               >
                 Share on X
               </Button>

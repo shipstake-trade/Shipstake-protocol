@@ -1,20 +1,20 @@
 "use client";
 
 import { ProofScoreRing } from "@/components/builder/proof-score-ring";
-import type { BuilderProfile } from "@/lib/mock-data";
+import type { ApiProfile } from "@/lib/types";
+import { shipRate } from "@/lib/types";
+import { lamportsToSol } from "@/lib/solana/shipstake";
 import { cn } from "@/lib/utils";
 import { Link } from "@tanstack/react-router";
 
 interface BuilderCardProps {
-  profile: BuilderProfile;
+  profile: ApiProfile;
   className?: string;
 }
 
 export function BuilderCard({ profile, className }: BuilderCardProps) {
-  const shipRate =
-    profile.questsTotal > 0
-      ? Math.round((profile.questsShipped / profile.questsTotal) * 100)
-      : 0;
+  const rate = shipRate(profile.quests_shipped, profile.quests_total);
+  const stakedSol = lamportsToSol(profile.total_staked_lifetime);
 
   return (
     <Link to="/builder/$address" params={{ address: profile.address }}>
@@ -24,7 +24,7 @@ export function BuilderCard({ profile, className }: BuilderCardProps) {
           className
         )}
       >
-        <ProofScoreRing score={profile.proofScore} size="md" />
+        <ProofScoreRing score={rate} size="md" />
 
         <div className="flex-1 min-w-0">
           <p className="text-xs font-mono text-muted-foreground truncate mb-1">
@@ -32,18 +32,18 @@ export function BuilderCard({ profile, className }: BuilderCardProps) {
           </p>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <span>
-              <span className="text-foreground font-medium">{shipRate}%</span>{" "}
+              <span className="text-foreground font-medium">{rate}%</span>{" "}
               Ship Rate
             </span>
             <span>
               <span className="text-foreground font-medium">
-                {profile.questsShipped}
+                {profile.quests_shipped}
               </span>
-              /{profile.questsTotal} Quests
+              /{profile.quests_total} Quests
             </span>
             <span>
               <span className="text-primary font-medium font-mono">
-                {profile.totalSolStaked.toFixed(1)}
+                {stakedSol.toFixed(1)}
               </span>{" "}
               SOL
             </span>

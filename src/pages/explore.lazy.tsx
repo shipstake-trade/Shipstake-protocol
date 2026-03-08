@@ -1,48 +1,58 @@
 import { createLazyFileRoute, Link } from '@tanstack/react-router'
 import { useState, useMemo } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Header } from '@/components/sections/header'
 import { Footer } from '@/components/sections/footer'
 import { QuestCard } from '@/components/quest/quest-card'
 import { QuestCardSkeleton } from '@/components/quest/quest-card-skeleton'
 import { Button } from '@/components/ui/button'
-import { mockQuests } from '@/lib/mock-data'
-import type { QuestStatus, Category } from '@/lib/solana/idl'
+import { API_URL } from '@/lib/api'
+import type { ApiQuest } from '@/lib/types'
+import { parseStatus } from '@/lib/types'
+import type { QuestStatus } from '@/lib/solana/idl'
 import { cn } from '@/lib/utils'
 import { usePrivyWallet } from '@/lib/solana/shipstake'
+import { RefreshCw } from 'lucide-react'
 
 export const Route = createLazyFileRoute('/explore')({
   component: ExplorePage,
 })
 
 const STATUS_OPTIONS: QuestStatus[] = ['Open', 'InProgress', 'Shipped', 'Slashed']
-const CATEGORY_OPTIONS: Category[] = ['DeFi', 'NFT', 'Gaming', 'Infrastructure', 'Tools', 'DAO', 'Other']
-type SortOption = 'newest' | 'deadline' | 'stake' | 'proofScore'
+type SortOption = 'newest' | 'deadline' | 'stake'
 const SORT_LABELS: Record<SortOption, string> = {
   newest: 'Newest',
   deadline: 'Deadline',
-  stake: 'Stake',
-  proofScore: 'PROOF Score ↓',
+  stake: 'Stake ↓',
 }
 
 function ExplorePage() {
   const { connected } = usePrivyWallet()
   const [statusFilter, setStatusFilter] = useState<QuestStatus | 'all'>('all')
-  const [categoryFilter, setCategoryFilter] = useState<Category | 'all'>('all')
   const [sort, setSort] = useState<SortOption>('newest')
-  const [loading] = useState(false)
+
+  const { data, isLoading, isError, refetch } = useQuery<ApiQuest[]>({
+    queryKey: ['quests'],
+    queryFn: async () => {
+      const res = await fetch(`${API_URL}/quests`)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const json = await res.json()
+      return Array.isArray(json) ? json : (json.quests ?? [])
+    },
+    staleTime: 30_000,
+  })
 
   const filtered = useMemo(() => {
-    let quests = [...mockQuests]
-    if (statusFilter !== 'all') quests = quests.filter((q) => q.status === statusFilter)
-    if (categoryFilter !== 'all') quests = quests.filter((q) => q.category === categoryFilter)
-    switch (sort) {
-      case 'deadline': quests.sort((a, b) => a.deadline - b.deadline); break
-      case 'stake': quests.sort((a, b) => b.stakeAmount - a.stakeAmount); break
-      case 'proofScore': quests.sort((a, b) => b.builderProofScore - a.builderProofScore); break
-      default: quests.sort((a, b) => b.deadline - a.deadline)
+    let quests = data ?? []
+    if (statusFilter !== 'all') {
+      quests = quests.filter((q) => parseStatus(q.status) === statusFilter)
     }
-    return quests
-  }, [statusFilter, categoryFilter, sort])
+    switch (sort) {
+      case 'deadline': return [...quests].sort((a, b) => a.deadline - b.deadline)
+      case 'stake':    return [...quests].sort((a, b) => b.stake_amount - a.stake_amount)
+      default:         return [...quests].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    }
+  }, [data, statusFilter, sort])
 
   return (
     <>
@@ -52,7 +62,6 @@ function ExplorePage() {
           <div>
             <h1 className="text-3xl font-display font-bold text-foreground">Who&apos;s shipping.</h1>
             <p className="text-muted-foreground text-sm mt-1">Builders with SOL on the line.</p>
-            <p className="text-xs text-muted-foreground/50 mt-0.5">PROOF Score is permanent. Every quest counts.</p>
           </div>
           {connected && (
             <Link to="/quest/create">
@@ -61,6 +70,7 @@ function ExplorePage() {
           )}
         </div>
 
+        {/* Filters */}
         <div className="flex flex-wrap gap-3 mb-6">
           <div className="flex flex-wrap gap-1">
             <button
@@ -75,21 +85,8 @@ function ExplorePage() {
               >{status}</button>
             ))}
           </div>
-          <div className="flex flex-wrap gap-1">
-            <button
-              onClick={() => setCategoryFilter('all')}
-              className={cn('px-3 py-1.5 rounded-full text-xs font-medium transition-colors', categoryFilter === 'all' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground')}
-            >All</button>
-            {CATEGORY_OPTIONS.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setCategoryFilter(cat)}
-                className={cn('px-3 py-1.5 rounded-full text-xs font-medium transition-colors', categoryFilter === cat ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground')}
-              >{cat}</button>
-            ))}
-          </div>
           <div className="flex gap-1 ml-auto flex-wrap justify-end">
-            {(['newest', 'deadline', 'stake', 'proofScore'] as SortOption[]).map((s) => (
+            {(['newest', 'deadline', 'stake'] as SortOption[]).map((s) => (
               <button
                 key={s}
                 onClick={() => setSort(s)}
@@ -99,13 +96,20 @@ function ExplorePage() {
           </div>
         </div>
 
-        {loading ? (
+        {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {Array.from({ length: 6 }).map((_, i) => <QuestCardSkeleton key={i} />)}
           </div>
+        ) : isError ? (
+          <div className="text-center py-16 space-y-3">
+            <p className="text-muted-foreground">Failed to load quests.</p>
+            <Button variant="secondary" size="sm" onClick={() => refetch()} className="gap-2">
+              <RefreshCw className="w-4 h-4" /> Retry
+            </Button>
+          </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-16">
-            <h3 className="text-lg font-display font-bold text-foreground mb-2">Nothing here yet.</h3>
+            <h3 className="text-lg font-display font-bold text-foreground mb-2">No commitments yet.</h3>
             <p className="text-muted-foreground mb-4">Be the first builder to put SOL on the line.</p>
             <Link to="/quest/create">
               <Button variant="default" className="text-primary-foreground">Create a Quest</Button>
@@ -113,7 +117,7 @@ function ExplorePage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map((quest) => <QuestCard key={quest.publicKey} quest={quest} />)}
+            {filtered.map((quest) => <QuestCard key={quest.pubkey} quest={quest} />)}
           </div>
         )}
       </main>

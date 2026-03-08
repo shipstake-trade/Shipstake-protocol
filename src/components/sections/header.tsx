@@ -17,7 +17,8 @@ import { LAMPORTS_PER_SOL, Connection, PublicKey } from "@solana/web3.js";
 import { ChevronDown, Copy, ExternalLink, LogOut } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { mockBuilderProfile } from "@/lib/mock-data";
+import { useBuilderProfile } from "@/hooks/useBuilderProfile";
+import { shipRate } from "@/lib/types";
 import { toast } from "sonner";
 
 function truncate(address: string) {
@@ -32,22 +33,22 @@ function proofScoreColor(score: number): string {
   return "text-slate-400";
 }
 
-function NavProofScore({ address, score, streak }: { address: string; score: number; streak: number }) {
+function NavProofScore({ address }: { address: string }) {
+  const { data: profile } = useBuilderProfile(address);
+  if (!profile) return null;
+  const rate = shipRate(profile.questsShipped, profile.questsTotal);
   return (
     <Link
       to="/builder/$address"
       params={{ address }}
       className={cn(
         "hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-secondary/50 hover:border-[var(--border-active)] transition-colors text-sm font-mono",
-        proofScoreColor(score)
+        proofScoreColor(rate)
       )}
-      title="Your PROOF Score — click to view profile"
+      title={`Ship rate ${rate}% — ${profile.questsShipped}/${profile.questsTotal} quests shipped`}
     >
-      <span className="text-muted-foreground text-xs">PROOF</span>
-      <span className="font-bold">{score}</span>
-      {streak > 0 && (
-        <span className="text-xs">🔥{streak}</span>
-      )}
+      <span className="text-muted-foreground text-xs">SHIPPED</span>
+      <span className="font-bold">{profile.questsShipped}</span>
     </Link>
   );
 }
@@ -168,11 +169,7 @@ export function Header() {
         <div className="hidden lg:flex items-center gap-x-3">
           {ready && authenticated && walletAddress ? (
             <>
-              <NavProofScore
-                address={walletAddress}
-                score={mockBuilderProfile.proofScore}
-                streak={mockBuilderProfile.currentStreak}
-              />
+              <NavProofScore address={walletAddress} />
               <WalletMenu address={walletAddress} onLogout={logout} />
             </>
           ) : (
