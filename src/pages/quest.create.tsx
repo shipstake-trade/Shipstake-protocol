@@ -8,6 +8,7 @@ import { AuthGuard } from "@/components/auth-guard"
 import { RepoSelector } from "@/components/github/repo-selector"
 import type { GitHubRepo } from "@/lib/github"
 import { useCreateQuestReal } from "@/hooks/useCreateQuest"
+import { useSubmitProofReal } from "@/hooks/useSubmitProof"
 import { useGithubStatus } from "@/hooks/useGithubStatus"
 import { useShipstakeProgram } from "@/hooks/useShipstakeProgram"
 import { fetchProtocolConfig } from "@/lib/solana/shipstake"
@@ -26,27 +27,44 @@ interface FormData {
   repo: GitHubRepo | null
   stakeSol: string
   deadlineDays: string
+  proofUrl: string
 }
 
-const STEPS = ["Details", "Repository", "Stake & Deadline", "Review"]
+type LoadingStep = "creating" | "syncing" | "submitting" | "updating" | null
+
+const LOADING_LABELS: Record<NonNullable<LoadingStep>, string> = {
+  creating: "Creating commitment…",
+  syncing: "Syncing to database…",
+  submitting: "Submitting proof…",
+  updating: "Finalising…",
+}
+
+const STEPS = ["Details", "Repository", "Stake & Proof", "Review"]
 
 function CreateQuestPage() {
   const navigate = useNavigate()
   const { program, publicKey, connected } = useShipstakeProgram()
   const { data: github } = useGithubStatus()
   const createQuest = useCreateQuestReal()
+  const submitProof = useSubmitProofReal()
 
   const [step, setStep] = useState(0)
+  const [loadingStep, setLoadingStep] = useState<LoadingStep>(null)
   const [form, setForm] = useState<FormData>({
     title: "",
     description: "",
     repo: null,
     stakeSol: "0.1",
     deadlineDays: "14",
+    proofUrl: "",
   })
 
   function setField<K extends keyof FormData>(key: K, value: FormData[K]) {
     setForm((f) => ({ ...f, [key]: value }))
+  }
+
+  function isValidUrl(url: string): boolean {
+    try { new URL(url); return true } catch { return false }
   }
 
   function canAdvance(): boolean {
@@ -55,7 +73,7 @@ function CreateQuestPage() {
     if (step === 2) {
       const sol = parseFloat(form.stakeSol)
       const days = parseInt(form.deadlineDays)
-      return sol >= 0.1 && days >= 1 && days <= 365
+      return sol >= 0.1 && days >= 1 && days <= 365 && isValidUrl(form.proofUrl)
     }
     return true
   }
@@ -68,6 +86,7 @@ function CreateQuestPage() {
 
     const sol = parseFloat(form.stakeSol)
     const days = parseInt(form.deadlineDays)
+    const [repoOwner] = form.repo!.full_name.split("/")
 
     // Resolve slash destination from protocol config, fallback to builder wallet
     let slashDestination = publicKey.toBase58()
@@ -83,11 +102,12 @@ function CreateQuestPage() {
       // fallback already set
     }
 
-    toast.loading("Sending transaction…", { id: "create-quest" })
+    // ── Step 1: create_quest tx ──────────────────────────────────────────────
+    setLoadingStep("creating")
+    toast.loading(LOADING_LABELS.creating, { id: "create-quest" })
 
+    let questPda: string
     try {
-      const [repoOwner] = form.repo!.full_name.split("/")
-
       const result = await createQuest.mutateAsync({
         title: form.title.trim(),
         description: form.description.trim(),
@@ -97,15 +117,18 @@ function CreateQuestPage() {
         repoOwner,
         repoName: form.repo!.name,
       })
+      questPda = result.questPda
 
-      toast.loading("Syncing to database…", { id: "create-quest" })
+      // ── Step 2: sync quest to Supabase ──────────────────────────────────────
+      setLoadingStep("syncing")
+      toast.loading(LOADING_LABELS.syncing, { id: "create-quest" })
 
       const deadline = Math.floor(Date.now() / 1000) + days * 86400
       await apiFetch("/quests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          pubkey: result.questPda,
+          pubkey: questPda,
           builder: publicKey.toBase58(),
           title: form.title.trim(),
           description: form.description.trim(),
@@ -117,12 +140,41 @@ function CreateQuestPage() {
           builder_github_id: github?.githubId ?? null,
         }),
       })
-
-      toast.success("Quest created!", { id: "create-quest", description: result.questPda })
-      navigate({ to: "/quest/$id", params: { id: result.questPda } })
     } catch (err) {
+      setLoadingStep(null)
       const msg = err instanceof Error ? err.message : "Transaction failed"
       toast.error(msg, { id: "create-quest" })
+      return
+    }
+
+    // ── Step 3: submit_proof tx (best-effort — quest already exists) ─────────
+    setLoadingStep("submitting")
+    toast.loading(LOADING_LABELS.submitting, { id: "create-quest" })
+
+    try {
+      await submitProof.mutateAsync({ questPda, proofUrl: form.proofUrl })
+
+      setLoadingStep("updating")
+      toast.loading(LOADING_LABELS.updating, { id: "create-quest" })
+
+      await apiFetch(`/quests/${questPda}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: 1, proof_url: form.proofUrl }),
+      })
+
+      toast.success("Quest live — proof submitted!", { id: "create-quest" })
+    } catch (err) {
+      // submit_proof failed — quest exists in Open state, user can retry from detail page
+      const msg = err instanceof Error ? err.message : "Proof submission failed"
+      toast.warning(`Quest created, but proof submission failed: ${msg}`, {
+        id: "create-quest",
+        description: "You can submit proof manually from the quest page.",
+        duration: 8000,
+      })
+    } finally {
+      setLoadingStep(null)
+      navigate({ to: "/quest/$id", params: { id: questPda } })
     }
   }
 
@@ -232,9 +284,9 @@ function CreateQuestPage() {
           {step === 2 && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-lg font-semibold mb-1">Stake &amp; Deadline</h2>
+                <h2 className="text-lg font-semibold mb-1">Stake &amp; Proof</h2>
                 <p className="text-sm text-muted-foreground">
-                  Set how much SOL you&apos;re putting on the line and how long you have.
+                  Set your stake, deadline, and the URL that proves you shipped.
                 </p>
               </div>
               <div className="space-y-1.5">
@@ -272,6 +324,18 @@ function CreateQuestPage() {
                     : "1–365 days"}
                 </p>
               </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium">Proof URL</label>
+                <Input
+                  type="url"
+                  value={form.proofUrl}
+                  onChange={(e) => setField("proofUrl", e.target.value)}
+                  placeholder="https://github.com/you/repo/pull/42"
+                />
+                <p className="text-xs text-muted-foreground">
+                  PR, commit, deployment, or live URL — submitted on-chain alongside your stake.
+                </p>
+              </div>
             </div>
           )}
 
@@ -302,6 +366,7 @@ function CreateQuestPage() {
                     year: "numeric",
                   })}`}
                 />
+                <ReviewRow label="Proof URL" value={form.proofUrl} mono />
               </div>
               {!connected && (
                 <p className="text-xs text-destructive">Connect your wallet to submit.</p>
@@ -336,16 +401,16 @@ function CreateQuestPage() {
               <Button
                 size="sm"
                 onClick={handleSubmit}
-                disabled={createQuest.isPending || !connected}
+                disabled={loadingStep !== null || !connected}
                 className="gap-1.5"
               >
-                {createQuest.isPending ? (
+                {loadingStep ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Sending…
+                    {LOADING_LABELS[loadingStep]}
                   </>
                 ) : (
-                  "Create Quest"
+                  "Stake & Start"
                 )}
               </Button>
             )}
