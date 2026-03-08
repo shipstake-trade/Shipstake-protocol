@@ -2,8 +2,10 @@
 
 import { cn } from "@/lib/utils";
 import { Link } from "@tanstack/react-router";
+import { usePrivy } from "@privy-io/react-auth";
 
 export function Hero() {
+  const { authenticated } = usePrivy();
   return (
     <section
       id="hero"
@@ -59,7 +61,7 @@ export function Hero() {
         </p>
 
         <Link
-          to="/quest/create"
+          to={authenticated ? "/quest/create" : "/gate"}
           className={cn("mt-10 inline-flex items-center font-mono font-bold")}
           style={{
             background: "var(--accent-primary)",
