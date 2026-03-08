@@ -27,7 +27,7 @@ export function useClaimStakeReal() {
         questKey,
       )
 
-      const signature = await txBuilder.rpc()
+      const signature = await txBuilder.rpc({ skipPreflight: true })
       return { signature }
     },
     onError: (error) => {

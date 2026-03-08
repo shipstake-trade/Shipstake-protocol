@@ -53,7 +53,7 @@ export function useCreateQuestReal() {
         repoName: input.repoName,
       })
 
-      const signature = await txBuilder.rpc()
+      const signature = await txBuilder.rpc({ skipPreflight: true })
       const questPda = getQuestPdaByNonce(publicKey, nonce)
 
       return { signature, questPda: questPda.toBase58() }
