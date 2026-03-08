@@ -71,7 +71,9 @@ function QuestDetailPage() {
     queryFn: async () => {
       const res = await fetch(`${API_URL}/quests/${id}`)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      return res.json()
+      // Backend returns { quest: {...} } for single-item GET
+      const data = await res.json()
+      return (data.quest ?? data) as ApiQuest
     },
     refetchInterval: (q) => {
       const s = q.state.data ? parseStatus(q.state.data.status) : null
@@ -162,7 +164,7 @@ function QuestDetailPage() {
                 <div className="flex items-center gap-3">
                   <div className="w-2 h-2 rounded-full bg-primary" />
                   <div>
-                    <p className="text-sm text-foreground">Quest created · stake locked</p>
+                    <p className="text-sm text-foreground">Commitment created · stake locked</p>
                     <p className="text-xs text-muted-foreground">
                       {stakeSol.toFixed(3)} SOL locked
                       {quest.tx_signature && (

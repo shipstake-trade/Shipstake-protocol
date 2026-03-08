@@ -94,7 +94,7 @@ function BuilderProfilePage() {
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">No on-chain profile found for this address.</p>
+                <p className="text-sm text-muted-foreground">No on-chain profile found for this address yet.</p>
               )}
             </div>
           )}
@@ -102,7 +102,7 @@ function BuilderProfilePage() {
 
         {/* Quest history */}
         <div>
-          <h2 className="text-lg font-display font-bold text-foreground mb-4">Quest history</h2>
+          <h2 className="text-lg font-display font-bold text-foreground mb-4">Commitment history</h2>
           <div className="flex gap-1 mb-4">
             {tabs.map((tab) => (
               <button
@@ -151,7 +151,7 @@ function BuilderProfilePage() {
                 </tbody>
               </table>
               {filteredQuests.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground text-sm">No quests found.</div>
+                <div className="text-center py-8 text-muted-foreground text-sm">No commitments found.</div>
               )}
             </div>
           )}

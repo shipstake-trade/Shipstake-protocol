@@ -11,6 +11,7 @@ import { PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js'
 import { useLinkAccount } from '@privy-io/react-auth'
 import type { Category } from '@/lib/solana/idl'
 import { cn } from '@/lib/utils'
+import { apiFetch } from '@/lib/api'
 import { toast } from 'sonner'
 
 export const Route = createLazyFileRoute('/quest/create')({
@@ -21,7 +22,7 @@ const CATEGORIES: Category[] = ['DeFi', 'NFT', 'Gaming', 'Infrastructure', 'Tool
 
 function CreateQuestPage() {
   const navigate = useNavigate()
-  const { ready, authenticated, connected, login } = usePrivyWallet()
+  const { ready, authenticated, connected, login, publicKey } = usePrivyWallet()
   const { linkWallet } = useLinkAccount()
   const { createQuest, isPending } = useCreateQuest()
 
@@ -75,7 +76,30 @@ function CreateQuestPage() {
     })
 
     if (result) {
-      toast.success('Quest created on-chain.', { description: `Signature: ${result.signature.slice(0, 16)}...` })
+      // Sync to Supabase via Fastify — field names are camelCase as backend expects
+      try {
+        const now = Math.floor(Date.now() / 1000)
+        await apiFetch('/quests', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            txSignature: result.signature,
+            questPda: result.questPda,
+            builder: publicKey?.toBase58() ?? '',
+            title,
+            repoOwner,
+            repoName,
+            stakeAmount: Math.floor(stakeSol * LAMPORTS_PER_SOL),
+            deadline: now + deadlineDays * 86400,
+            builderGithubId: null,
+          }),
+        })
+      } catch (err) {
+        // API sync failure is non-fatal — quest exists on-chain, oracle will pick it up
+        console.warn('[create] Supabase sync failed:', err)
+      }
+
+      toast.success('Commitment created on-chain.', { description: `Signature: ${result.signature.slice(0, 16)}...` })
       navigate({ to: '/quest/$id', params: { id: result.questPda } })
     }
   }

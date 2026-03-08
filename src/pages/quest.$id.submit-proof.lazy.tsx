@@ -5,6 +5,7 @@ import { Footer } from '@/components/sections/footer'
 import { Button } from '@/components/ui/button'
 import { useSubmitProof, usePrivyWallet } from '@/lib/solana/shipstake'
 import { useLinkAccount } from '@privy-io/react-auth'
+import { apiFetch } from '@/lib/api'
 import { toast } from 'sonner'
 
 export const Route = createLazyFileRoute('/quest/$id/submit-proof')({
@@ -34,7 +35,17 @@ function SubmitProofPage() {
     const result = await submitProof({ questPda: id, proofUrl: '' })
 
     if (result) {
-      toast.success('Quest marked in-progress.', { description: 'The oracle will validate your delivery automatically.' })
+      // Sync status to Supabase — backend requires txSignature for verification
+      try {
+        await apiFetch(`/quests/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ txSignature: result.signature, status: 1 }),
+        })
+      } catch (err) {
+        console.warn('[submit-proof] Supabase PATCH failed:', err)
+      }
+      toast.success('Commitment marked in-progress.', { description: 'The oracle will validate your delivery automatically.' })
       navigate({ to: '/quest/$id', params: { id } })
     }
   }
@@ -48,8 +59,8 @@ function SubmitProofPage() {
 
         <div className="glass-card rounded-lg p-6 space-y-6">
           <div className="p-3 rounded-md bg-primary/10 border border-primary/20 text-xs text-primary space-y-1">
-            <p className="font-medium">How the oracle validates your quest</p>
-            <p className="text-primary/80">It checks the GitHub repo you linked at quest creation for commits pushed before the deadline, authored by your connected GitHub account.</p>
+            <p className="font-medium">How the oracle validates your commitment</p>
+            <p className="text-primary/80">It checks the GitHub repo you linked at creation for commits pushed before the deadline, authored by your connected GitHub account.</p>
           </div>
 
           <div className="p-3 rounded-md bg-amber-500/10 border border-amber-500/20 text-xs text-amber-400">

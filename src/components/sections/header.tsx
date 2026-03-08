@@ -58,7 +58,8 @@ function WalletMenu({ address, onLogout }: { address: string; onLogout: () => vo
 
   useEffect(() => {
     if (!address) return;
-    const conn = new Connection("https://api.devnet.solana.com", "confirmed");
+    const rpcUrl = import.meta.env.VITE_SOLANA_RPC_URL || "https://api.mainnet-beta.solana.com";
+    const conn = new Connection(rpcUrl, "confirmed");
     conn
       .getBalance(new PublicKey(address))
       .then((lamports) => setBalance(lamports / LAMPORTS_PER_SOL))
@@ -98,7 +99,7 @@ function WalletMenu({ address, onLogout }: { address: string; onLogout: () => vo
         <DropdownMenuItem
           onClick={() =>
             window.open(
-              `https://solscan.io/account/${address}?cluster=devnet`,
+              `https://solscan.io/account/${address}`,
               "_blank",
               "noopener,noreferrer"
             )

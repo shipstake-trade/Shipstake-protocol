@@ -65,7 +65,7 @@ function ExplorePage() {
           </div>
           {connected && (
             <Link to="/quest/create">
-              <Button className="text-primary-foreground">Create a Quest</Button>
+              <Button className="text-primary-foreground">Stake a Build</Button>
             </Link>
           )}
         </div>
@@ -112,7 +112,7 @@ function ExplorePage() {
             <h3 className="text-lg font-display font-bold text-foreground mb-2">No commitments yet.</h3>
             <p className="text-muted-foreground mb-4">Be the first builder to put SOL on the line.</p>
             <Link to="/quest/create">
-              <Button variant="default" className="text-primary-foreground">Create a Quest</Button>
+              <Button variant="default" className="text-primary-foreground">Stake a Build</Button>
             </Link>
           </div>
         ) : (

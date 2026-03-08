@@ -66,8 +66,8 @@ function PortfolioPage() {
       <>
         <Header />
         <main className="container mx-auto max-w-[var(--container-max-width)] px-4 py-16 text-center">
-          <h1 className="text-3xl font-display font-bold text-foreground mb-3">My Quests</h1>
-          <p className="text-muted-foreground mb-6">Connect your Solana wallet to view your quests.</p>
+          <h1 className="text-3xl font-display font-bold text-foreground mb-3">My Commitments</h1>
+          <p className="text-muted-foreground mb-6">Connect your Solana wallet to view your commitments.</p>
           <Button onClick={() => linkWallet()} className="text-primary-foreground">Connect Wallet</Button>
         </main>
         <Footer />
@@ -95,7 +95,7 @@ function PortfolioPage() {
             <ProofScoreRing score={rate} size="lg" />
             <div className="flex-1 text-center sm:text-left">
               <p className="text-xs font-mono text-primary uppercase tracking-widest mb-1">Ship Rate</p>
-              <h1 className="text-2xl font-display font-bold text-foreground">My Quests</h1>
+              <h1 className="text-2xl font-display font-bold text-foreground">My Commitments</h1>
               <p className="text-sm text-muted-foreground mt-1">Your on-chain reputation. Permanent.</p>
 
               {profileLoading ? (
@@ -117,13 +117,13 @@ function PortfolioPage() {
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground mt-4">
-                  No on-chain profile yet — create your first quest to start building your PROOF score.
+                  No on-chain profile yet — stake your first build to start earning your PROOF score.
                 </p>
               )}
             </div>
             <div className="flex flex-col gap-3 shrink-0 items-stretch">
               <Link to="/quest/create">
-                <Button className="text-primary-foreground w-full">Create a Quest</Button>
+                <Button className="text-primary-foreground w-full">Stake a Build</Button>
               </Link>
               <div className="border-t border-border/30 pt-3">
                 <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-2 font-mono">GitHub</p>
@@ -193,10 +193,10 @@ function PortfolioPage() {
             {filteredQuests.length === 0 && (
               <div className="text-center py-12">
                 <p className="text-muted-foreground mb-4">
-                  {tab === 'active' ? 'No active quests. Go build something.' : tab === 'completed' ? 'No completed quests yet.' : 'No quests found.'}
+                  {tab === 'active' ? 'No active commitments. Go build something.' : tab === 'completed' ? 'No completed commitments yet.' : 'No commitments found.'}
                 </p>
                 <Link to="/quest/create">
-                  <Button className="text-primary-foreground">Create a Quest</Button>
+                  <Button className="text-primary-foreground">Stake a Build</Button>
                 </Link>
               </div>
             )}
