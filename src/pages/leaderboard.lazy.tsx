@@ -18,7 +18,19 @@ function LeaderboardPage() {
       <main className="container mx-auto max-w-[var(--container-max-width)] px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-display font-bold text-foreground">Leaderboard</h1>
+            <div className="flex items-center gap-3 flex-wrap">
+              <h1 className="text-3xl font-display font-bold text-foreground">Leaderboard</h1>
+              <span
+                className="inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium"
+                style={{
+                  borderColor: 'var(--warm-dim)',
+                  background: 'var(--warm-dim)',
+                  color: 'var(--warm)',
+                }}
+              >
+                Demo data
+              </span>
+            </div>
             <p className="text-muted-foreground text-sm mt-1">Top builders by PROOF Score.</p>
           </div>
           <p className="text-xs text-muted-foreground font-mono">

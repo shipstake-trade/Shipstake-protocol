@@ -52,8 +52,8 @@ function CreateQuestPage() {
   }
 
   useEffect(() => {
-    if (ready && !authenticated) login()
-  }, [ready, authenticated])
+    if (ready && !authenticated) navigate({ to: '/gate' })
+  }, [ready, authenticated, navigate])
 
   if (!ready) return null
 

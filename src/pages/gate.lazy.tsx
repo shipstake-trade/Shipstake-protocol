@@ -1,64 +1,69 @@
 import { createLazyFileRoute, useNavigate } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
-import FlickeringGrid from '@/components/ui/flickering-grid'
+import { useState, useEffect } from 'react'
+import { Header } from '@/components/sections/header'
+import { NumberTicker } from '@/components/ui/number-ticker'
+import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Icons } from '@/components/icons'
 import { usePrivyWallet } from '@/lib/solana/shipstake'
 import { API_URL } from '@/lib/api'
+import { ExternalLink, ArrowRight, CheckCircle2 } from 'lucide-react'
 
 export const Route = createLazyFileRoute('/gate')({
   component: GatePage,
 })
 
-const TEASER_CARDS = [
-  {
-    icon: '🏦',
-    title: 'Better loan terms for builders who ship',
-    sub: 'Lending protocols read your PROOF Score. Consistent shippers get better rates. No pitch deck.',
-  },
-  {
-    icon: '🏛️',
-    title: 'Your commit history is your grant application',
-    sub: 'Foundations gate on PROOF Score. Qualify or don\u2019t. No 10-page forms.',
-  },
-  {
-    icon: '✅',
-    title: 'One score. Every protocol. Forever.',
-    sub: 'DAOs, launchpads, job boards. Ship once, prove it everywhere.',
-  },
+const PROGRAM_ID = 'H2NZtj6ncpknevBc6PUb3Qqd5UdeFXDyBrqWGEeqdaLv'
+const INIT_TX = '3vK8oDvD3Q7ZMwgLidUPzkjfWM1TBszd55nX2r76Kv3DiN4tuYBFxNqgGrz9wgsV53uJo54kS661Co8YJ8Mxe8EY'
+
+function truncateMid(s: string, head = 6, tail = 4) {
+  return `${s.slice(0, head)}…${s.slice(-tail)}`
+}
+
+const HOW_IT_WORKS = [
+  { n: '01', title: 'Lock SOL', desc: 'Set a deadline, stake SOL as collateral on your commitment.' },
+  { n: '02', title: 'Build', desc: 'Ship the feature, write the code — on your schedule.' },
+  { n: '03', title: 'Oracle verifies', desc: 'Ed25519 signature proves delivery on-chain in under 60 seconds.' },
+  { n: '04', title: 'Collect or get slashed', desc: 'Deliver: get your stake back. Miss the deadline: stake is slashed.' },
 ]
 
 function GatePage() {
-  const { ready, connected } = usePrivyWallet()
   const navigate = useNavigate()
+  const { ready, authenticated } = usePrivyWallet()
   const { blocked } = Route.useSearch()
   const isGeoBlocked = blocked === 'geo'
 
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
-  const [buildersCount, setBuildersCount] = useState<number | null>(null)
+  const [waitlistCount, setWaitlistCount] = useState<number | null>(null)
 
+  // Authenticated users skip the gate
+  useEffect(() => {
+    if (ready && authenticated && !isGeoBlocked) {
+      navigate({ to: '/quest/create' })
+    }
+  }, [ready, authenticated, isGeoBlocked, navigate])
+
+  // Fetch waitlist count
   useEffect(() => {
     fetch(`${API_URL}/waitlist/count`)
-      .then((r) => r.json())
-      .then((d) => setBuildersCount(d.count))
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (d?.count != null) setWaitlistCount(d.count) })
       .catch(() => {})
   }, [])
 
-  useEffect(() => {
-    if (ready && connected && !isGeoBlocked) {
-      navigate({ to: '/explore' })
-    }
-  }, [ready, connected, isGeoBlocked, navigate])
-
   if (!ready) return null
 
-  const handleNotify = async () => {
-    if (!email.trim() || loading) return
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!email.trim() || submitting) return
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('Enter a valid email address.')
+      return
+    }
     setError('')
-    setLoading(true)
+    setSubmitting(true)
     try {
       const res = await fetch(`${API_URL}/waitlist`, {
         method: 'POST',
@@ -66,32 +71,31 @@ function GatePage() {
         body: JSON.stringify({ email: email.trim() }),
       })
       if (!res.ok) {
-        setError('Something went wrong. Please try again.')
-      } else {
-        setSubmitted(true)
+        const body = await res.json().catch(() => ({}))
+        throw new Error(body?.message ?? `Error ${res.status}`)
       }
-    } catch {
-      setError('Something went wrong. Please try again.')
+      setSubmitted(true)
+      setWaitlistCount((c) => (c != null ? c + 1 : 1))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong — try again.')
     } finally {
-      setLoading(false)
+      setSubmitting(false)
     }
   }
 
+  // Geo-blocked view
   if (isGeoBlocked) {
     return (
-      <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <FlickeringGrid
-          squareSize={4}
-          gridGap={4}
-          color="#00C896"
-          maxOpacity={0.12}
-          flickerChance={0.1}
-          className="absolute inset-0 size-full -z-10"
-        />
-        <div className="relative z-10 flex flex-col items-center text-center px-6 max-w-md">
-          <img src="/brand/shipstake-mark.svg" alt="SHIPSTAKE" className="h-12 w-12 mb-6" />
-          <h1 className="text-3xl font-display font-bold text-foreground mb-3">Region restricted</h1>
-          <p className="text-muted-foreground text-sm leading-relaxed">
+      <div
+        className="relative min-h-screen flex items-center justify-center"
+        style={{ background: 'var(--bg-primary)' }}
+      >
+        <div className="flex flex-col items-center text-center px-6 max-w-md gap-4">
+          <img src="/brand/shipstake-mark.svg" alt="SHIPSTAKE" className="h-12 w-12" />
+          <h1 className="font-mono text-2xl font-bold" style={{ color: 'var(--foreground)' }}>
+            Region restricted
+          </h1>
+          <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
             SHIPSTAKE is not available in your jurisdiction.
           </p>
         </div>
@@ -100,109 +104,245 @@ function GatePage() {
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden py-16">
-      <FlickeringGrid
-        squareSize={4}
-        gridGap={4}
-        color="#00C896"
-        maxOpacity={0.12}
-        flickerChance={0.1}
-        className="absolute inset-0 size-full -z-10"
-      />
+    <div style={{ background: 'var(--bg-primary)', minHeight: '100vh' }}>
+      <Header />
 
-      <div className="relative z-10 flex flex-col items-center text-center px-6 w-full max-w-xl">
-        <img src="/brand/shipstake-mark.svg" alt="SHIPSTAKE" className="h-12 w-12 mb-6" />
+      {/* ── SECTION 1: Hero ─────────────────────────────────────────── */}
+      <section className="mx-auto max-w-[var(--container-max-width)] px-4 pt-20 pb-16 text-center">
+        {/* Mainnet Live badge */}
+        <div className="inline-flex items-center gap-2 mb-8">
+          <span className="relative flex h-2.5 w-2.5" aria-hidden="true">
+            <span
+              className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+              style={{ background: 'var(--accent-primary)' }}
+            />
+            <span
+              className="relative inline-flex rounded-full h-2.5 w-2.5"
+              style={{ background: 'var(--accent-primary)' }}
+            />
+          </span>
+          <span
+            className="font-mono text-xs font-semibold tracking-widest uppercase"
+            style={{ color: 'var(--accent-primary)' }}
+          >
+            Mainnet Live
+          </span>
+        </div>
 
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-mono border border-emerald-500/30 text-emerald-400 mb-6">
-          Accountability Protocol · Solana
-        </span>
-
-        <h1 className="font-mono text-4xl sm:text-5xl font-bold text-foreground mb-4 tracking-tight leading-tight">
-          The accountability layer Solana was missing.
+        <h1
+          className="font-mono font-bold leading-[1.1] tracking-tight"
+          style={{
+            fontSize: 'clamp(2rem, 5vw, 3.25rem)',
+            color: 'var(--foreground)',
+            maxWidth: '760px',
+            margin: '0 auto',
+          }}
+        >
+          The accountability layer
+          <br />
+          Solana was missing.
         </h1>
 
-        <p className="text-muted-foreground mb-8 text-sm leading-relaxed max-w-sm">
-          Stake SOL. Ship code. Build the reputation that unlocks the ecosystem.
+        <p
+          className="font-sans mt-5"
+          style={{
+            fontSize: 'clamp(0.9375rem, 1.8vw, 1.0625rem)',
+            color: 'var(--muted-foreground)',
+            maxWidth: '480px',
+            margin: '1.25rem auto 0',
+            lineHeight: 1.6,
+          }}
+        >
+          SHIPSTAKE is live on Solana mainnet. Private beta &mdash; request access below.
         </p>
+      </section>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mb-10">
-          {TEASER_CARDS.map((card) => (
+      {/* ── SECTION 2: On-chain proof ──────────────────────────────── */}
+      <section className="mx-auto max-w-[var(--container-max-width)] px-4 pb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          {[
+            { label: 'Quests Resolved', value: 1, suffix: '', decimals: 0 },
+            { label: 'SOL Settled', value: 0.1, suffix: ' SOL', decimals: 1 },
+            { label: 'Fee Accuracy', value: 100, suffix: '%', decimals: 0 },
+          ].map(({ label, value, suffix, decimals }) => (
             <div
-              key={card.title}
-              className="proto-card border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-4 text-left transition-colors duration-150 hover:bg-[var(--bg-tertiary)]"
-              style={{ borderRadius: "6px" }}
+              key={label}
+              className="flex flex-col gap-2 p-5"
+              style={{
+                border: '1px solid var(--border-subtle)',
+                borderRadius: '5px',
+                background: 'var(--bg-secondary)',
+              }}
             >
-              <span className="text-2xl mb-2 block">{card.icon}</span>
-              <p className="text-xs font-medium text-foreground mb-1 leading-snug">{card.title}</p>
-              <p className="text-[10px] text-muted-foreground leading-relaxed">{card.sub}</p>
+              <span
+                className="font-sans text-xs font-medium uppercase tracking-widest"
+                style={{ color: 'var(--muted-foreground)' }}
+              >
+                {label}
+              </span>
+              <span
+                className="font-mono font-bold"
+                style={{ fontSize: 'clamp(1.75rem, 3vw, 2.25rem)', color: 'var(--accent-primary)' }}
+              >
+                <NumberTicker value={value} decimalPlaces={decimals} delay={0.2} />
+                {suffix}
+              </span>
             </div>
           ))}
         </div>
 
-        {submitted ? (
-          <div className="text-center">
-            <p className="text-sm font-mono text-primary mb-2">
-              You&apos;re on the list. We&apos;ll reach out before launch.
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Early builders get Founder status and zero fee on their first commitment.
-            </p>
+        <div
+          className="flex flex-col gap-3 p-4"
+          style={{
+            border: '1px solid var(--border-subtle)',
+            borderRadius: '5px',
+            background: 'var(--bg-secondary)',
+          }}
+        >
+          <div className="flex items-center gap-2">
+            <span className="h-1.5 w-1.5 rounded-full" style={{ background: 'var(--accent-primary)' }} />
+            <span
+              className="font-mono text-xs font-semibold tracking-wide"
+              style={{ color: 'var(--accent-primary)' }}
+            >
+              Verified on Solana mainnet
+            </span>
           </div>
-        ) : (
-          <div className="w-full max-w-sm space-y-3">
-            <div className="flex gap-2">
-              <input
+          <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
+            <a
+              href={`https://solscan.io/account/${PROGRAM_ID}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 font-mono text-xs hover:underline"
+              style={{ color: 'var(--teal)' }}
+            >
+              Program: {truncateMid(PROGRAM_ID, 6, 4)}
+              <ExternalLink className="w-3 h-3 shrink-0" />
+            </a>
+            <span className="hidden sm:block" style={{ color: 'var(--border-active)' }}>·</span>
+            <a
+              href={`https://solscan.io/tx/${INIT_TX}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 font-mono text-xs hover:underline"
+              style={{ color: 'var(--teal)' }}
+            >
+              Init tx: {truncateMid(INIT_TX, 6, 4)}
+              <ExternalLink className="w-3 h-3 shrink-0" />
+            </a>
+          </div>
+          <p className="font-sans text-xs" style={{ color: 'var(--muted-foreground)' }}>
+            Oracle resolution &lt; 60s &nbsp;·&nbsp; Flat 2% settlement fee &nbsp;·&nbsp; Ed25519 signature verification
+          </p>
+        </div>
+      </section>
+
+      {/* ── SECTION 3: How it works ───────────────────────────────── */}
+      <section className="mx-auto max-w-[var(--container-max-width)] px-4 pb-16">
+        <h2
+          className="font-mono font-bold text-sm uppercase tracking-widest mb-5"
+          style={{ color: 'var(--muted-foreground)' }}
+        >
+          How it works
+        </h2>
+        <div className="flex flex-col">
+          {HOW_IT_WORKS.map((step, i) => (
+            <div
+              key={step.n}
+              className="flex items-start gap-4 py-4"
+              style={{
+                borderTop: i === 0 ? '1px solid var(--border-subtle)' : undefined,
+                borderBottom: '1px solid var(--border-subtle)',
+              }}
+            >
+              <span
+                className="font-mono font-bold text-xs shrink-0 mt-0.5 w-7"
+                style={{ color: 'var(--accent-primary)' }}
+              >
+                {step.n}
+              </span>
+              <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-3 min-w-0">
+                <span className="font-mono font-semibold text-sm shrink-0" style={{ color: 'var(--foreground)' }}>
+                  {step.title}
+                </span>
+                <ArrowRight className="w-3 h-3 shrink-0 hidden sm:block" style={{ color: 'var(--border-active)' }} />
+                <span className="font-sans text-sm" style={{ color: 'var(--muted-foreground)' }}>
+                  {step.desc}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── SECTION 4: Request Early Access ──────────────────────── */}
+      <section className="mx-auto max-w-[var(--container-max-width)] px-4 pb-24">
+        <div
+          className="p-6 sm:p-8 max-w-lg"
+          style={{
+            border: '1px solid var(--border-active)',
+            borderRadius: '5px',
+            background: 'var(--bg-secondary)',
+          }}
+        >
+          <h2
+            className="font-mono font-bold mb-1"
+            style={{ fontSize: 'clamp(1.125rem, 2.5vw, 1.375rem)', color: 'var(--foreground)' }}
+          >
+            Request Early Access
+          </h2>
+          <p className="font-sans text-sm mb-6" style={{ color: 'var(--muted-foreground)', lineHeight: 1.6 }}>
+            We&rsquo;re onboarding builders one by one. Early access gets priority when we go public.
+          </p>
+
+          {submitted ? (
+            <div className="flex items-center gap-3 py-2">
+              <CheckCircle2 className="w-5 h-5 shrink-0" style={{ color: 'var(--accent-primary)' }} />
+              <div>
+                <p className="font-mono font-semibold text-sm" style={{ color: 'var(--accent-primary)' }}>
+                  You&rsquo;re on the list.
+                </p>
+                <p className="font-sans text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
+                  We&rsquo;ll reach out when your spot opens up.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
+              <Input
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleNotify()}
+                onChange={(e) => { setEmail(e.target.value); setError('') }}
                 placeholder="you@example.com"
-                disabled={loading}
-                className="flex-1 rounded-lg border border-border bg-secondary/50 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
+                required
+                className="flex-1"
+                style={{ borderRadius: '4px' }}
               />
               <Button
-                onClick={handleNotify}
-                size="default"
-                disabled={loading}
-                className="rounded-lg text-primary-foreground font-medium shrink-0"
+                type="submit"
+                disabled={submitting}
+                className="font-mono font-semibold shrink-0"
+                style={{ borderRadius: '4px' }}
               >
-                {loading ? <Icons.spinner className="h-4 w-4 animate-spin" /> : 'Notify me'}
+                {submitting ? 'Sending…' : 'Request Access'}
               </Button>
-            </div>
-            {error && <p className="text-[11px] text-red-400 text-center">{error}</p>}
-            <p className="text-[10px] text-muted-foreground/60 text-center">
-              Early builders get Founder status and zero fee on their first commitment.
+            </form>
+          )}
+
+          {error && (
+            <p className="font-sans text-xs mt-2" style={{ color: 'var(--danger)' }}>{error}</p>
+          )}
+
+          {waitlistCount != null && waitlistCount > 0 && (
+            <p className="font-sans text-xs mt-4" style={{ color: 'var(--muted-foreground)' }}>
+              <span className="font-mono font-semibold" style={{ color: 'var(--foreground)' }}>
+                {waitlistCount}
+              </span>{' '}
+              builder{waitlistCount === 1 ? '' : 's'} waiting
             </p>
-          </div>
-        )}
-
-        <p className="mt-8 text-xs text-muted-foreground font-mono">
-          <span className="text-primary font-bold">{buildersCount ?? '—'}</span> builders waiting
-        </p>
-
-        <p className="mt-6 text-[10px] text-muted-foreground/40 max-w-sm">
-          By joining you confirm you are not in a restricted jurisdiction.
-        </p>
-
-        <a
-          href="https://resend.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-6 inline-flex items-center gap-1.5 text-[10px] text-muted-foreground/30 hover:text-muted-foreground/50 transition-colors"
-        >
-          powered by
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 60 60"
-            className="h-3.5 w-3.5 inline-block"
-            fill="currentColor"
-            aria-label="Resend"
-          >
-            <path d="M34.2 29.6c3.6-1 6.2-4.3 6.2-8.2C40.4 16 36.4 12 31 12H16v36h7V32h5.2L36 48h8.2L34.2 29.6ZM23 26v-8h7.5c2.5 0 4.5 1.8 4.5 4s-2 4-4.5 4H23Z" />
-          </svg>
-          <span className="font-medium tracking-wide">Resend</span>
-        </a>
-      </div>
+          )}
+        </div>
+      </section>
     </div>
   )
 }

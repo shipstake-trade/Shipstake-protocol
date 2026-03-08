@@ -1,5 +1,5 @@
-import { createLazyFileRoute, Link } from '@tanstack/react-router'
-import { useState } from 'react'
+import { createLazyFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { useState, useEffect } from 'react'
 import { Header } from '@/components/sections/header'
 import { Footer } from '@/components/sections/footer'
 import { ProofScoreRing } from '@/components/builder/proof-score-ring'
@@ -31,9 +31,14 @@ function formatCountdown(timestamp: number): string {
 }
 
 function PortfolioPage() {
-  const { ready, authenticated, connected, login } = usePrivyWallet()
+  const navigate = useNavigate()
+  const { ready, authenticated, connected } = usePrivyWallet()
   const { linkWallet } = useLinkAccount()
   const [tab, setTab] = useState<Tab>('all')
+
+  useEffect(() => {
+    if (ready && !authenticated) navigate({ to: '/gate' })
+  }, [ready, authenticated, navigate])
   const profile = mockBuilderProfile
 
   const filteredQuests = mockQuests.filter((q) => {
@@ -44,14 +49,15 @@ function PortfolioPage() {
 
   if (!ready) return null
 
+  // Edge case: authenticated but wallet not yet linked
   if (!connected) {
     return (
       <>
         <Header />
         <main className="container mx-auto max-w-[var(--container-max-width)] px-4 py-16 text-center">
           <h1 className="text-3xl font-display font-bold text-foreground mb-3">My Quests</h1>
-          <p className="text-muted-foreground mb-6">Connect your wallet to view your quests and PROOF Score.</p>
-          <Button onClick={() => (authenticated ? linkWallet() : login())} className="text-primary-foreground">
+          <p className="text-muted-foreground mb-6">Connect your Solana wallet to view your quests.</p>
+          <Button onClick={() => linkWallet()} className="text-primary-foreground">
             Connect Wallet
           </Button>
         </main>

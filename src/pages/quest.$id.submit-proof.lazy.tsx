@@ -1,5 +1,5 @@
 import { createLazyFileRoute, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Header } from '@/components/sections/header'
 import { Footer } from '@/components/sections/footer'
 import { Button } from '@/components/ui/button'
@@ -35,11 +35,15 @@ function SubmitProofPage() {
     try { new URL(url); return true } catch { return false }
   }
 
+  useEffect(() => {
+    if (ready && !authenticated) navigate({ to: '/gate' })
+  }, [ready, authenticated, navigate])
+
   if (!ready) return null
 
   const handleSubmit = async () => {
     if (!connected) {
-      authenticated ? linkWallet() : login()
+      linkWallet()
       return
     }
 
