@@ -9,7 +9,7 @@ import { useCreateQuest, usePrivyWallet } from '@/lib/solana/shipstake'
 import { BN } from '@coral-xyz/anchor'
 import { PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js'
 import { useLinkAccount } from '@privy-io/react-auth'
-import type { Category, ProofType } from '@/lib/solana/idl'
+import type { Category } from '@/lib/solana/idl'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
@@ -18,10 +18,6 @@ export const Route = createLazyFileRoute('/quest/create')({
 })
 
 const CATEGORIES: Category[] = ['DeFi', 'NFT', 'Gaming', 'Infrastructure', 'Tools', 'DAO', 'Other']
-const PROOF_TYPES: { value: ProofType; label: string; description: string }[] = [
-  { value: 'GithubCommit', label: 'GitHub Commit', description: 'Link to a specific commit on GitHub' },
-  { value: 'VercelDeployment', label: 'Vercel Deploy', description: 'Production deployment URL' },
-]
 
 function CreateQuestPage() {
   const navigate = useNavigate()
@@ -33,20 +29,18 @@ function CreateQuestPage() {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [category, setCategory] = useState<Category>('DeFi')
-  const [proofType, setProofType] = useState<ProofType>('GithubCommit')
   const [selectedRepo, setSelectedRepo] = useState<GitHubRepo | null>(null)
   const [stakeSol, setStakeSol] = useState(1)
   const [deadlineDays, setDeadlineDays] = useState(14)
 
-  const steps = ['Details', 'Proof', 'Repository', 'Stake', 'Confirm']
+  const steps = ['Details', 'Repository', 'Stake & Deadline', 'Confirm']
 
   const canProceed = () => {
     switch (step) {
       case 0: return title.trim().length >= 3 && description.trim().length >= 10
-      case 1: return true
-      case 2: return true
-      case 3: return stakeSol >= 0.1 && deadlineDays >= 1
-      case 4: return connected
+      case 1: return selectedRepo !== null
+      case 2: return stakeSol >= 0.1 && deadlineDays >= 1
+      case 3: return connected
       default: return false
     }
   }
@@ -131,30 +125,15 @@ function CreateQuestPage() {
 
           {step === 1 && (
             <div className="space-y-4">
-              <h2 className="text-lg font-display font-bold">Proof type</h2>
-              <p className="text-sm text-muted-foreground">How will you prove delivery?</p>
-              <div className="space-y-3">
-                {PROOF_TYPES.map((pt) => (
-                  <button key={pt.value} onClick={() => setProofType(pt.value)} className={cn('w-full glass-card rounded-lg p-4 text-left transition-all', proofType === pt.value ? 'border-[var(--border-active)] glow-emerald' : 'hover:border-[var(--border-active)]')}>
-                    <h3 className="text-sm font-display font-bold text-foreground">{pt.label}</h3>
-                    <p className="text-xs text-muted-foreground mt-0.5">{pt.description}</p>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {step === 2 && (
-            <div className="space-y-4">
               <div>
                 <h2 className="text-lg font-display font-bold">Select Repository</h2>
-                <p className="text-sm text-muted-foreground mt-1">Link a GitHub repository to this quest. Optional — you can skip this step.</p>
+                <p className="text-sm text-muted-foreground mt-1">The GitHub repo you'll be shipping in. This is your proof of delivery — the oracle validates commits against it.</p>
               </div>
               <RepoSelector value={selectedRepo} onChange={setSelectedRepo} />
             </div>
           )}
 
-          {step === 3 && (
+          {step === 2 && (
             <div className="space-y-4">
               <h2 className="text-lg font-display font-bold">Stake and deadline</h2>
               <div>
@@ -179,7 +158,7 @@ function CreateQuestPage() {
               </div>
               <p className="text-xs text-muted-foreground/60">Fee is only charged on SHIPPED. Lose your stake pays no fee.</p>
               <hr className="border-border/30" />
-              <p className="text-xs text-amber-400">If you miss the deadline or score below 70, this SOL is gone. No exceptions.</p>
+              <p className="text-xs text-amber-400">If you miss the deadline, this SOL is gone. No exceptions.</p>
               <div className="p-3 rounded-md bg-secondary/50 border border-border/50 text-xs space-y-2">
                 <p className="text-muted-foreground font-medium">If you SHIP:</p>
                 <div className="flex justify-between text-muted-foreground">
@@ -204,14 +183,13 @@ function CreateQuestPage() {
             </div>
           )}
 
-          {step === 4 && (
+          {step === 3 && (
             <div className="space-y-4">
               <h2 className="text-lg font-display font-bold">Confirm quest</h2>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between"><span className="text-muted-foreground">Title</span><span className="font-medium">{title}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Mode</span><span className="font-medium">Self-Stake</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Deadline</span><span>{new Date(Date.now() + deadlineDays * 86400000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Proof type</span><span className="font-mono text-xs">{proofType}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Repository</span><span className="font-mono text-xs text-right truncate max-w-[180px]">{selectedRepo ? selectedRepo.full_name : '—'}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Stake</span><span className="font-mono font-bold text-primary">{stakeSol.toFixed(3)} SOL</span></div>
                 <hr className="border-border/30" />
@@ -236,11 +214,11 @@ function CreateQuestPage() {
             ) : (
               <div />
             )}
-            {step < 4 ? (
+            {step < 3 ? (
               <Button size="sm" disabled={!canProceed()} onClick={() => setStep(step + 1)} className="text-primary-foreground">Next</Button>
             ) : (
               <Button size="sm" disabled={isPending || !connected} onClick={handleSubmit} className="text-primary-foreground">
-                {isPending ? 'Creating...' : connected ? 'Lock it in' : 'Connect Wallet'}
+                {isPending ? 'Creating...' : connected ? 'Stake & Start' : 'Connect Wallet'}
               </Button>
             )}
           </div>

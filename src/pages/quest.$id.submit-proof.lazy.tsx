@@ -1,39 +1,22 @@
 import { createLazyFileRoute, useNavigate } from '@tanstack/react-router'
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { Header } from '@/components/sections/header'
 import { Footer } from '@/components/sections/footer'
 import { Button } from '@/components/ui/button'
 import { useSubmitProof, usePrivyWallet } from '@/lib/solana/shipstake'
 import { useLinkAccount } from '@privy-io/react-auth'
-import { mockQuests } from '@/lib/mock-data'
-import type { ProofType } from '@/lib/solana/idl'
-import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
 export const Route = createLazyFileRoute('/quest/$id/submit-proof')({
   component: SubmitProofPage,
 })
 
-const PROOF_GUIDANCE: Record<string, string> = {
-  GithubCommit: 'https://github.com/user/repo/commit/abc123...',
-  VercelDeployment: 'https://your-project.vercel.app',
-}
-
 function SubmitProofPage() {
   const { id } = Route.useParams()
   const navigate = useNavigate()
-  const { ready, authenticated, connected, login } = usePrivyWallet()
+  const { ready, authenticated, connected } = usePrivyWallet()
   const { linkWallet } = useLinkAccount()
   const { submitProof, isPending } = useSubmitProof()
-
-  const quest = mockQuests.find((q) => q.publicKey === id) ?? mockQuests[0]
-  const proofType = (quest.proofType ?? 'GithubCommit') as ProofType
-
-  const [proofUrl, setProofUrl] = useState('')
-
-  const isValidUrl = (url: string) => {
-    try { new URL(url); return true } catch { return false }
-  }
 
   useEffect(() => {
     if (ready && !authenticated) navigate({ to: '/gate' })
@@ -47,15 +30,11 @@ function SubmitProofPage() {
       return
     }
 
-    if (!isValidUrl(proofUrl)) {
-      toast.error('Please enter a valid URL')
-      return
-    }
-
-    const result = await submitProof({ questPda: id, proofUrl })
+    // Proof is the GitHub repo linked at quest creation — no URL needed
+    const result = await submitProof({ questPda: id, proofUrl: '' })
 
     if (result) {
-      toast.success('Proof submitted.', { description: 'The oracle will validate your delivery automatically.' })
+      toast.success('Quest marked in-progress.', { description: 'The oracle will validate your delivery automatically.' })
       navigate({ to: '/quest/$id', params: { id } })
     }
   }
@@ -64,41 +43,25 @@ function SubmitProofPage() {
     <>
       <Header />
       <main className="container mx-auto max-w-2xl px-4 py-8">
-        <h1 className="text-3xl font-display font-bold text-foreground mb-2">Submit proof</h1>
-        <p className="text-muted-foreground text-sm mb-8">One URL. Before the deadline.</p>
+        <h1 className="text-3xl font-display font-bold text-foreground mb-2">Submit for review</h1>
+        <p className="text-muted-foreground text-sm mb-8">Signal that you've shipped. The oracle validates your GitHub repo automatically.</p>
 
         <div className="glass-card rounded-lg p-6 space-y-6">
-          <div>
-            <h3 className="text-sm font-medium text-foreground mb-1">Proof type</h3>
-            <p className="text-xs font-mono text-primary">{proofType}</p>
+          <div className="p-3 rounded-md bg-primary/10 border border-primary/20 text-xs text-primary space-y-1">
+            <p className="font-medium">How the oracle validates your quest</p>
+            <p className="text-primary/80">It checks the GitHub repo you linked at quest creation for commits pushed before the deadline, authored by your connected GitHub account.</p>
           </div>
 
-          <div>
-            <label className="text-sm text-muted-foreground block mb-1.5">Proof URL — paste it here</label>
-            <input
-              type="url"
-              value={proofUrl}
-              onChange={(e) => setProofUrl(e.target.value)}
-              placeholder={PROOF_GUIDANCE[proofType]}
-              className="w-full bg-secondary/50 border border-border rounded-md px-3 py-2 text-sm font-mono text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-            <p className="text-xs text-muted-foreground mt-1.5">Publicly accessible. The oracle fetches and validates it automatically.</p>
+          <div className="p-3 rounded-md bg-amber-500/10 border border-amber-500/20 text-xs text-amber-400">
+            Only submit once your work is committed and pushed. The oracle's decision is final.
           </div>
-
-          {proofUrl && !isValidUrl(proofUrl) && <p className="text-xs text-danger">Please enter a valid URL.</p>}
-
-          {proofUrl && isValidUrl(proofUrl) && (
-            <div className="p-3 rounded-md bg-primary/10 border border-primary/20 text-xs text-primary">
-              URL looks valid. After submission, the oracle will compute your PROOF Score. Score ≥ 70 = SHIPPED, score &lt; 70 = SLASHED.
-            </div>
-          )}
 
           <Button
             onClick={handleSubmit}
-            disabled={isPending || !proofUrl || !isValidUrl(proofUrl)}
+            disabled={isPending}
             className="w-full text-primary-foreground"
           >
-            {isPending ? 'Submitting...' : connected ? 'Submit proof' : 'Connect Wallet'}
+            {isPending ? 'Submitting...' : connected ? 'Submit for oracle review' : 'Connect Wallet'}
           </Button>
         </div>
       </main>
