@@ -37,10 +37,11 @@ export const siteConfig = {
   },
   navLinks: [
     { label: "How It Works", href: "/#how-it-works" },
-    { label: "Create", href: "/quest/create" },
+    { label: "Create", href: "/quest/create", authRequired: true },
     { label: "Leaderboard", href: "/leaderboard" },
     { label: "Docs", href: "/docs" },
-  ] as { label: string; href: string; external?: boolean }[],
+    { label: "Portfolio", href: "/portfolio", authRequired: true },
+  ] as { label: string; href: string; external?: boolean; authRequired?: boolean }[],
   hero: {
     badge: "Proof-of-Delivery Protocol · Solana",
     title: "Put your money where your roadmap is.",

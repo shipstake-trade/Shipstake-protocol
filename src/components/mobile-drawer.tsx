@@ -23,10 +23,13 @@ function truncate(address: string) {
 }
 
 export function MobileDrawer() {
-  const { ready, authenticated, logout } = usePrivy();
+  const { ready, authenticated, login, logout } = usePrivy();
   const { wallets } = useWallets();
   const walletAddress = wallets[0]?.address ?? "";
   const isConnected = ready && authenticated && !!walletAddress;
+  const visibleLinks = siteConfig.navLinks.filter(
+    (link) => !link.authRequired || authenticated
+  );
 
   const copyAddress = () => {
     navigator.clipboard.writeText(walletAddress);
@@ -57,7 +60,7 @@ export function MobileDrawer() {
         </DrawerHeader>
 
         <nav className="flex flex-col gap-y-2 px-6 py-4">
-          {siteConfig.navLinks.map((link) => {
+          {visibleLinks.map((link) => {
             if (link.external || link.href.startsWith("http") || link.href.includes("#")) {
               return (
                 <a key={link.label} href={link.href} target={link.external ? "_blank" : undefined} rel={link.external ? "noopener" : undefined} className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2">
@@ -107,15 +110,15 @@ export function MobileDrawer() {
               </button>
             </>
           ) : (
-            <Link
-              to="/gate"
+            <button
+              onClick={() => login()}
               className={cn(
                 buttonVariants({ variant: "default" }),
                 "w-full text-primary-foreground rounded-lg"
               )}
             >
               Connect Wallet
-            </Link>
+            </button>
           )}
         </DrawerFooter>
       </DrawerContent>

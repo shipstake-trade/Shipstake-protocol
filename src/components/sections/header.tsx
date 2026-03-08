@@ -120,9 +120,12 @@ function WalletMenu({ address, onLogout }: { address: string; onLogout: () => vo
 }
 
 export function Header() {
-  const { ready, authenticated, logout } = usePrivy();
+  const { ready, authenticated, login, logout } = usePrivy();
   const { wallets } = useWallets();
   const walletAddress = wallets[0]?.address ?? "";
+  const visibleLinks = siteConfig.navLinks.filter(
+    (link) => !link.authRequired || authenticated
+  );
 
   return (
     <header className="sticky top-0 h-[var(--header-height)] z-50 p-0 bg-background/80 backdrop-blur-md">
@@ -138,7 +141,7 @@ export function Header() {
 
         {/* Center nav — hidden on mobile */}
         <nav className="hidden lg:flex items-center gap-x-6">
-          {siteConfig.navLinks.map((link) => {
+          {visibleLinks.map((link) => {
             if (link.external || link.href.startsWith("http")) {
               return (
                 <a key={link.label} href={link.href} target="_blank" rel="noopener" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
@@ -173,15 +176,14 @@ export function Header() {
               <WalletMenu address={walletAddress} onLogout={logout} />
             </>
           ) : (
-            <Link
-              to="/gate"
-              className={cn(
-                buttonVariants({ variant: "default", size: "sm" }),
-                "text-primary-foreground rounded-lg font-medium"
-              )}
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => login()}
+              className="rounded-lg font-medium"
             >
               Connect Wallet
-            </Link>
+            </Button>
           )}
         </div>
 
